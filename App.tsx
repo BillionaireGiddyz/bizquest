@@ -25,7 +25,7 @@ const App: React.FC = () => {
       return JSON.parse(saved);
     }
     // Default start state: 0 credits (force paywall interaction per request)
-    return { credits: 0, expiryDate: null, isPremium: false }; 
+    return { credits: 5, expiryDate: null, isPremium: false }; 
   });
 
   // Save subscription on change
