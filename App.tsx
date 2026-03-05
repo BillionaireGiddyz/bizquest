@@ -241,7 +241,7 @@ const App: React.FC = () => {
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
               credits={credits}
-              expiryDate={null}
+              expiryDate={profile.credits_expire_at}
               onRecharge={() => setIsPaymentOpen(true)}
               userEmail={profile.email}
               isAdmin={profile.is_admin}

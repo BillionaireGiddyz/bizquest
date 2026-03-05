@@ -137,6 +137,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
                       Joined {new Date(user.created_at).toLocaleDateString()}
+                      {user.credits_expire_at && user.credits > 0 && (
+                        <span className="ml-2">
+                          — expires {new Date(user.credits_expire_at).toLocaleDateString()}
+                        </span>
+                      )}
                     </p>
                   </div>
 

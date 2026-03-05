@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   email: string;
   credits: number;
+  credits_expire_at: string | null;
   is_admin: boolean;
   created_at: string;
 }
@@ -85,6 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         p = await fetchProfile(session.user.id);
       }
 
+      // Check and expire credits on login
+      if (p) {
+        p = await checkAndExpireCredits(p);
+      }
+
       setProfile(p);
     } else {
       setUser(null);
@@ -130,14 +136,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  // Check if credits have expired and zero them out if so
+  const checkAndExpireCredits = async (p: Profile): Promise<Profile> => {
+    if (p.credits_expire_at && p.credits > 0) {
+      const now = new Date();
+      const expiry = new Date(p.credits_expire_at);
+      if (now > expiry) {
+        // Credits expired — zero them out server-side
+        const { data } = await supabase
+          .from('profiles')
+          .update({ credits: 0, credits_expire_at: null })
+          .eq('id', p.id)
+          .select()
+          .single();
+        if (data) return data as Profile;
+      }
+    }
+    return p;
+  };
+
   const deductCredit = async (): Promise<boolean> => {
     if (!profile || profile.credits <= 0) return false;
+
+    // Check expiry first
+    if (profile.credits_expire_at) {
+      const now = new Date();
+      const expiry = new Date(profile.credits_expire_at);
+      if (now > expiry) {
+        const expired = await checkAndExpireCredits(profile);
+        setProfile(expired);
+        return false;
+      }
+    }
 
     const { data, error } = await supabase
       .from('profiles')
       .update({ credits: profile.credits - 1 })
       .eq('id', profile.id)
-      .eq('credits', profile.credits) // Optimistic lock — prevents double deduction
+      .eq('credits', profile.credits) // Optimistic lock
       .select()
       .single();
 
@@ -150,9 +186,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addCredits = async (amount: number) => {
     if (!profile) return;
 
+    // Set expiry to 30 days from now
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 30);
+
     const { data, error } = await supabase
       .from('profiles')
-      .update({ credits: profile.credits + amount })
+      .update({
+        credits: profile.credits + amount,
+        credits_expire_at: expiry.toISOString(),
+      })
       .eq('id', profile.id)
       .select()
       .single();

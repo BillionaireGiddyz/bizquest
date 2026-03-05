@@ -166,6 +166,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                   <Coins className="w-4 h-4" />
                   <span className="font-bold text-sm">{credits}</span>
               </div>
+              {expiryDate && credits > 0 && (() => {
+                const days = Math.ceil((new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                return days > 0 ? (
+                  <span className={cn(
+                    "text-[10px] font-medium mr-1 mt-0.5",
+                    days <= 3 ? "text-rose-500" : days <= 7 ? "text-amber-500" : "text-slate-400"
+                  )}>
+                    {days}d left
+                  </span>
+                ) : null;
+              })()}
           </motion.div>
 
           {/* Desktop user controls */}
