@@ -14,8 +14,11 @@ export interface AnalysisResult {
   timingStatus: 'Early' | 'On-time' | 'Late';
   recommendation: 'GO' | 'BE CAREFUL' | 'AVOID';
   explanation: string;
-  chatResponse: string; // The conversational summary for the chat bubble
+  chatResponse: string;
   trendData: TrendDataPoint[];
+  keyInsights: string[];
+  targetDemographic: string;
+  bestSellingChannels: string[];
 }
 
 export interface ChatMessage {

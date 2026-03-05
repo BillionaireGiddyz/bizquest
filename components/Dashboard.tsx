@@ -4,7 +4,7 @@ import { MetricCard } from './MetricCard';
 import { 
   RadialBarChart, RadialBar, Legend, AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Cell
 } from 'recharts';
-import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight, Lightbulb, Users, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -222,6 +222,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           {data.explanation}
         </p>
       </motion.div>
+
+      {/* Key Insights, Target Demographic & Selling Channels */}
+      {(data.keyInsights || data.targetDemographic || data.bestSellingChannels) && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {data.keyInsights && data.keyInsights.length > 0 && (
+            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-amber-500" />
+                Key Insights
+              </h4>
+              <ul className="space-y-2.5">
+                {data.keyInsights.map((insight, i) => (
+                  <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
+                    {insight}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
+          {data.targetDemographic && (
+            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                <Users className="w-4 h-4 text-violet-500" />
+                Target Demographic
+              </h4>
+              <p className="text-sm text-slate-600 leading-relaxed">{data.targetDemographic}</p>
+            </motion.div>
+          )}
+
+          {data.bestSellingChannels && data.bestSellingChannels.length > 0 && (
+            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-emerald-500" />
+                Best Selling Channels
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {data.bestSellingChannels.map((channel, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700">
+                    {channel}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Trend Graph */}
       <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">

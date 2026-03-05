@@ -7,11 +7,12 @@ import { cn } from '../lib/utils';
 interface HistorySidebarProps {
   history: AnalysisHistoryItem[];
   onSelect: (item: AnalysisHistoryItem) => void;
+  onClear: () => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }
 
-export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelect, isOpen, setIsOpen }) => {
+export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelect, onClear, isOpen, setIsOpen }) => {
   return (
     <AnimatePresence>
       {/* Overlay for mobile */}
@@ -45,9 +46,20 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
                 <History className="w-4 h-4 text-indigo-500" />
                 History <span className="text-slate-400 text-xs font-normal">({history.length})</span>
             </h2>
-            <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100">
-                ✕
-            </button>
+            <div className="flex items-center gap-1">
+              {history.length > 0 && (
+                <button
+                  onClick={onClear}
+                  title="Clear history"
+                  className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded-full hover:bg-rose-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+              <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100">
+                  ✕
+              </button>
+            </div>
         </div>
         
         <div className="overflow-y-auto flex-1 p-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
