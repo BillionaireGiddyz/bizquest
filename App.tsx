@@ -41,6 +41,37 @@ const App: React.FC = () => {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }, [history]);
 
+  // Handle Stripe redirect on page load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const sessionId = params.get('session_id');
+
+    if (payment === 'success' && sessionId) {
+      // Clean the URL
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Verify payment and credit account
+      (async () => {
+        try {
+          const res = await fetch('/api/stripe-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          });
+          const data = await res.json() as { paid?: boolean; credits?: number };
+          if (data.paid) {
+            await addCredits(data.credits || 5);
+          }
+        } catch (err) {
+          console.error('Stripe verification failed:', err);
+        }
+      })();
+    } else if (payment === 'cancelled') {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const handlePaymentSuccess = async () => {
     await addCredits(5);
     setIsPaymentOpen(false);
