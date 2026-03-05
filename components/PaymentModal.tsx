@@ -18,11 +18,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
   const [errorMsg, setErrorMsg] = useState('');
   const [checkoutRequestId, setCheckoutRequestId] = useState('');
   const [pollCount, setPollCount] = useState(0);
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stopPolling = () => {
     if (pollTimerRef.current) {
-      clearInterval(pollTimerRef.current);
+      clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
     }
   };
@@ -39,14 +39,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
     return () => stopPolling();
   }, [isOpen]);
 
-  // Poll payment status after STK push
+  // Poll payment status after STK push — fast at first, then slows down
   useEffect(() => {
     if (status !== 'polling' || !checkoutRequestId) return;
 
     stopPolling();
+    let polls = 0;
 
-    pollTimerRef.current = setInterval(async () => {
-      setPollCount(c => c + 1);
+    const poll = async () => {
+      polls++;
+      setPollCount(polls);
 
       const result = await checkPaymentStatus(checkoutRequestId);
 
@@ -54,20 +56,45 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
         stopPolling();
         setStatus('success');
         setTimeout(() => onSuccess(), 2000);
-      } else if (result.cancelled) {
+        return;
+      }
+
+      if (result.cancelled) {
         stopPolling();
         setStatus('cancelled');
-        setErrorMsg('Payment was cancelled. Please try again.');
-      } else if (pollCount >= 18) {
-        // 18 polls × 5s = 90 seconds timeout
+        const desc = result.resultDesc || '';
+        if (desc.toLowerCase().includes('cancel')) {
+          setErrorMsg('You cancelled the payment. Tap below to try again.');
+        } else if (desc.toLowerCase().includes('insufficient')) {
+          setErrorMsg('Insufficient M-Pesa balance. Please top up and try again.');
+        } else if (desc.toLowerCase().includes('timeout') || desc.toLowerCase().includes('expired')) {
+          setErrorMsg('The request timed out. Please try again.');
+        } else {
+          setErrorMsg(desc || 'Payment was not completed. Please try again.');
+        }
+        return;
+      }
+
+      // ResultCode 1032 = cancelled, 1037 = timeout, 1 = insufficient balance
+      // "1" from Safaricom means "unable to lock subscriber" (still processing)
+      // Only timeout after ~60s of polling
+      if (polls >= 24) {
         stopPolling();
         setStatus('error');
         setErrorMsg('Payment timed out. Please try again.');
+        return;
       }
-    }, 5000);
+
+      // Poll fast (2s) for the first 10 polls, then slow down (5s)
+      const nextDelay = polls < 10 ? 2000 : 5000;
+      pollTimerRef.current = setTimeout(poll, nextDelay);
+    };
+
+    // Start first poll after 2s
+    pollTimerRef.current = setTimeout(poll, 2000);
 
     return () => stopPolling();
-  }, [status, checkoutRequestId, pollCount]);
+  }, [status, checkoutRequestId]);
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();

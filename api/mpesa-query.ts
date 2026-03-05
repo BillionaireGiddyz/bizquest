@@ -67,7 +67,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const paid = data.ResultCode === '0';
-    const cancelled = data.ResultCode === '1032';
+    // 1032 = cancelled by user, 1037 = DS timeout, 1 = insufficient balance,
+    // 2001 = wrong PIN, 1025 = transaction limit, 1019 = expired
+    const failedCodes = ['1032', '1037', '1', '2001', '1025', '1019'];
+    const cancelled = data.ResultCode ? failedCodes.includes(data.ResultCode) : false;
 
     return res.status(200).json({
       paid,
