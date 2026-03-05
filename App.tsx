@@ -41,17 +41,19 @@ const App: React.FC = () => {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }, [history]);
 
-  // Handle Stripe redirect on page load
+  // Handle Stripe redirect — wait for profile to be loaded before crediting
+  const stripeHandled = useRef(false);
   useEffect(() => {
+    if (!profile || stripeHandled.current) return;
+
     const params = new URLSearchParams(window.location.search);
     const payment = params.get('payment');
     const sessionId = params.get('session_id');
 
     if (payment === 'success' && sessionId) {
-      // Clean the URL
+      stripeHandled.current = true;
       window.history.replaceState({}, '', window.location.pathname);
 
-      // Verify payment and credit account
       (async () => {
         try {
           const res = await fetch('/api/stripe-verify', {
@@ -70,7 +72,7 @@ const App: React.FC = () => {
     } else if (payment === 'cancelled') {
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, []);
+  }, [profile]);
 
   const handlePaymentSuccess = async () => {
     await addCredits(5);
