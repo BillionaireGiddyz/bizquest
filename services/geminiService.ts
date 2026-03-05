@@ -1,7 +1,8 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY || '' });
+const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process.env.GEMINI_API_KEY) || (process.env.API_KEY) || '';
+const ai = new GoogleGenAI({ apiKey });
 
 const analysisSchema: Schema = {
   type: Type.OBJECT,
