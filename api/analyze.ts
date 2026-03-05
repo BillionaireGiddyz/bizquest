@@ -140,8 +140,9 @@ Respond with valid JSON matching the schema.`
     const parsed = JSON.parse(resultText);
     return res.status(200).json(parsed);
 
-  } catch (error) {
-    console.error("Gemini analysis failed:", error);
-    return res.status(500).json({ error: 'Analysis failed. Please try again.' });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Gemini analysis failed:", message);
+    return res.status(500).json({ error: `Analysis failed: ${message}` });
   }
 }
