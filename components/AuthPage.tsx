@@ -23,14 +23,20 @@ export const AuthPage: React.FC = () => {
       return;
     }
 
-    const result = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password);
-
-    if (result.error) {
-      setError(result.error);
-    } else if (isSignUp) {
-      setSignUpSuccess(true);
+    if (isSignUp) {
+      const result = await signUp(email, password);
+      if (result.error) {
+        setError(result.error);
+      } else if (!result.confirmed) {
+        // Email confirmation is enabled — show "check your email" screen
+        setSignUpSuccess(true);
+      }
+      // If confirmed, onAuthStateChange will auto-redirect to the app
+    } else {
+      const result = await signIn(email, password);
+      if (result.error) {
+        setError(result.error);
+      }
     }
 
     setLoading(false);

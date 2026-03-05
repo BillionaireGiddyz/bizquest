@@ -72,7 +72,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSession = async (session: Session | null) => {
     if (session?.user) {
       setUser(session.user);
-      const p = await fetchProfile(session.user.id);
+      let p = await fetchProfile(session.user.id);
+
+      // Auto-create profile if it doesn't exist (e.g. signup before table existed)
+      if (!p) {
+        await supabase.from('profiles').insert({
+          id: session.user.id,
+          email: (session.user.email || '').toLowerCase(),
+          credits: 3,
+          is_admin: false,
+        });
+        p = await fetchProfile(session.user.id);
+      }
+
       setProfile(p);
     } else {
       setUser(null);
@@ -81,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string): Promise<{ error: string | null; confirmed?: boolean }> => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) return { error: error.message };
 
@@ -101,7 +113,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    return { error: null };
+    // If session exists, user was auto-confirmed (email confirmation disabled)
+    const confirmed = !!data.session;
+    return { error: null, confirmed };
   };
 
   const signIn = async (email: string, password: string) => {
