@@ -55,7 +55,15 @@ export const checkPaymentStatus = async (
       body: JSON.stringify({ checkoutRequestId }),
     });
 
-    const data = await res.json() as PaymentStatusResult;
+    let data: PaymentStatusResult;
+    try {
+      data = await res.json();
+    } catch {
+      // Non-JSON response (e.g. Vercel cold-start "upstream connect error")
+      // Treat as "still pending" so polling continues
+      return { paid: false, cancelled: false };
+    }
+
     return data;
   } catch (err) {
     console.error('Payment query error:', err);
