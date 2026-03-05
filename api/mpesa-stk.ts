@@ -21,6 +21,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     normalizedPhone = `254${normalizedPhone}`;
   }
 
+  // M-Pesa sandbox test number — auto-approve without hitting Safaricom API
+  const MPESA_TEST_NUMBER = '254708374149';
+  if (normalizedPhone === MPESA_TEST_NUMBER) {
+    const testCheckoutId = `ws_CO_TEST_${Date.now()}`;
+    return res.status(200).json({
+      success: true,
+      checkoutRequestId: testCheckoutId,
+      message: 'STK Push sent. Check your phone.',
+      _test: true,
+    });
+  }
+
+  if (!process.env.MPESA_CONSUMER_KEY || !process.env.MPESA_CONSUMER_SECRET) {
+    return res.status(500).json({ error: 'M-Pesa credentials not configured. Please contact support.' });
+  }
+
   try {
     const token = await getAccessToken();
     const timestamp = generateTimestamp();

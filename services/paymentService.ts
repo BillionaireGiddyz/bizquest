@@ -23,7 +23,12 @@ export const initiateMpesaPayment = async (
       body: JSON.stringify({ phone, amount }),
     });
 
-    const data = await res.json() as StkPushResult & { error?: string };
+    let data: StkPushResult & { error?: string };
+    try {
+      data = await res.json();
+    } catch {
+      return { success: false, error: `Server returned ${res.status}. Please try again.` };
+    }
 
     if (!res.ok || data.error) {
       return { success: false, error: data.error || 'Payment initiation failed' };
@@ -36,7 +41,7 @@ export const initiateMpesaPayment = async (
     };
   } catch (err) {
     console.error('STK Push error:', err);
-    return { success: false, error: 'Network error. Please check your connection.' };
+    return { success: false, error: 'Could not reach the payment server. Please check your connection and try again.' };
   }
 };
 
