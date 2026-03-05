@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { ChatMessage } from '../types';
-import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap } from 'lucide-react';
+import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -12,6 +12,10 @@ interface ChatInterfaceProps {
   credits: number;
   expiryDate: string | null;
   onRecharge: () => void;
+  userEmail?: string;
+  isAdmin?: boolean;
+  onAdmin?: () => void;
+  onSignOut?: () => void;
 }
 
 const DATA_SOURCES = [
@@ -54,7 +58,7 @@ const SUGGESTIONS = [
   "Market saturation for mobile accessories in CBD?"
 ];
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -121,12 +125,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
     return <Globe className="w-4 h-4 text-slate-500" />;
   };
 
-  const getDaysLeft = () => {
-    if (!expiryDate) return 0;
-    const days = Math.ceil((new Date(expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(0, days);
-  };
-
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative group/chat">
       {/* Header */}
@@ -151,28 +149,39 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
             </div>
         </div>
         
-        {/* Credits Display */}
-        <motion.div 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onRecharge}
-            className="flex flex-col items-end cursor-pointer group"
-        >
-            <div className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-sm",
-              credits > 0 
-                ? "bg-indigo-50 border-indigo-100 text-indigo-700 group-hover:bg-indigo-100 group-hover:shadow-indigo-100" 
-                : "bg-rose-50 border-rose-100 text-rose-600 group-hover:bg-rose-100 animate-pulse"
-            )}>
-                <Coins className="w-4 h-4" />
-                <span className="font-bold text-sm">{credits} Credits</span>
-            </div>
-            {expiryDate && credits > 0 && (
-                <span className="text-[10px] text-slate-400 font-medium mr-2 mt-0.5">
-                    {getDaysLeft()} days left
-                </span>
+        {/* Right side: credits + user controls */}
+        <div className="flex items-center gap-2">
+          <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onRecharge}
+              className="flex flex-col items-end cursor-pointer group"
+          >
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-sm",
+                credits > 0
+                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 group-hover:bg-indigo-100 group-hover:shadow-indigo-100"
+                  : "bg-rose-50 border-rose-100 text-rose-600 group-hover:bg-rose-100 animate-pulse"
+              )}>
+                  <Coins className="w-4 h-4" />
+                  <span className="font-bold text-sm">{credits}</span>
+              </div>
+          </motion.div>
+
+          {/* Desktop user controls */}
+          <div className="hidden lg:flex items-center gap-1">
+            {isAdmin && onAdmin && (
+              <button onClick={onAdmin} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Admin Panel">
+                <Shield className="w-4 h-4" />
+              </button>
             )}
-        </motion.div>
+            {onSignOut && (
+              <button onClick={onSignOut} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title={userEmail || 'Sign out'}>
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Messages Area */}

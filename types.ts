@@ -34,9 +34,3 @@ export interface AnalysisHistoryItem extends AnalysisResult {
   userQuestion: string;
   createdDate: Date;
 }
-
-export interface SubscriptionState {
-  credits: number;
-  expiryDate: string | null; // ISO Date string
-  isPremium: boolean;
-}
