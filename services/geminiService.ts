@@ -38,7 +38,7 @@ const analysisSchema: Schema = {
 export const analyzeMarketQuery = async (query: string): Promise<AnalysisResult> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       contents: [
         {
           role: "user",
