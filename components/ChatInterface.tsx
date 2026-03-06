@@ -5,6 +5,14 @@ import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, C
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
+interface TrendingItem {
+  productName: string;
+  location: string;
+  count: number;
+  avgDemand: number;
+  lastRecommendation: string;
+}
+
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   onSendMessage: (text: string) => void;
@@ -16,6 +24,8 @@ interface ChatInterfaceProps {
   isAdmin?: boolean;
   onAdmin?: () => void;
   onSignOut?: () => void;
+  followUpsLeft?: number;
+  hasAnalysis?: boolean;
 }
 
 const DATA_SOURCES = [
@@ -58,11 +68,22 @@ const SUGGESTIONS = [
   "Market saturation for mobile accessories in CBD?"
 ];
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
+  const [trending, setTrending] = useState<TrendingItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch trending on mount
+  useEffect(() => {
+    fetch('/api/trending')
+      .then(r => r.json())
+      .then((data: { trending?: TrendingItem[] }) => {
+        if (data.trending) setTrending(data.trending);
+      })
+      .catch(() => {});
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -89,9 +110,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
     return () => clearInterval(interval);
   }, [isLoading]);
 
+  const canSend = credits > 0 || (hasAnalysis && followUpsLeft > 0);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputText.trim() && !isLoading && credits > 0) {
+    if (inputText.trim() && !isLoading && canSend) {
       onSendMessage(inputText);
       setInputText('');
     }
@@ -237,6 +260,42 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                    </motion.button>
                  ))}
                </div>
+
+               {/* Trending Now */}
+               {trending.length > 0 && (
+                 <motion.div
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.6 }}
+                   className="w-full max-w-sm mt-6"
+                 >
+                   <div className="flex items-center gap-2 mb-3">
+                     <Activity className="w-3.5 h-3.5 text-rose-500" />
+                     <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Trending Now</span>
+                   </div>
+                   <div className="flex flex-wrap gap-1.5">
+                     {trending.map((t, i) => (
+                       <motion.button
+                         key={i}
+                         whileHover={{ scale: 1.05 }}
+                         whileTap={{ scale: 0.95 }}
+                         onClick={() => handleSuggestionClick(`Will ${t.productName} sell well in ${t.location}?`)}
+                         className={cn(
+                           "px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer",
+                           t.lastRecommendation === 'GO'
+                             ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                             : t.lastRecommendation === 'AVOID'
+                             ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                             : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+                         )}
+                       >
+                         {t.productName} · {t.location}
+                         <span className="ml-1 opacity-60">({t.count})</span>
+                       </motion.button>
+                     ))}
+                   </div>
+                 </motion.div>
+               )}
              </motion.div>
           )}
 
@@ -331,14 +390,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
 
       {/* Input Area */}
       <div className="p-4 bg-white border-t border-slate-200 relative z-20">
-        {credits > 0 ? (
+        {/* Follow-up hint */}
+        {hasAnalysis && followUpsLeft > 0 && (
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1">
+              <Zap className="w-3 h-3" />
+              {followUpsLeft} free follow-up{followUpsLeft !== 1 ? 's' : ''} left
+            </span>
+            <span className="text-[10px] text-slate-400">— ask about this analysis without using a credit</span>
+          </div>
+        )}
+        {canSend ? (
             <form onSubmit={handleSubmit} className="flex gap-3 relative">
             <input
                 ref={inputRef}
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ask about product demand..."
+                placeholder={hasAnalysis && followUpsLeft > 0 ? "Ask a follow-up question..." : "Ask about product demand..."}
                 className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm hover:border-slate-300"
                 disabled={isLoading}
             />
@@ -357,7 +426,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
             </motion.button>
             </form>
         ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center justify-between gap-4 p-3 bg-rose-50 border border-rose-100 rounded-xl shadow-sm"
@@ -367,11 +436,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                         <Lock className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="block text-sm font-bold text-rose-700">Daily limit reached</span>
-                      <span className="text-xs text-rose-600/80">Unlock unlimited searches instantly.</span>
+                      <span className="block text-sm font-bold text-rose-700">Credits used up</span>
+                      <span className="text-xs text-rose-600/80">Recharge to run new analyses.</span>
                     </div>
                 </div>
-                <motion.button 
+                <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onRecharge}

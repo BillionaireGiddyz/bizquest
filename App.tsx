@@ -25,6 +25,8 @@ function loadHistory(userId: string): AnalysisHistoryItem[] {
   return [];
 }
 
+const MAX_FOLLOWUPS = 3;
+
 const App: React.FC = () => {
   const { user, profile, loading, signOut, deductCredit, addCredits, refreshProfile } = useAuth();
 
@@ -35,6 +37,7 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [followUpsLeft, setFollowUpsLeft] = useState(0);
 
   const credits = profile?.credits ?? 0;
 
@@ -93,7 +96,10 @@ const App: React.FC = () => {
   };
 
   const handleSendMessage = async (text: string) => {
-    if (credits <= 0) {
+    // Check if this is a follow-up or a new analysis
+    const isFollowUp = currentAnalysis && followUpsLeft > 0;
+
+    if (!isFollowUp && credits <= 0) {
       setIsPaymentOpen(true);
       return;
     }
@@ -109,39 +115,84 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const result = await analyzeMarketQuery(text);
+      if (isFollowUp && currentAnalysis) {
+        // ── Follow-up: cheap text-only Gemini call ──
+        const res = await fetch('/api/followup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: text,
+            analysisContext: {
+              productName: currentAnalysis.productName,
+              location: currentAnalysis.location,
+              demandScore: currentAnalysis.demandScore,
+              competitionLevel: currentAnalysis.competitionLevel,
+              recommendation: currentAnalysis.recommendation,
+              explanation: currentAnalysis.explanation,
+            },
+          }),
+        });
 
-      // Deduct credit AFTER successful response (server-side)
-      const deducted = await deductCredit();
-      if (!deducted) {
-        // Refresh in case credits were updated elsewhere
-        await refreshProfile();
+        const data = await res.json() as { response?: string; error?: string };
+        const reply = data.response || data.error || 'Could not process follow-up.';
+
+        setFollowUpsLeft(prev => prev - 1);
+
+        const assistantMsg: ChatMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: reply,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+
+      } else {
+        // ── New analysis: full pipeline ──
+        const result = await analyzeMarketQuery(text);
+
+        const deducted = await deductCredit();
+        if (!deducted) {
+          await refreshProfile();
+        }
+
+        setCurrentAnalysis(result);
+        setFollowUpsLeft(MAX_FOLLOWUPS);
+
+        const assistantMsg: ChatMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: result.chatResponse,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+
+        const historyItem: AnalysisHistoryItem = {
+          ...result,
+          id: uuidv4(),
+          userQuestion: text,
+          createdDate: new Date(),
+        };
+        setHistory(prev => [historyItem, ...prev]);
+
+        // Log to trending (fire-and-forget)
+        fetch('/api/trending', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productName: result.productName,
+            location: result.location,
+            recommendation: result.recommendation,
+            demandScore: result.demandScore,
+          }),
+        }).catch(() => {});
       }
-
-      setCurrentAnalysis(result);
-
-      const assistantMsg: ChatMessage = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: result.chatResponse,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-
-      const historyItem: AnalysisHistoryItem = {
-        ...result,
-        id: uuidv4(),
-        userQuestion: text,
-        createdDate: new Date(),
-      };
-      setHistory(prev => [historyItem, ...prev]);
 
     } catch (error) {
       console.error("Error processing request", error);
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: "I'm sorry, I encountered an error analyzing that request. Please try again — your credit has not been deducted.",
+        content: "I'm sorry, I encountered an error. Please try again — your credit has not been deducted.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -260,6 +311,8 @@ const App: React.FC = () => {
               isAdmin={profile.is_admin}
               onAdmin={() => setShowAdmin(true)}
               onSignOut={signOut}
+              followUpsLeft={followUpsLeft}
+              hasAnalysis={!!currentAnalysis}
             />
           </motion.div>
 
