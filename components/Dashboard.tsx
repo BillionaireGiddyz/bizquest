@@ -4,7 +4,7 @@ import { MetricCard } from './MetricCard';
 import { 
   RadialBarChart, RadialBar, Legend, AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Cell
 } from 'recharts';
-import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight, Lightbulb, Users, ShoppingBag, MapPin, Globe, Store } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight, Lightbulb, Users, ShoppingBag, MapPin, Globe, Store, ShieldCheck, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -85,6 +85,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       className="h-full flex flex-col gap-6 overflow-y-auto pr-2 pb-10 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent"
     >
       
+      {/* Verified Live Data Badge */}
+      <motion.div
+        variants={item}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1px] shadow-lg shadow-emerald-200/50"
+      >
+        <div className="rounded-[15px] bg-gradient-to-r from-emerald-50 via-white to-cyan-50 px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-30" />
+              <div className="relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
+                <ShieldCheck className="w-4 h-4 text-white" />
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-700 flex items-center gap-1.5">
+                <Zap className="w-3 h-3" />
+                Verified by Live Data
+              </div>
+              <p className="text-[10px] text-slate-500 font-medium">Real-time market intelligence powered by BizQuest AI</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Live</span>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Header Info */}
       <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-center justify-between group hover:shadow-md transition-shadow">
         <div>
