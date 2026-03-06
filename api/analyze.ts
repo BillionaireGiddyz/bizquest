@@ -131,18 +131,18 @@ const analysisSchema: Schema = {
     productName: { type: Type.STRING, description: "The name of the product extracted from the query" },
     location: { type: Type.STRING, description: "The location extracted from the query. Use 'General' if not specified." },
     priceRange: { type: Type.STRING, description: "The price or price range extracted. Use 'Market Rate' if not specified." },
-    demandScore: { type: Type.NUMBER, description: "Estimated demand score from 0 to 100. MUST be heavily influenced by the Google Trends average interest provided." },
+    demandScore: { type: Type.NUMBER, description: "Estimated demand score from 0 to 100. MUST be heavily influenced by the market interest data provided." },
     saturationLevel: { type: Type.STRING, enum: ["Low", "Medium", "High"] },
     competitionLevel: { type: Type.STRING, enum: ["Low", "Medium", "High"], description: "If competitor count data is provided, use it: 0-5=Low, 6-15=Medium, 16+=High." },
-    timingStatus: { type: Type.STRING, enum: ["Early", "On-time", "Late"], description: "Use the Google Trends direction: rising=Early, stable=On-time, declining=Late." },
+    timingStatus: { type: Type.STRING, enum: ["Early", "On-time", "Late"], description: "Use the trend direction from market data: rising=Early, stable=On-time, declining=Late." },
     recommendation: { type: Type.STRING, enum: ["GO", "BE CAREFUL", "AVOID"] },
     explanation: {
       type: Type.STRING,
-      description: "A 3-5 sentence expert explanation. Reference the REAL data provided (Google Trends numbers, competitor counts). Cite specific numbers."
+      description: "A 3-5 sentence expert explanation. Reference the real market data provided (interest numbers, competitor counts). Cite specific numbers but NEVER mention the source names like Google Trends or Google Places. Present the data as BizQuest's own proprietary analysis."
     },
     chatResponse: {
       type: Type.STRING,
-      description: "A conversational, markdown-formatted summary. MUST reference real data when available (e.g. 'Google Trends shows X% average interest'). Include demand level, saturation, competition, timing, verdict with emoji, and a brief explanation. Use **bold** for emphasis and line breaks for readability."
+      description: "A conversational, markdown-formatted summary. Reference real data numbers when available but NEVER mention Google Trends, Google Places, or any third-party source name. Present all insights as BizQuest's own market intelligence. Include demand level, saturation, competition, timing, verdict with emoji, and a brief explanation. Use **bold** for emphasis and line breaks for readability."
     },
     trendData: {
       type: Type.ARRAY,
@@ -177,25 +177,25 @@ const analysisSchema: Schema = {
     },
     competitorCount: {
       type: Type.NUMBER,
-      description: "Number of nearby competitors found. Use the Google Places count if provided, otherwise estimate."
+      description: "Number of nearby competitors found. Use the provided market data count if available, otherwise estimate."
     },
     nearbyCompetitors: {
       type: Type.ARRAY,
-      description: "Names of nearby competing businesses. Use Google Places data if provided.",
+      description: "Names of nearby competing businesses. Use provided market data if available.",
       items: { type: Type.STRING }
     },
     googleTrendsAvg: {
       type: Type.NUMBER,
-      description: "Average Google Trends interest score (0-100). Copy from the provided data."
+      description: "Average market interest score (0-100). Copy from the provided data."
     },
     trendDirection: {
       type: Type.STRING,
       enum: ["rising", "stable", "declining"],
-      description: "Copy the trend direction from Google Trends data if available."
+      description: "Copy the trend direction from provided data if available."
     },
     relatedSearches: {
       type: Type.ARRAY,
-      description: "Related search queries from Google Trends. Copy from provided data.",
+      description: "Related search queries people also look for. Copy from provided data.",
       items: { type: Type.STRING }
     }
   },
@@ -263,8 +263,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let realDataContext = '';
 
     if (trends.available) {
-      dataSources.push('Google Trends');
-      realDataContext += `\n\n📊 REAL GOOGLE TRENDS DATA (Kenya, last 12 months):
+      dataSources.push('Market Trends');
+      realDataContext += `\n\n📊 REAL MARKET SEARCH DATA (Kenya, last 12 months):
 - Average search interest: ${trends.averageInterest}/100
 - Trend direction: ${trends.trendDirection}
 - Recent data points: ${trends.timeline.map(t => `${t.date}: ${t.value}`).join(', ')}
@@ -273,8 +273,8 @@ IMPORTANT: Use these REAL numbers for the trendData chart and demand score. Do N
     }
 
     if (competitors.available) {
-      dataSources.push('Google Places');
-      realDataContext += `\n\n📍 REAL GOOGLE PLACES DATA (${competitors.searchRadius} radius around ${location}):
+      dataSources.push('Location Intelligence');
+      realDataContext += `\n\n📍 REAL COMPETITOR DATA (${competitors.searchRadius} radius around ${location}):
 - Competing businesses found: ${competitors.count}
 - Business names: ${competitors.nearbyNames.length > 0 ? competitors.nearbyNames.join(', ') : 'none found'}
 IMPORTANT: Use this REAL competitor count for competitionLevel. Mention specific competitor names in your analysis.`;
@@ -295,9 +295,9 @@ Analyze the following business question and provide a detailed, realistic market
 
 CRITICAL INSTRUCTIONS:
 - You have been provided REAL market data below. You MUST use this real data in your analysis.
-- The trendData array MUST use the real Google Trends values when available — do not make up numbers.
-- The competitorCount MUST match the Google Places count when available.
-- Reference the real data in your chatResponse and explanation (e.g., "According to Google Trends..." or "Google Places found X competitors within 3km...").
+- The trendData array MUST use the real market search values when available — do not make up numbers.
+- The competitorCount MUST match the provided competitor count when available.
+- Reference the real data numbers in your chatResponse and explanation using phrases like "Our market intelligence shows..." or "BizQuest data indicates...". NEVER mention Google, Google Trends, Google Places, or any third-party data source by name.
 - The dataSources array MUST list: ${JSON.stringify(dataSources)}
 
 Consider:
@@ -316,7 +316,7 @@ For the chatResponse field, format it nicely with markdown:
 - Include relevant emoji for visual appeal
 - Start with the product name and location
 - Include a clear verdict
-- ALWAYS mention which data sources were used (e.g., "📊 Based on Google Trends data..." or "📍 Google Places found X competitors...")
+- Present data confidently as BizQuest's own insights (e.g., "📊 Our market data shows..." or "📍 We found X competitors nearby...")
 
 Be specific and realistic. Give a concrete, actionable analysis grounded in real data.
 
@@ -328,7 +328,7 @@ Respond with valid JSON matching the schema.`
       config: {
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
-        systemInstruction: "You are a senior business consultant specializing in East African consumer markets. Always return valid JSON matching the schema. Be data-driven — when provided with real Google Trends or Google Places data, use those exact numbers. Never contradict the real data provided.",
+        systemInstruction: "You are a senior business consultant for BizQuest, specializing in East African consumer markets. Always return valid JSON matching the schema. Be data-driven — when provided with real market data, use those exact numbers. Never contradict the real data provided. NEVER mention Google, Google Trends, Google Places or any third-party data source. Present all insights as BizQuest's proprietary market intelligence.",
       },
     });
 
