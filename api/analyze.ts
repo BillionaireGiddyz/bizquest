@@ -29,7 +29,7 @@ interface TrendsResult {
   relatedQueries: string[];
 }
 
-async function fetchGoogleTrends(keyword: string): Promise<TrendsResult> {
+async function fetchGoogleTrends(keyword: string, geo: string = ''): Promise<TrendsResult> {
   const empty: TrendsResult = {
     available: false, timeline: [], averageInterest: 0,
     trendDirection: 'stable', relatedQueries: [],
@@ -38,7 +38,7 @@ async function fetchGoogleTrends(keyword: string): Promise<TrendsResult> {
     const iotRaw = await googleTrends.interestOverTime({
       keyword,
       startTime: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-      geo: 'KE',
+      geo: geo || '',
       category: 0,
     });
     const iotData = JSON.parse(iotRaw);
@@ -61,7 +61,7 @@ async function fetchGoogleTrends(keyword: string): Promise<TrendsResult> {
 
     let relatedQueries: string[] = [];
     try {
-      const rqRaw = await googleTrends.relatedQueries({ keyword, geo: 'KE' });
+      const rqRaw = await googleTrends.relatedQueries({ keyword, geo: geo || '' });
       const rqData = JSON.parse(rqRaw);
       const topList = rqData.default?.rankedList?.[0]?.rankedKeyword || [];
       relatedQueries = topList.slice(0, 5).map((q: { query: string }) => q.query);
@@ -88,14 +88,15 @@ interface CompetitorResult {
   searchRadius: string;
 }
 
-async function fetchNearbyCompetitors(product: string, location: string): Promise<CompetitorResult> {
+async function fetchNearbyCompetitors(product: string, location: string, country: string = ''): Promise<CompetitorResult> {
   const empty: CompetitorResult = { available: false, count: 0, nearbyNames: [], searchRadius: '' };
   const placesKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!placesKey || location.toLowerCase() === 'general') return empty;
 
   try {
-    // Geocode location
-    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location + ', Kenya')}&key=${placesKey}`;
+    // Geocode location — append country if known for better accuracy
+    const addressQuery = country ? `${location}, ${country}` : location;
+    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressQuery)}&key=${placesKey}`;
     const geoRes = await fetch(geoUrl);
     const geoData = (await geoRes.json()) as {
       results: Array<{ geometry: { location: { lat: number; lng: number } } }>;
@@ -167,7 +168,7 @@ const analysisSchema: Schema = {
     },
     bestSellingChannels: {
       type: Type.ARRAY,
-      description: "Top 2-3 recommended sales channels (e.g. 'Physical storefront', 'Instagram/TikTok', 'Jiji', 'M-Pesa Till')",
+      description: "Top 2-3 recommended sales channels relevant to the detected country (e.g. Kenya: 'Jiji', 'M-Pesa Till'; SA: 'Takealot', 'Facebook Marketplace'; US: 'Amazon', 'Etsy', 'Shopify')",
       items: { type: Type.STRING }
     },
     dataSources: {
@@ -226,13 +227,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Step 1: Extract product + location from query using a quick Gemini call
+    // Step 1: Extract product, location, and country from query
     const extractRes = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [{
         role: "user",
         parts: [{
-          text: `Extract the product/business name and location from this query. Return JSON: {"product": "...", "location": "..."}\nIf no location, use "General".\nQuery: "${query.slice(0, 300)}"`
+          text: `Extract the product/business name, location, country name, and ISO 3166-1 alpha-2 country code from this query.
+If no location is mentioned, use "General" for location and "" for country/geoCode.
+If a location is mentioned but no country, infer the most likely country.
+Examples: "Nakuru" → country: "Kenya", geoCode: "KE". "Cape Town" → country: "South Africa", geoCode: "ZA". "Miami" → country: "United States", geoCode: "US".
+Query: "${query.slice(0, 300)}"`
         }]
       }],
       config: {
@@ -242,20 +247,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           properties: {
             product: { type: Type.STRING },
             location: { type: Type.STRING },
+            country: { type: Type.STRING, description: "Full country name, e.g. Kenya, South Africa, United States" },
+            geoCode: { type: Type.STRING, description: "ISO 3166-1 alpha-2 code, e.g. KE, ZA, US. Empty string if unknown." },
           },
-          required: ["product", "location"],
+          required: ["product", "location", "country", "geoCode"],
         },
       },
     });
 
-    const extracted = JSON.parse(extractRes.text || '{}') as { product: string; location: string };
+    const extracted = JSON.parse(extractRes.text || '{}') as { product: string; location: string; country: string; geoCode: string };
     const product = extracted.product || query.slice(0, 50);
     const location = extracted.location || 'General';
+    const country = extracted.country || '';
+    const geoCode = extracted.geoCode || '';
 
-    // Step 2: Fetch real market data in parallel
+    // Step 2: Fetch real market data in parallel (scoped to detected country)
     const [trends, competitors] = await Promise.all([
-      fetchGoogleTrends(product),
-      fetchNearbyCompetitors(product, location),
+      fetchGoogleTrends(product, geoCode),
+      fetchNearbyCompetitors(product, location, country),
     ]);
 
     // Build real data context block for Gemini
@@ -264,7 +273,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (trends.available) {
       dataSources.push('Market Trends');
-      realDataContext += `\n\n📊 REAL MARKET SEARCH DATA (Kenya, last 12 months):
+      realDataContext += `\n\n📊 REAL MARKET SEARCH DATA (${country || 'Global'}, last 12 months):
 - Average search interest: ${trends.averageInterest}/100
 - Trend direction: ${trends.trendDirection}
 - Recent data points: ${trends.timeline.map(t => `${t.date}: ${t.value}`).join(', ')}
@@ -285,12 +294,43 @@ IMPORTANT: Use this REAL competitor count for competitionLevel. Mention specific
     }
 
     // Step 3: Full analysis with real data context
+    const regionContext = country
+      ? `The user is asking about a market in **${location}, ${country}**. Tailor your analysis to this specific country and region.`
+      : `No specific country was detected. Provide a general global market perspective.`;
+
+    const localKnowledge = country === 'Kenya'
+      ? `- Kenyan consumer behaviour and purchasing power (urban vs rural markets)
+- Local competition landscape (Nairobi CBDs, estates, towns like Thika, Nakuru, Kisumu, Mombasa)
+- M-Pesa economy and mobile-first buying patterns
+- Seasonal trends relevant to Kenya (school terms, harvest seasons, holidays like Christmas, Easter)
+- Demographics of specific Nairobi estates (Karen=affluent, Kibera=low income, Westlands=young professionals, etc.)`
+      : country === 'South Africa'
+      ? `- South African consumer behaviour (townships vs suburbs, rising middle class)
+- Local competition landscape (Johannesburg CBD, Cape Town waterfront, Durban beachfront, Soweto, Sandton)
+- Mobile money and card payment adoption
+- Seasonal trends (back-to-school Jan, Heritage Day Sep, Black Friday Nov, festive season Dec)
+- Demographics (LSM levels, township economy vs suburban malls)
+- Load shedding impact on business operations`
+      : country === 'United States'
+      ? `- American consumer behaviour and spending power by region
+- E-commerce dominance (Amazon, Shopify, Etsy) vs physical retail
+- Seasonal trends (back-to-school Aug, Black Friday Nov, holiday season Dec)
+- Demographics by city/state (NYC=high cost, Miami=Latin market, LA=trend-forward, Midwest=value-driven)
+- Digital marketing channels (Instagram, TikTok, Google Ads, Facebook Marketplace)`
+      : `- Local consumer behaviour, purchasing power, and cultural preferences for ${country || 'this region'}
+- Typical competition landscape and business environment
+- Popular payment methods and shopping channels
+- Seasonal trends and holidays that affect buying patterns
+- Demographics and income levels in the specific area mentioned`;
+
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [{
         role: "user",
         parts: [{
-          text: `You are an expert market analyst specializing in East African markets, particularly Kenya.
+          text: `You are an expert global market analyst working for BizQuest.
+${regionContext}
+
 Analyze the following business question and provide a detailed, realistic market analysis.
 
 CRITICAL INSTRUCTIONS:
@@ -299,15 +339,13 @@ CRITICAL INSTRUCTIONS:
 - The competitorCount MUST match the provided competitor count when available.
 - Reference the real data numbers in your chatResponse and explanation using phrases like "Our market intelligence shows..." or "BizQuest data indicates...". NEVER mention Google, Google Trends, Google Places, or any third-party data source by name.
 - The dataSources array MUST list: ${JSON.stringify(dataSources)}
+- Use the LOCAL CURRENCY for price ranges (KES for Kenya, ZAR for South Africa, USD for USA, etc.)
+- Reference LOCAL platforms and channels (M-Pesa/Jiji for Kenya, Takealot/Gumtree for SA, Amazon/Etsy for US, etc.)
 
 Consider:
-- Kenyan consumer behaviour and purchasing power (urban vs rural markets)
-- Local competition landscape (Nairobi CBDs, estates, towns like Thika, Nakuru, Kisumu, Mombasa)
-- M-Pesa economy and mobile-first buying patterns
-- Seasonal trends relevant to Kenya (school terms, harvest seasons, holidays like Christmas, Easter)
+${localKnowledge}
 - Real demand signals for this product category in this region
 - Price sensitivity for the given price range vs local income levels
-- Demographics of specific Nairobi estates (Karen=affluent, Kibera=low income, Westlands=young professionals, etc.)
 ${realDataContext}
 
 For the chatResponse field, format it nicely with markdown:
@@ -328,7 +366,7 @@ Respond with valid JSON matching the schema.`
       config: {
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
-        systemInstruction: "You are a senior business consultant for BizQuest, specializing in East African consumer markets. Always return valid JSON matching the schema. Be data-driven — when provided with real market data, use those exact numbers. Never contradict the real data provided. NEVER mention Google, Google Trends, Google Places or any third-party data source. Present all insights as BizQuest's proprietary market intelligence.",
+        systemInstruction: "You are a senior global business consultant for BizQuest. You have deep expertise in markets across Africa, the Americas, Europe, and Asia. Always return valid JSON matching the schema. Be data-driven — when provided with real market data, use those exact numbers. Never contradict the real data provided. NEVER mention Google, Google Trends, Google Places or any third-party data source. Present all insights as BizQuest's proprietary market intelligence. Always use the local currency and reference local platforms relevant to the detected country.",
       },
     });
 
