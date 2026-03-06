@@ -4,7 +4,7 @@ import { MetricCard } from './MetricCard';
 import { 
   RadialBarChart, RadialBar, Legend, AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Cell
 } from 'recharts';
-import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight, Lightbulb, Users, ShoppingBag } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, XCircle, Activity, Search, ArrowRight, Lightbulb, Users, ShoppingBag, Database, MapPin, Globe, Store } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -96,6 +96,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3 tracking-tight">
             {data.productName}
           </h2>
+          {data.dataSources && data.dataSources.length > 0 && (
+            <div className="flex items-center gap-2 mt-2">
+              <Database className="w-3 h-3 text-emerald-500" />
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Verified by:</span>
+              {data.dataSources.map((src, i) => (
+                <span key={i} className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold border border-emerald-200">
+                  {src}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <motion.div 
           whileHover={{ scale: 1.05 }}
@@ -112,27 +123,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard 
-          label="Demand Score" 
-          value={data.demandScore} 
+        <MetricCard
+          label="Demand Score"
+          value={data.demandScore}
           color={data.demandScore > 70 ? 'success' : data.demandScore < 40 ? 'danger' : 'warning'}
           delay={0.1}
         />
-        <MetricCard 
-          label="Saturation" 
-          value={data.saturationLevel} 
+        <MetricCard
+          label="Saturation"
+          value={data.saturationLevel}
           color={data.saturationLevel === 'Low' ? 'success' : data.saturationLevel === 'High' ? 'danger' : 'warning'}
           delay={0.2}
         />
-        <MetricCard 
-          label="Competition" 
+        <MetricCard
+          label={data.competitorCount > 0 ? `Competition (${data.competitorCount} nearby)` : 'Competition'}
           value={data.competitionLevel}
           color={data.competitionLevel === 'Low' ? 'success' : data.competitionLevel === 'High' ? 'danger' : 'warning'}
           delay={0.3}
         />
-        <MetricCard 
-          label="Market Timing" 
-          value={data.timingStatus} 
+        <MetricCard
+          label="Market Timing"
+          value={data.timingStatus}
           icon={<TrendingUp className="w-4 h-4" />}
           color={data.timingStatus === 'Early' ? 'success' : 'warning'}
           delay={0.4}
@@ -271,11 +282,55 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
+      {/* Competitors & Related Searches */}
+      {((data.nearbyCompetitors && data.nearbyCompetitors.length > 0) || (data.relatedSearches && data.relatedSearches.length > 0)) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {data.nearbyCompetitors && data.nearbyCompetitors.length > 0 && (
+            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                <Store className="w-4 h-4 text-rose-500" />
+                Nearby Competitors
+                <span className="ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
+                  {data.competitorCount} found within 3km
+                </span>
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {data.nearbyCompetitors.map((name, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-slate-400" />
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {data.relatedSearches && data.relatedSearches.length > 0 && (
+            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                <Globe className="w-4 h-4 text-blue-500" />
+                Related Searches in Kenya
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {data.relatedSearches.map((q, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg text-sm font-medium text-blue-700">
+                    {q}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
+
       {/* Trend Graph */}
       <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
         <h4 className="text-xs font-bold text-slate-500 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
-          Interest Trend Forecast (6 Months)
+          {data.dataSources?.includes('Google Trends') ? 'Google Trends — Real Search Interest' : 'Interest Trend Forecast (6 Months)'}
+          {data.dataSources?.includes('Google Trends') && (
+            <span className="ml-2 text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-bold border border-emerald-200">LIVE DATA</span>
+          )}
         </h4>
         <div className="h-64 w-full">
            <ResponsiveContainer width="100%" height="100%">
@@ -321,12 +376,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         <div className="flex items-center justify-center gap-6 mt-6 text-xs font-medium text-slate-500">
            <div className="flex items-center gap-2">
              <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-             <span>Historical Data</span>
+             <span>{data.dataSources?.includes('Google Trends') ? 'Real Search Volume (Kenya)' : 'Historical Data'}</span>
            </div>
-           <div className="flex items-center gap-2">
-             <span className="w-3 h-3 rounded-full border-2 border-amber-500 border-dashed bg-transparent"></span>
-             <span>Projected</span>
-           </div>
+           {data.googleTrendsAvg > 0 && (
+             <div className="flex items-center gap-2">
+               <span className="text-emerald-600 font-bold">Avg: {data.googleTrendsAvg}/100</span>
+             </div>
+           )}
+           {data.trendDirection && data.trendDirection !== 'stable' && (
+             <div className="flex items-center gap-2">
+               <span className={data.trendDirection === 'rising' ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
+                 {data.trendDirection === 'rising' ? '↑ Rising' : '↓ Declining'}
+               </span>
+             </div>
+           )}
         </div>
       </motion.div>
     </motion.div>

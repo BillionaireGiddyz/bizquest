@@ -19,6 +19,13 @@ export interface AnalysisResult {
   keyInsights: string[];
   targetDemographic: string;
   bestSellingChannels: string[];
+  // Real data fields
+  dataSources: string[];
+  competitorCount: number;
+  nearbyCompetitors: string[];
+  googleTrendsAvg: number;
+  trendDirection: 'rising' | 'stable' | 'declining';
+  relatedSearches: string[];
 }
 
 export interface ChatMessage {
