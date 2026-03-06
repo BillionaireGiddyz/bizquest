@@ -18,6 +18,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
   deductCredit: () => Promise<boolean>;
   addCredits: (amount: number) => Promise<void>;
@@ -136,6 +137,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}?reset=true`,
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
   // Check if credits have expired and zero them out if so
   const checkAndExpireCredits = async (p: Profile): Promise<Profile> => {
     if (p.credits_expire_at && p.credits > 0) {
@@ -213,6 +222,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signUp,
       signIn,
       signOut,
+      resetPassword,
       refreshProfile,
       deductCredit,
       addCredits,
