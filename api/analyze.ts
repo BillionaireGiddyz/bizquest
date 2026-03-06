@@ -1,9 +1,17 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import googleTrends from 'google-trends-api';
+import { createClient } from '@supabase/supabase-js';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+);
+
+const CACHE_TTL_HOURS = 24;
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
@@ -226,6 +234,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Gemini API key not configured' });
   }
 
+  // Normalize query for cache key
+  const cacheKey = query.trim().toLowerCase().replace(/\s+/g, ' ');
+
+  // Check cache first
+  try {
+    const cutoff = new Date(Date.now() - CACHE_TTL_HOURS * 60 * 60 * 1000).toISOString();
+    const { data: cached } = await supabase
+      .from('analysis_cache')
+      .select('result')
+      .eq('query_key', cacheKey)
+      .gte('created_at', cutoff)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (cached?.result) {
+      return res.status(200).json(cached.result);
+    }
+  } catch {
+    // Cache miss or table doesn't exist yet — continue with fresh analysis
+  }
+
   try {
     // Step 1: Extract product, location, and country from query
     const extractRes = await ai.models.generateContent({
@@ -241,6 +271,7 @@ Query: "${query.slice(0, 300)}"`
         }]
       }],
       config: {
+        temperature: 0,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -364,6 +395,7 @@ Respond with valid JSON matching the schema.`
         }]
       }],
       config: {
+        temperature: 0,
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
         systemInstruction: "You are a senior global business consultant for BizQuest. You have deep expertise in markets across Africa, the Americas, Europe, and Asia. Always return valid JSON matching the schema. Be data-driven — when provided with real market data, use those exact numbers. Never contradict the real data provided. NEVER mention Google, Google Trends, Google Places or any third-party data source. Present all insights as BizQuest's proprietary market intelligence. Always use the local currency and reference local platforms relevant to the detected country.",
@@ -378,6 +410,14 @@ Respond with valid JSON matching the schema.`
     const parsed = JSON.parse(resultText);
     // Ensure dataSources is always accurate
     parsed.dataSources = dataSources;
+
+    // Save to cache (fire-and-forget)
+    supabase
+      .from('analysis_cache')
+      .insert({ query_key: cacheKey, result: parsed })
+      .then(() => {})
+      .catch(() => {});
+
     return res.status(200).json(parsed);
 
   } catch (error: unknown) {
