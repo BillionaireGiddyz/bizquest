@@ -23,6 +23,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === 'paid') {
+      // Prevent replay: check if this session was already redeemed
+      // by looking at the metadata — we mark it after first use
+      if (session.metadata?.redeemed === 'true') {
+        return res.status(200).json({ paid: false, error: 'Already redeemed' });
+      }
+
+      // Mark session as redeemed to prevent replay
+      await stripe.checkout.sessions.update(sessionId, {
+        metadata: { ...session.metadata, redeemed: 'true' },
+      } as any);
+
       return res.status(200).json({
         paid: true,
         userId: session.metadata?.userId,

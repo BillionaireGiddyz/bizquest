@@ -44,8 +44,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     normalizedPhone = `254${normalizedPhone}`;
   }
 
-  // M-Pesa sandbox test number — auto-approve without hitting Safaricom API
-  if (normalizedPhone === MPESA_TEST_NUMBER) {
+  // M-Pesa sandbox test number — auto-approve only in sandbox mode
+  if (MPESA_ENV !== 'live' && normalizedPhone === MPESA_TEST_NUMBER) {
     const testCheckoutId = `ws_CO_TEST_${Date.now()}`;
     return res.status(200).json({
       success: true,
@@ -113,7 +113,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (err: unknown) {
     console.error('M-Pesa STK error:', err);
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    return res.status(500).json({ error: message });
+    return res.status(500).json({ error: 'Failed to initiate M-Pesa payment. Please try again.' });
   }
 }

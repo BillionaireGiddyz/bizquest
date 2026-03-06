@@ -143,6 +143,14 @@ Respond with valid JSON matching the schema.`
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Gemini analysis failed:", message);
-    return res.status(500).json({ error: `Analysis failed: ${message}` });
+    // Don't leak internal error details to the client
+    const isQuota = message.includes('429') || message.toLowerCase().includes('quota');
+    const isOverloaded = message.includes('503') || message.toLowerCase().includes('overloaded');
+    const clientMessage = isQuota
+      ? 'AI service quota exceeded. Please try again later.'
+      : isOverloaded
+      ? 'AI service is temporarily busy. Please try again in a moment.'
+      : 'Analysis failed. Please try again.';
+    return res.status(500).json({ error: clientMessage });
   }
 }

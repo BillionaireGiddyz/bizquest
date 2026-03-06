@@ -6,8 +6,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin || req.headers.referer?.replace(/\/$/, '') || 'https://bizquest-eight.vercel.app';
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin.endsWith('.vercel.app') ? origin : APP_URL);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -45,14 +46,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         userId,
         credits: '5',
       },
-      success_url: `${origin}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}?payment=cancelled`,
+      success_url: `${APP_URL}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${APP_URL}?payment=cancelled`,
     });
 
     return res.status(200).json({ url: session.url });
   } catch (err: unknown) {
     console.error('Stripe checkout error:', err);
-    const message = err instanceof Error ? err.message : 'Failed to create checkout session';
-    return res.status(500).json({ error: message });
+    return res.status(500).json({ error: 'Failed to create checkout session. Please try again.' });
   }
 }

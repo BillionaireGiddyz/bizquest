@@ -29,8 +29,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { checkoutRequestId } = req.body as { checkoutRequestId: string };
   if (!checkoutRequestId) return res.status(400).json({ error: 'checkoutRequestId required' });
 
-  // Auto-approve test checkout IDs from the sandbox test number flow
-  if (checkoutRequestId.startsWith('ws_CO_TEST_')) {
+  // Auto-approve test checkout IDs only in sandbox mode
+  if (MPESA_ENV !== 'live' && checkoutRequestId.startsWith('ws_CO_TEST_')) {
     return res.status(200).json({
       paid: true,
       cancelled: false,
