@@ -415,8 +415,7 @@ Respond with valid JSON matching the schema.`
     supabase
       .from('analysis_cache')
       .insert({ query_key: cacheKey, result: parsed })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => {});
 
     return res.status(200).json(parsed);
 
