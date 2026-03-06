@@ -13,11 +13,13 @@ import { useAuth } from './lib/AuthContext';
 import { Menu, X, Shield, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const HISTORY_KEY = 'bizquest_history';
+function getHistoryKey(userId: string) {
+  return `bizquest_history_${userId}`;
+}
 
-function loadHistory(): AnalysisHistoryItem[] {
+function loadHistory(userId: string): AnalysisHistoryItem[] {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
+    const raw = localStorage.getItem(getHistoryKey(userId));
     if (raw) return JSON.parse(raw);
   } catch { /* ignore corrupt data */ }
   return [];
@@ -28,7 +30,7 @@ const App: React.FC = () => {
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisResult | null>(null);
-  const [history, setHistory] = useState<AnalysisHistoryItem[]>(loadHistory);
+  const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -36,10 +38,21 @@ const App: React.FC = () => {
 
   const credits = profile?.credits ?? 0;
 
-  // Persist history
+  // Load history for the current user and reset chat on user change
   useEffect(() => {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }, [history]);
+    if (user?.id) {
+      setHistory(loadHistory(user.id));
+      setMessages([]);
+      setCurrentAnalysis(null);
+    }
+  }, [user?.id]);
+
+  // Persist history scoped to user
+  useEffect(() => {
+    if (user?.id) {
+      localStorage.setItem(getHistoryKey(user.id), JSON.stringify(history));
+    }
+  }, [history, user?.id]);
 
   // Handle Stripe redirect — wait for profile to be loaded before crediting
   const stripeHandled = useRef(false);
@@ -143,7 +156,7 @@ const App: React.FC = () => {
 
   const clearHistory = () => {
     setHistory([]);
-    localStorage.removeItem(HISTORY_KEY);
+    if (user?.id) localStorage.removeItem(getHistoryKey(user.id));
   };
 
   // Loading state
