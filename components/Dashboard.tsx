@@ -87,7 +87,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       
       {/* Header Info */}
       <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group hover:shadow-md transition-shadow">
-        <div className="flex flex-wrap gap-4 items-center justify-between">
+        <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-2 text-slate-500 text-[11px] uppercase tracking-widest font-bold">
               <span className="bg-slate-100 px-2 py-1 rounded-md">{data.location === 'General' ? 'Global Analysis' : data.location}</span>
@@ -98,41 +98,44 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               {data.productName}
             </h2>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Live Data Badge */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1px]">
-              <div className="rounded-[11px] bg-gradient-to-r from-emerald-50 to-cyan-50 px-3 py-2 flex items-center gap-2">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-30" />
-                  <div className="relative w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
-                    <ShieldCheck className="w-3 h-3 text-white" />
-                  </div>
+          {/* Recommendation Badge */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={cn(
+              "px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all border-b-4 active:border-b-0 active:translate-y-1",
+              recColors.bg, recColors.text, recColors.shadow, recColors.border
+            )}
+          >
+            {getRecIcon(data.recommendation)}
+            {data.recommendation}
+          </motion.div>
+        </div>
+        {/* Live Data Verified Badge */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
+          <div className="rounded-[10px] bg-gradient-to-r from-emerald-50 via-white to-cyan-50 px-4 py-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
+                <div className="relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
+                  <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-700 flex items-center gap-1">
-                    <Zap className="w-2.5 h-2.5" />
-                    Live Data
-                  </span>
-                  <span className="text-[8px] text-teal-600 font-semibold">Verified</span>
+              </div>
+              <div>
+                <div className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5" />
+                  Verified by Live Data
                 </div>
-                <span className="relative flex h-2 w-2 ml-1">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
+                <p className="text-[11px] text-slate-500 font-medium mt-0.5">Real-time market intelligence powered by BizQuest AI</p>
               </div>
             </div>
-            {/* Recommendation Badge */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                "px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all border-b-4 active:border-b-0 active:translate-y-1",
-                recColors.bg, recColors.text, recColors.shadow, recColors.border
-              )}
-            >
-              {getRecIcon(data.recommendation)}
-              {data.recommendation}
-            </motion.div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+              </span>
+              <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Live</span>
+            </div>
           </div>
         </div>
       </motion.div>
