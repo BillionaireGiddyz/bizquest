@@ -1,4 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+);
 
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
@@ -9,6 +15,8 @@ const BASE_URL = MPESA_ENV === 'live'
   ? 'https://api.safaricom.co.ke'
   : 'https://sandbox.safaricom.co.ke';
 
+const CREDITS_PER_PURCHASE = 5;
+
 async function getAccessToken(): Promise<string> {
   const credentials = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
   const res = await fetch(`${BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
@@ -16,6 +24,26 @@ async function getAccessToken(): Promise<string> {
   });
   const data = await res.json() as { access_token: string };
   return data.access_token;
+}
+
+async function creditUserAccount(userId: string): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('credits')
+    .eq('id', userId)
+    .single();
+
+  if (!profile) return false;
+
+  const newCredits = (profile.credits || 0) + CREDITS_PER_PURCHASE;
+  const expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ credits: newCredits, credits_expire_at: expiry })
+    .eq('id', userId);
+
+  return !error;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -26,11 +54,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { checkoutRequestId } = req.body as { checkoutRequestId: string };
+  const { checkoutRequestId, userId } = req.body as { checkoutRequestId: string; userId?: string };
   if (!checkoutRequestId) return res.status(400).json({ error: 'checkoutRequestId required' });
 
   // Auto-approve test checkout IDs only in sandbox mode
   if (MPESA_ENV !== 'live' && checkoutRequestId.startsWith('ws_CO_TEST_')) {
+    // Credit user server-side for sandbox test
+    if (userId) {
+      await creditUserAccount(userId);
+    }
     return res.status(200).json({
       paid: true,
       cancelled: false,
@@ -71,6 +103,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2001 = wrong PIN, 1025 = transaction limit, 1019 = expired
     const failedCodes = ['1032', '1037', '1', '2001', '1025', '1019'];
     const cancelled = data.ResultCode ? failedCodes.includes(data.ResultCode) : false;
+
+    // Credit user server-side when payment confirmed
+    if (paid && userId) {
+      // Check if already credited for this checkout to prevent double-crediting
+      const { data: existing } = await supabase
+        .from('mpesa_payments')
+        .select('id')
+        .eq('checkout_request_id', checkoutRequestId)
+        .eq('status', 'credited')
+        .limit(1);
+
+      if (!existing || existing.length === 0) {
+        const credited = await creditUserAccount(userId);
+        if (credited) {
+          await supabase.from('mpesa_payments').upsert({
+            checkout_request_id: checkoutRequestId,
+            result_code: 0,
+            status: 'credited',
+            created_at: new Date().toISOString(),
+          }, { onConflict: 'checkout_request_id' });
+        }
+      }
+    }
 
     return res.status(200).json({
       paid,

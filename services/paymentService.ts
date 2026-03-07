@@ -85,13 +85,14 @@ export const initiateMpesaPayment = async (
 };
 
 export const checkPaymentStatus = async (
-  checkoutRequestId: string
+  checkoutRequestId: string,
+  userId?: string
 ): Promise<PaymentStatusResult> => {
   try {
     const res = await fetchWithRetry('/api/mpesa-query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ checkoutRequestId }),
+      body: JSON.stringify({ checkoutRequestId, userId }),
     }, 2); // Fewer retries for polling since it runs every 5s anyway
 
     const data = await res.json() as PaymentStatusResult;

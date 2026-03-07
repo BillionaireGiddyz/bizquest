@@ -5,8 +5,9 @@ const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin.endsWith('.vercel.app') ? origin : '*');
+  const origin = req.headers.origin || '';
+  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : (process.env.PRODUCTION_URL || '*');
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -26,6 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!question || !analysisContext?.productName) {
     return res.status(400).json({ error: 'Question and analysis context are required' });
+  }
+  if (question.length > 500) {
+    return res.status(400).json({ error: 'Question too long. Please keep it under 500 characters.' });
   }
 
   if (!apiKey) {

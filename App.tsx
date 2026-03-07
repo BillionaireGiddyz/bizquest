@@ -77,9 +77,10 @@ const App: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId }),
           });
-          const data = await res.json() as { paid?: boolean; credits?: number };
+          const data = await res.json() as { paid?: boolean; creditsAdded?: number };
           if (data.paid) {
-            await addCredits(data.credits || 5);
+            // Credits added server-side — just refresh the profile
+            await refreshProfile();
           }
         } catch (err) {
           console.error('Stripe verification failed:', err);
@@ -91,7 +92,7 @@ const App: React.FC = () => {
   }, [profile]);
 
   const handlePaymentSuccess = async () => {
-    await addCredits(5);
+    await refreshProfile();
     setIsPaymentOpen(false);
   };
 
@@ -148,11 +149,21 @@ const App: React.FC = () => {
 
       } else {
         // ── New analysis: full pipeline ──
-        const result = await analyzeMarketQuery(text);
-
+        // Deduct credit BEFORE the call so users can't bypass by closing the tab mid-request
         const deducted = await deductCredit();
         if (!deducted) {
           await refreshProfile();
+        }
+
+        let result;
+        try {
+          result = await analyzeMarketQuery(text);
+        } catch (apiError) {
+          // Refund the credit if analysis fails
+          if (deducted) {
+            await addCredits(1);
+          }
+          throw apiError;
         }
 
         setCurrentAnalysis(result);
@@ -192,7 +203,7 @@ const App: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: "I'm sorry, I encountered an error. Please try again — your credit has not been deducted.",
+        content: "I'm sorry, I encountered an error. Please try again — if a credit was used, it has been refunded.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -203,6 +214,7 @@ const App: React.FC = () => {
 
   const loadFromHistory = (item: AnalysisHistoryItem) => {
     setCurrentAnalysis(item);
+    setFollowUpsLeft(MAX_FOLLOWUPS);
   };
 
   const clearHistory = () => {

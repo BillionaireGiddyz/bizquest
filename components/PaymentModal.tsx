@@ -54,7 +54,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
       polls++;
       setPollCount(polls);
 
-      const result = await checkPaymentStatus(checkoutRequestId);
+      const result = await checkPaymentStatus(checkoutRequestId, user?.id);
 
       if (result.paid) {
         stopPolling();

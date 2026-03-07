@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
 import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -320,8 +321,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                     <Bot className="w-4 h-4 text-indigo-600" />
                   </div>
                 )}
-                <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
-                  {msg.content}
+                <div className={cn(
+                  "leading-relaxed text-sm md:text-base max-w-none",
+                  msg.role === 'assistant'
+                    ? "prose prose-sm prose-slate prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-headings:my-2 prose-strong:font-bold prose-strong:text-slate-900"
+                    : ""
+                )}>
+                  {msg.role === 'assistant' ? (
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  ) : (
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -406,7 +416,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 ref={inputRef}
                 type="text"
                 value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
+                onChange={(e) => setInputText(e.target.value.slice(0, 500))}
                 placeholder={hasAnalysis && followUpsLeft > 0 ? "Ask a follow-up question..." : "Ask about product demand..."}
                 className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm hover:border-slate-300"
                 disabled={isLoading}

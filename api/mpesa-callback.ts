@@ -1,4 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+);
 
 interface MpesaCallbackBody {
   Body: {
@@ -41,10 +47,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log(`Payment success: CheckoutID=${CheckoutRequestID}, Amount=${amount}, Code=${mpesaCode}, Phone=${phone}`);
 
-      // TODO: In production, persist to a database (Supabase, PlanetScale, etc.)
-      // and credit the user's server-side account.
+      // Persist to database for audit trail
+      const { error: insertErr } = await supabase.from('mpesa_payments').insert({
+        checkout_request_id: CheckoutRequestID,
+        result_code: ResultCode,
+        result_desc: ResultDesc,
+        amount,
+        mpesa_code: mpesaCode,
+        phone,
+        status: 'paid',
+        created_at: new Date().toISOString(),
+      });
+      if (insertErr) console.error('Failed to persist M-Pesa callback:', insertErr);
     } else {
       console.log(`Payment failed: CheckoutID=${CheckoutRequestID}, Code=${ResultCode}, Desc=${ResultDesc}`);
+
+      const { error: insertErr } = await supabase.from('mpesa_payments').insert({
+        checkout_request_id: CheckoutRequestID,
+        result_code: ResultCode,
+        result_desc: ResultDesc,
+        status: 'failed',
+        created_at: new Date().toISOString(),
+      });
+      if (insertErr) console.error('Failed to persist M-Pesa callback:', insertErr);
     }
 
     return res.status(200).json({ ResultCode: 0, ResultDesc: 'Accepted' });
