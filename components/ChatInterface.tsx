@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
-import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut } from 'lucide-react';
+import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -73,8 +73,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
   const [trending, setTrending] = useState<TrendingItem[]>([]);
+  const [mode, setMode] = useState<'followup' | 'new'>('followup');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reset mode when analysis changes
+  useEffect(() => {
+    if (hasAnalysis && followUpsLeft > 0) setMode('followup');
+  }, [hasAnalysis]);
 
   // Fetch trending on mount
   useEffect(() => {
@@ -111,12 +117,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  const canSend = credits > 0 || (hasAnalysis && followUpsLeft > 0);
+  const isFollowUpMode = hasAnalysis && followUpsLeft > 0 && mode === 'followup';
+  const canSend = credits > 0 || isFollowUpMode;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputText.trim() && !isLoading && canSend) {
-      onSendMessage(inputText);
+      // Prefix with __NEW__ to signal App.tsx this is a new analysis, not follow-up
+      const payload = (mode === 'new' || !hasAnalysis || followUpsLeft <= 0)
+        ? `__NEW__${inputText}`
+        : inputText;
+      onSendMessage(payload);
       setInputText('');
     }
   };
@@ -400,16 +411,60 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
 
       {/* Input Area */}
       <div className="p-4 bg-white border-t border-slate-200 relative z-20">
-        {/* Follow-up hint */}
-        {hasAnalysis && followUpsLeft > 0 && (
+        {/* Mode toggle — only when there's an active analysis with follow-ups remaining */}
+        {hasAnalysis && followUpsLeft > 0 && credits > 0 && (
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <motion.button
+              onClick={() => setMode('followup')}
+              whileTap={{ scale: 0.97 }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all",
+                mode === 'followup'
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+              )}
+            >
+              <MessageCircle className="w-3 h-3" />
+              Follow-up
+              <span className={cn(
+                "ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
+                mode === 'followup' ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"
+              )}>
+                {followUpsLeft} free
+              </span>
+            </motion.button>
+            <motion.button
+              onClick={() => setMode('new')}
+              whileTap={{ scale: 0.97 }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all",
+                mode === 'new'
+                  ? "bg-violet-600 text-white shadow-md shadow-violet-200"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+              )}
+            >
+              <Plus className="w-3 h-3" />
+              New Analysis
+              <span className={cn(
+                "ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
+                mode === 'new' ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"
+              )}>
+                1 credit
+              </span>
+            </motion.button>
+          </div>
+        )}
+
+        {/* Follow-up only hint (when no credits but follow-ups remain) */}
+        {hasAnalysis && followUpsLeft > 0 && credits <= 0 && (
           <div className="flex items-center gap-2 mb-2 px-1">
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1">
               <Zap className="w-3 h-3" />
               {followUpsLeft} free follow-up{followUpsLeft !== 1 ? 's' : ''} left
             </span>
-            <span className="text-[10px] text-slate-400">— ask about this analysis without using a credit</span>
           </div>
         )}
+
         {canSend ? (
             <form onSubmit={handleSubmit} className="flex gap-3 relative">
             <input
@@ -417,8 +472,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value.slice(0, 500))}
-                placeholder={hasAnalysis && followUpsLeft > 0 ? "Ask a follow-up question..." : "Ask about product demand..."}
-                className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm hover:border-slate-300"
+                placeholder={isFollowUpMode ? "Ask a follow-up about this analysis..." : "Ask about any product & market..."}
+                className={cn(
+                  "flex-1 px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm",
+                  isFollowUpMode
+                    ? "border-indigo-200 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-300"
+                    : "border-violet-200 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300"
+                )}
                 disabled={isLoading}
             />
             <motion.button
@@ -426,7 +486,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 disabled={isLoading || !inputText.trim()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white p-3.5 rounded-xl transition-all shadow-lg shadow-indigo-200 flex items-center justify-center min-w-[52px]"
+                className={cn(
+                  "disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white p-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center min-w-[52px]",
+                  isFollowUpMode
+                    ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
+                    : "bg-violet-600 hover:bg-violet-700 shadow-violet-200"
+                )}
             >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

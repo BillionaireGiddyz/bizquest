@@ -106,9 +106,12 @@ const App: React.FC = () => {
     setIsPaymentOpen(false);
   };
 
-  const handleSendMessage = async (text: string) => {
-    // Check if this is a follow-up or a new analysis
-    const isFollowUp = currentAnalysis && followUpsLeft > 0;
+  const handleSendMessage = async (rawText: string) => {
+    // ChatInterface prefixes with __NEW__ when user explicitly picks "New Analysis"
+    const forceNew = rawText.startsWith('__NEW__');
+    const text = forceNew ? rawText.slice(7) : rawText;
+
+    const isFollowUp = !forceNew && currentAnalysis && followUpsLeft > 0;
 
     if (!isFollowUp && credits <= 0) {
       setIsPaymentOpen(true);
