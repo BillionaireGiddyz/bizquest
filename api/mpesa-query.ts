@@ -60,12 +60,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Auto-approve test checkout IDs only in sandbox mode
   if (MPESA_ENV !== 'live' && checkoutRequestId.startsWith('ws_CO_TEST_')) {
     // Credit user server-side for sandbox test
+    let sandboxCredited = false;
     if (userId) {
-      await creditUserAccount(userId);
+      sandboxCredited = await creditUserAccount(userId);
     }
     return res.status(200).json({
       paid: true,
       cancelled: false,
+      serverCredited: sandboxCredited,
       resultCode: '0',
       resultDesc: 'The service request is processed successfully.',
     });
@@ -105,6 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cancelled = data.ResultCode ? failedCodes.includes(data.ResultCode) : false;
 
     // Credit user server-side when payment confirmed
+    let serverCredited = false;
     if (paid && userId) {
       // Check if already credited for this checkout to prevent double-crediting
       const { data: existing } = await supabase
@@ -115,8 +118,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .limit(1);
 
       if (!existing || existing.length === 0) {
-        const credited = await creditUserAccount(userId);
-        if (credited) {
+        serverCredited = await creditUserAccount(userId);
+        if (serverCredited) {
           await supabase.from('mpesa_payments').upsert({
             checkout_request_id: checkoutRequestId,
             result_code: 0,
@@ -124,12 +127,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             created_at: new Date().toISOString(),
           }, { onConflict: 'checkout_request_id' });
         }
+      } else {
+        serverCredited = true; // Already credited before
       }
     }
 
     return res.status(200).json({
       paid,
       cancelled,
+      serverCredited,
       resultCode: data.ResultCode,
       resultDesc: data.ResultDesc || data.ResponseDescription,
     });

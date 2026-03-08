@@ -8,7 +8,7 @@ import { cn } from '../lib/utils';
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (serverCredited?: boolean) => void;
 }
 
 type Status = 'choose' | 'mpesa-form' | 'processing' | 'polling' | 'success' | 'error' | 'cancelled';
@@ -59,7 +59,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
       if (result.paid) {
         stopPolling();
         setStatus('success');
-        setTimeout(() => onSuccess(), 2000);
+        setTimeout(() => onSuccess(result.serverCredited), 2000);
         return;
       }
 

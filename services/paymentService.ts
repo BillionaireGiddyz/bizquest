@@ -8,6 +8,7 @@ export interface StkPushResult {
 export interface PaymentStatusResult {
   paid: boolean;
   cancelled: boolean;
+  serverCredited?: boolean;
   resultCode?: string;
   resultDesc?: string;
 }

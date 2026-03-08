@@ -77,10 +77,15 @@ const App: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId }),
           });
-          const data = await res.json() as { paid?: boolean; creditsAdded?: number };
+          const data = await res.json() as { paid?: boolean; credits?: number; serverCredited?: boolean };
           if (data.paid) {
-            // Credits added server-side — just refresh the profile
-            await refreshProfile();
+            if (data.serverCredited) {
+              // Credits added server-side — just refresh the profile
+              await refreshProfile();
+            } else {
+              // Fallback: server couldn't update, add client-side
+              await addCredits(data.credits || 5);
+            }
           }
         } catch (err) {
           console.error('Stripe verification failed:', err);
@@ -91,8 +96,13 @@ const App: React.FC = () => {
     }
   }, [profile]);
 
-  const handlePaymentSuccess = async () => {
-    await refreshProfile();
+  const handlePaymentSuccess = async (serverCredited?: boolean) => {
+    if (serverCredited) {
+      await refreshProfile();
+    } else {
+      // Fallback: server couldn't update, add client-side
+      await addCredits(5);
+    }
     setIsPaymentOpen(false);
   };
 

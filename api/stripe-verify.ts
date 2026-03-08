@@ -43,6 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const userId = session.metadata?.userId;
       const creditsToAdd = parseInt(session.metadata?.credits || '5');
+      let serverCredited = false;
 
       // Add credits SERVER-SIDE so the client can't manipulate the amount
       if (userId) {
@@ -55,16 +56,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (profile) {
           const newCredits = (profile.credits || 0) + creditsToAdd;
           const expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-          await supabase
+          const { error: updateErr } = await supabase
             .from('profiles')
             .update({ credits: newCredits, credits_expire_at: expiry })
             .eq('id', userId);
+          serverCredited = !updateErr;
+          if (updateErr) console.error('Failed to credit user server-side:', updateErr);
         }
       }
 
       return res.status(200).json({
         paid: true,
-        creditsAdded: creditsToAdd,
+        credits: creditsToAdd,
+        serverCredited,
       });
     }
 
