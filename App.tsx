@@ -307,14 +307,14 @@ const App: React.FC = () => {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:p-6 w-full max-w-[1600px] mx-auto overflow-hidden">
+        <main className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:p-6 w-full max-w-[1600px] mx-auto overflow-y-auto lg:overflow-hidden">
 
           {/* Left Panel: Chat */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="w-full lg:w-[35%] flex-shrink-0 h-[45vh] lg:h-full flex flex-col"
+            className="w-full lg:w-[35%] flex-shrink-0 min-h-[50vh] lg:h-full lg:min-h-0 flex flex-col"
           >
             <ChatInterface
               messages={messages}
@@ -337,7 +337,7 @@ const App: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full lg:w-[65%] h-[55vh] lg:h-full bg-transparent p-1"
+            className="w-full lg:w-[65%] min-h-[60vh] lg:h-full lg:min-h-0 bg-transparent p-1"
           >
             <Dashboard data={currentAnalysis} />
           </motion.div>

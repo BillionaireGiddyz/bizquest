@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { AnalysisResult } from '../types';
 import { MetricCard } from './MetricCard';
 import { 
@@ -29,27 +30,58 @@ const item = {
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
   if (!data) {
+    const steps = [
+      { icon: <Search className="w-6 h-6" />, color: 'bg-indigo-50 text-indigo-600', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
+      { icon: <Activity className="w-6 h-6" />, color: 'bg-violet-50 text-violet-600', num: '2', title: 'AI Analyzes Market', desc: 'Real-time data from 20+ intelligence sources' },
+      { icon: <Lightbulb className="w-6 h-6" />, color: 'bg-emerald-50 text-emerald-600', num: '3', title: 'Get Your Verdict', desc: 'GO / BE CAREFUL / AVOID with full breakdown' },
+    ];
+
     return (
-      <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm relative overflow-hidden">
+      <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 sm:p-8 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm relative overflow-hidden">
         <div className="absolute inset-0 bg-slate-50/50 pattern-grid-lg opacity-20" />
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white p-6 rounded-full mb-6 shadow-xl shadow-indigo-100 relative z-10"
+
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="relative z-10 flex flex-col items-center w-full max-w-lg"
         >
-            <Activity className="w-10 h-10 text-indigo-500" />
+          <motion.div variants={item} className="mb-8">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200/50">
+              <Zap className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 tracking-tight">How BizQuest Works</h3>
+            <p className="text-sm text-slate-500 mt-1.5">Premium AI market intelligence in seconds</p>
+          </motion.div>
+
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 w-full mb-8">
+            {steps.map((step) => (
+              <motion.div
+                key={step.num}
+                variants={item}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="flex-1 flex flex-row sm:flex-col items-center sm:items-center gap-3 sm:gap-0 bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-default"
+              >
+                <div className="relative shrink-0">
+                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", step.color)}>
+                    {step.icon}
+                  </div>
+                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-800 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                    {step.num}
+                  </span>
+                </div>
+                <div className="text-left sm:text-center sm:mt-3">
+                  <h4 className="text-sm font-bold text-slate-800">{step.title}</h4>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{step.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.p variants={item} className="text-xs text-slate-400">
+            Try asking: <span className="text-indigo-600 font-semibold">"Will vegan cookies sell well in Karen, Nairobi?"</span>
+          </motion.p>
         </motion.div>
-        <h3 className="text-2xl font-bold text-slate-800 mb-2 relative z-10">Ready to Analyze</h3>
-        <p className="max-w-md mt-2 text-slate-500 leading-relaxed relative z-10">
-          Ask a question like <span className="text-indigo-600 font-medium">"Will vegan cookies sell well in downtown?"</span> to see a comprehensive market breakdown here.
-        </p>
-        
-        <div className="mt-8 flex gap-2 relative z-10">
-          <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: '0s' }} />
-          <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: '0.2s' }} />
-          <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: '0.4s' }} />
-        </div>
       </div>
     );
   }
@@ -77,6 +109,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
   const saturationValue = data.saturationLevel === 'High' ? 85 : data.saturationLevel === 'Medium' ? 55 : 20;
 
+  // De-duplicate trend chart period labels (e.g. "Feb","Feb","Feb" → "Feb W1","Feb W2","Feb W3")
+  const processedTrendData = React.useMemo(() => {
+    if (!data.trendData || data.trendData.length === 0) return [];
+    const periods = data.trendData.map(d => d.period);
+    if (new Set(periods).size === periods.length) return data.trendData;
+    const counts: Record<string, number> = {};
+    return data.trendData.map(point => {
+      counts[point.period] = (counts[point.period] || 0) + 1;
+      return { ...point, period: `${point.period} W${counts[point.period]}` };
+    });
+  }, [data.trendData]);
+
   return (
     <motion.div 
       variants={container}
@@ -92,7 +136,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             <div className="flex items-center gap-2 mb-2 text-slate-500 text-[11px] uppercase tracking-widest font-bold">
               <span className="bg-slate-100 px-2 py-1 rounded-md">{data.location === 'General' ? 'Global Analysis' : data.location}</span>
               <ArrowRight className="w-3 h-3 text-slate-300" />
-              <span className="text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{data.priceRange}</span>
+              <span className="text-violet-600 bg-violet-50 px-2 py-1 rounded-md">{data.priceRange}</span>
             </div>
             <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3 tracking-tight">
               {data.productName}
@@ -243,14 +287,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
       {/* Summary Box */}
       <motion.div variants={item} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-        <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 transition-all group-hover:w-2"></div>
+        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-violet-500 transition-all group-hover:w-2"></div>
         <h4 className="text-indigo-900 font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
           <Search className="w-4 h-4" />
           Analyst Summary
         </h4>
-        <p className="text-slate-600 leading-relaxed font-medium">
-          {data.explanation}
-        </p>
+        <div className="prose prose-sm prose-slate prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-headings:my-2 prose-strong:font-bold prose-strong:text-slate-900 text-slate-600 leading-relaxed font-medium max-w-none">
+          <ReactMarkdown>{data.explanation}</ReactMarkdown>
+        </div>
       </motion.div>
 
       {/* Key Insights, Target Demographic & Selling Channels */}
@@ -350,7 +394,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </h4>
         <div className="h-64 w-full">
            <ResponsiveContainer width="100%" height="100%">
-             <AreaChart data={data.trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                <defs>
                  <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
