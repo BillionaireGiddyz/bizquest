@@ -31,57 +31,147 @@ const item = {
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
   if (!data) {
     const steps = [
-      { icon: <Search className="w-6 h-6" />, color: 'bg-indigo-50 text-indigo-600', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
-      { icon: <Activity className="w-6 h-6" />, color: 'bg-violet-50 text-violet-600', num: '2', title: 'AI Analyzes Market', desc: 'Real-time data from 20+ intelligence sources' },
-      { icon: <Lightbulb className="w-6 h-6" />, color: 'bg-emerald-50 text-emerald-600', num: '3', title: 'Get Your Verdict', desc: 'GO / BE CAREFUL / AVOID with full breakdown' },
+      { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
+      { icon: <Activity className="w-6 h-6" />, gradient: 'from-violet-500 to-purple-600', glow: 'shadow-violet-500/25', ring: 'ring-violet-100', num: '2', title: 'AI Analyzes Market', desc: 'Real-time data from 20+ intelligence sources' },
+      { icon: <Lightbulb className="w-6 h-6" />, gradient: 'from-emerald-500 to-teal-600', glow: 'shadow-emerald-500/25', ring: 'ring-emerald-100', num: '3', title: 'Get Your Verdict', desc: 'GO / BE CAREFUL / AVOID with full breakdown' },
     ];
 
     return (
-      <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 sm:p-8 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm relative overflow-hidden">
-        <div className="absolute inset-0 bg-slate-50/50 pattern-grid-lg opacity-20" />
+      <div className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+        {/* Animated background orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-100/40 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ x: [0, -20, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute -bottom-20 -left-20 w-64 h-64 bg-violet-100/40 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ x: [0, 15, 0], y: [0, 15, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-100/30 rounded-full blur-3xl"
+          />
+        </div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="relative z-10 flex flex-col items-center w-full max-w-lg"
-        >
-          <motion.div variants={item} className="mb-8">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200/50">
-              <Zap className="w-7 h-7 text-white" />
+        <div className="absolute inset-0 bg-slate-50/30 pattern-grid-lg opacity-[0.04]" />
+
+        <div className="relative z-10 flex flex-col items-center w-full max-w-lg">
+          {/* Hero icon with pulse ring */}
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+            className="relative mb-6"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-violet-500 rounded-2xl"
+            />
+            <div className="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-300/40">
+              <Zap className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-800 tracking-tight">How BizQuest Works</h3>
-            <p className="text-sm text-slate-500 mt-1.5">Premium AI market intelligence in seconds</p>
           </motion.div>
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 w-full mb-8">
-            {steps.map((step) => (
+          {/* Headline with word-by-word entrance */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-2"
+          >
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
+              How{' '}
+              <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                BizQuest
+              </span>
+              {' '}Works
+            </h3>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-slate-500 mb-10"
+          >
+            Premium AI market intelligence in seconds
+          </motion.p>
+
+          {/* Step cards with staggered entrance + connector lines */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 w-full mb-10 relative">
+            {/* Connector line (desktop only) */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
+              className="hidden sm:block absolute top-7 left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-indigo-200 via-violet-200 to-emerald-200 origin-left z-0"
+            />
+
+            {steps.map((step, idx) => (
               <motion.div
                 key={step.num}
-                variants={item}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="flex-1 flex flex-row sm:flex-col items-center sm:items-center gap-3 sm:gap-0 bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-default"
+                initial={{ opacity: 0, y: 40, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                  delay: 0.6 + idx * 0.2,
+                }}
+                whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.25 } }}
+                className="relative z-10 flex-1 flex flex-row sm:flex-col items-center gap-3 sm:gap-0 bg-white/80 backdrop-blur-sm border border-slate-100 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-slate-200/80 transition-all cursor-default group sm:mx-2"
               >
+                {/* Icon with gradient background */}
                 <div className="relative shrink-0">
-                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", step.color)}>
+                  <motion.div
+                    whileHover={{ rotate: [0, -8, 8, 0] }}
+                    transition={{ duration: 0.4 }}
+                    className={cn(
+                      "w-14 h-14 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br shadow-lg ring-4 ring-offset-2 transition-shadow group-hover:shadow-xl",
+                      step.gradient, step.glow, step.ring
+                    )}
+                  >
                     {step.icon}
-                  </div>
-                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-800 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  </motion.div>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.9 + idx * 0.2 }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-slate-900 text-white text-[11px] font-bold rounded-full flex items-center justify-center shadow-md"
+                  >
                     {step.num}
-                  </span>
+                  </motion.span>
                 </div>
-                <div className="text-left sm:text-center sm:mt-3">
-                  <h4 className="text-sm font-bold text-slate-800">{step.title}</h4>
+                <div className="text-left sm:text-center sm:mt-4">
+                  <h4 className="text-sm font-bold text-slate-800 group-hover:text-slate-900 transition-colors">{step.title}</h4>
                   <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{step.desc}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <motion.p variants={item} className="text-xs text-slate-400">
-            Try asking: <span className="text-indigo-600 font-semibold">"Will vegan cookies sell well in Karen, Nairobi?"</span>
-          </motion.p>
-        </motion.div>
+          {/* Animated CTA hint */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-slate-50/80 backdrop-blur-sm rounded-full border border-slate-100"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-2 h-2 rounded-full bg-indigo-500"
+            />
+            <span className="text-xs text-slate-500">
+              Try: <span className="text-indigo-600 font-semibold">"Will vegan cookies sell well in Karen, Nairobi?"</span>
+            </span>
+          </motion.div>
+        </div>
       </div>
     );
   }

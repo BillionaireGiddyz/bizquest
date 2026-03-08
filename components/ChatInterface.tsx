@@ -2,17 +2,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
-import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Activity, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus } from 'lucide-react';
+import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
-interface TrendingItem {
-  productName: string;
-  location: string;
-  count: number;
-  avgDemand: number;
-  lastRecommendation: string;
-}
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -72,7 +65,6 @@ const SUGGESTIONS = [
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
-  const [trending, setTrending] = useState<TrendingItem[]>([]);
   const [mode, setMode] = useState<'followup' | 'new'>('followup');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,16 +73,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
   useEffect(() => {
     if (hasAnalysis && followUpsLeft > 0) setMode('followup');
   }, [hasAnalysis]);
-
-  // Fetch trending on mount
-  useEffect(() => {
-    fetch('/api/trending')
-      .then(r => r.json())
-      .then((data: { trending?: TrendingItem[] }) => {
-        if (data.trending) setTrending(data.trending);
-      })
-      .catch(() => {});
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -273,41 +255,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                  ))}
                </div>
 
-               {/* Trending Now */}
-               {trending.length > 0 && (
-                 <motion.div
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.6 }}
-                   className="w-full max-w-sm mt-6"
-                 >
-                   <div className="flex items-center gap-2 mb-3">
-                     <Activity className="w-3.5 h-3.5 text-rose-500" />
-                     <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Trending Now</span>
-                   </div>
-                   <div className="flex flex-wrap gap-1.5">
-                     {trending.map((t, i) => (
-                       <motion.button
-                         key={i}
-                         whileHover={{ scale: 1.05 }}
-                         whileTap={{ scale: 0.95 }}
-                         onClick={() => handleSuggestionClick(`Will ${t.productName} sell well in ${t.location}?`)}
-                         className={cn(
-                           "px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer",
-                           t.lastRecommendation === 'GO'
-                             ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                             : t.lastRecommendation === 'AVOID'
-                             ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                             : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
-                         )}
-                       >
-                         {t.productName} · {t.location}
-                         <span className="ml-1 opacity-60">({t.count})</span>
-                       </motion.button>
-                     ))}
-                   </div>
-                 </motion.div>
-               )}
              </motion.div>
           )}
 
