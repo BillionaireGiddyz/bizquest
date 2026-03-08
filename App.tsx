@@ -159,21 +159,12 @@ const App: React.FC = () => {
 
       } else {
         // ── New analysis: full pipeline ──
-        // Deduct credit BEFORE the call so users can't bypass by closing the tab mid-request
+        const result = await analyzeMarketQuery(text);
+
+        // Deduct credit AFTER successful analysis — no refund logic needed
         const deducted = await deductCredit();
         if (!deducted) {
           await refreshProfile();
-        }
-
-        let result;
-        try {
-          result = await analyzeMarketQuery(text);
-        } catch (apiError) {
-          // Refund the credit if analysis fails
-          if (deducted) {
-            await addCredits(1);
-          }
-          throw apiError;
         }
 
         setCurrentAnalysis(result);
@@ -213,7 +204,7 @@ const App: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: "I'm sorry, I encountered an error. Please try again — if a credit was used, it has been refunded.",
+        content: "I'm sorry, I encountered an error. Please try again — no credit was deducted.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
