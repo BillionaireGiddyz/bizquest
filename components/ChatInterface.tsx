@@ -413,56 +413,86 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
       <div className="p-4 bg-white border-t border-slate-200 relative z-20">
         {/* Mode toggle — only when there's an active analysis with follow-ups remaining */}
         {hasAnalysis && followUpsLeft > 0 && credits > 0 && (
-          <div className="flex items-center gap-1.5 mb-2.5">
-            <motion.button
-              onClick={() => setMode('followup')}
-              whileTap={{ scale: 0.97 }}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all",
-                mode === 'followup'
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              )}
-            >
-              <MessageCircle className="w-3 h-3" />
-              Follow-up
-              <span className={cn(
-                "ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
-                mode === 'followup' ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"
-              )}>
-                {followUpsLeft} free
-              </span>
-            </motion.button>
-            <motion.button
-              onClick={() => setMode('new')}
-              whileTap={{ scale: 0.97 }}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all",
-                mode === 'new'
-                  ? "bg-violet-600 text-white shadow-md shadow-violet-200"
-                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              )}
-            >
-              <Plus className="w-3 h-3" />
-              New Analysis
-              <span className={cn(
-                "ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
-                mode === 'new' ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"
-              )}>
-                1 credit
-              </span>
-            </motion.button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="mb-3"
+          >
+            <div className="relative flex items-center bg-slate-100/80 backdrop-blur-sm rounded-xl p-1 border border-slate-200/60">
+              {/* Animated sliding background */}
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                className={cn(
+                  "absolute top-1 bottom-1 rounded-lg shadow-lg",
+                  mode === 'followup'
+                    ? "bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-indigo-200/50 left-1"
+                    : "bg-gradient-to-r from-violet-600 to-purple-500 shadow-violet-200/50"
+                )}
+                style={{
+                  width: 'calc(50% - 4px)',
+                  left: mode === 'followup' ? '4px' : 'calc(50%)',
+                }}
+              />
+
+              {/* Follow-up button */}
+              <button
+                onClick={() => setMode('followup')}
+                className="relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-colors duration-200"
+              >
+                <motion.div animate={{ rotate: mode === 'followup' ? [0, -10, 10, 0] : 0 }} transition={{ duration: 0.4 }}>
+                  <MessageCircle className={cn("w-3.5 h-3.5 transition-colors duration-200", mode === 'followup' ? "text-white" : "text-slate-400")} />
+                </motion.div>
+                <span className={cn("text-xs font-bold tracking-wide transition-colors duration-200", mode === 'followup' ? "text-white" : "text-slate-500")}>
+                  Follow-up
+                </span>
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200",
+                  mode === 'followup'
+                    ? "bg-white/20 text-white/90 backdrop-blur-sm"
+                    : "bg-slate-200/80 text-slate-400"
+                )}>
+                  {followUpsLeft} free
+                </span>
+              </button>
+
+              {/* New Analysis button */}
+              <button
+                onClick={() => setMode('new')}
+                className="relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-colors duration-200"
+              >
+                <motion.div animate={{ rotate: mode === 'new' ? 90 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                  <Plus className={cn("w-3.5 h-3.5 transition-colors duration-200", mode === 'new' ? "text-white" : "text-slate-400")} />
+                </motion.div>
+                <span className={cn("text-xs font-bold tracking-wide transition-colors duration-200", mode === 'new' ? "text-white" : "text-slate-500")}>
+                  New Analysis
+                </span>
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200",
+                  mode === 'new'
+                    ? "bg-white/20 text-white/90 backdrop-blur-sm"
+                    : "bg-slate-200/80 text-slate-400"
+                )}>
+                  1 credit
+                </span>
+              </button>
+            </div>
+          </motion.div>
         )}
 
         {/* Follow-up only hint (when no credits but follow-ups remain) */}
         {hasAnalysis && followUpsLeft > 0 && credits <= 0 && (
-          <div className="flex items-center gap-2 mb-2 px-1">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-2 mb-2.5 px-1"
+          >
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1">
               <Zap className="w-3 h-3" />
               {followUpsLeft} free follow-up{followUpsLeft !== 1 ? 's' : ''} left
             </span>
-          </div>
+          </motion.div>
         )}
 
         {canSend ? (
