@@ -259,10 +259,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Cache miss or table doesn't exist yet — continue with fresh analysis
   }
 
+  // Helper: call Gemini with automatic model fallback
+  const MODELS = ['gemini-3-flash-preview', 'gemini-2.5-flash'] as const;
+  async function callWithFallback(config: Parameters<typeof ai.models.generateContent>[0]) {
+    for (const modelId of MODELS) {
+      try {
+        return await ai.models.generateContent({ ...config, model: modelId });
+      } catch (err: unknown) {
+        const msg = String(err);
+        const retryable = msg.includes('503') || msg.includes('429') ||
+          msg.toLowerCase().includes('overloaded') || msg.toLowerCase().includes('unavailable') ||
+          msg.toLowerCase().includes('quota');
+        console.warn(`Model ${modelId} failed (retryable=${retryable}): ${msg.slice(0, 200)}`);
+        if (!retryable || modelId === MODELS[MODELS.length - 1]) throw err;
+      }
+    }
+    throw new Error('All models failed');
+  }
+
   try {
     // Step 1: Extract product, location, and country from query
-    const extractRes = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+    const extractRes = await callWithFallback({
+      model: MODELS[0],
       contents: [{
         role: "user",
         parts: [{
@@ -357,19 +375,13 @@ IMPORTANT: Use this REAL competitor count for competitionLevel. Mention specific
 - Seasonal trends and holidays that affect buying patterns
 - Demographics and income levels in the specific area mentioned`;
 
-    // Try gemini-3-flash-preview first (best quality), fall back to gemini-2.5-flash if overloaded
-    const MODELS = ['gemini-3-flash-preview', 'gemini-2.5-flash'] as const;
-    let response: Awaited<ReturnType<typeof ai.models.generateContent>> | null = null;
-    let lastError: unknown = null;
-
-    for (const modelId of MODELS) {
-      try {
-        response = await ai.models.generateContent({
-          model: modelId,
-          contents: [{
-            role: "user",
-            parts: [{
-              text: `You are BizQuest Quantum — the most advanced market intelligence engine ever built.
+    // Step 3: Full analysis with real data context (uses fallback helper)
+    const response = await callWithFallback({
+      model: MODELS[0],
+      contents: [{
+        role: "user",
+        parts: [{
+          text: `You are BizQuest Quantum — the most advanced market intelligence engine ever built.
 ${regionContext}
 
 Conduct a full probabilistic market analysis using every data signal available.
@@ -448,22 +460,10 @@ Respond with valid JSON matching the schema.`
 - Your analysis should feel like it cost $500 from a top-tier consulting firm — precise, data-rich, shockingly accurate, and immediately actionable.
 - Be specific: name real competitor businesses, cite exact numbers, give concrete price positioning advice, identify the exact customer segment.
 - When giving a GO recommendation, make the user feel confident. When giving AVOID, make them grateful you saved them money. When giving BE CAREFUL, give them the exact conditions under which it becomes a GO.`,
-          },
-        });
-        break; // Success — exit retry loop
-      } catch (err: unknown) {
-        lastError = err;
-        const msg = err instanceof Error ? err.message : String(err);
-        const isRetryable = msg.includes('503') || msg.toLowerCase().includes('overloaded') || msg.includes('429');
-        console.warn(`Model ${modelId} failed: ${msg}`);
-        if (!isRetryable || modelId === MODELS[MODELS.length - 1]) {
-          throw err; // Not retryable or last model — propagate
-        }
-        // Otherwise try next model
-      }
-    }
+      },
+    });
 
-    const resultText = response?.text;
+    const resultText = response.text;
     if (!resultText) {
       return res.status(500).json({ error: 'No response from AI' });
     }
