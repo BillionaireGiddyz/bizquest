@@ -1,1 +1,15 @@
-{"buildCommand":"npm run build","outputDirectory":"dist","devCommand":"npm run dev","installCommand":"npm install","framework":"vite"}
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "functions": {
+    "api/analyze.ts": {
+      "maxDuration": 60
+    },
+    "api/followup.ts": {
+      "maxDuration": 30
+    }
+  }
+}

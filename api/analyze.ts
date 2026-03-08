@@ -262,7 +262,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Step 1: Extract product, location, and country from query
     const extractRes = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [{
         role: "user",
         parts: [{
@@ -358,7 +358,7 @@ IMPORTANT: Use this REAL competitor count for competitionLevel. Mention specific
 - Demographics and income levels in the specific area mentioned`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [{
         role: "user",
         parts: [{
