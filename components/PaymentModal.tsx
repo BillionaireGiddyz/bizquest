@@ -101,7 +101,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
     setStatus('processing');
     setErrorMsg('');
 
-    const result = await initiateMpesaPayment(phone, 1000);
+    const result = await initiateMpesaPayment(phone, 1000, user?.id);
 
     if (!result.success || !result.checkoutRequestId) {
       setStatus('error');

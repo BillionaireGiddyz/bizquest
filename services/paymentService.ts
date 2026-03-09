@@ -59,13 +59,14 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 3): P
 
 export const initiateMpesaPayment = async (
   phone: string,
-  amount: number
+  amount: number,
+  userId?: string
 ): Promise<StkPushResult> => {
   try {
     const res = await fetchWithRetry('/api/mpesa-stk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, amount }),
+      body: JSON.stringify({ phone, amount, userId }),
     });
 
     const data = await res.json() as StkPushResult & { error?: string };
