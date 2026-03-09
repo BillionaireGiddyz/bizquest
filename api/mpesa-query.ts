@@ -1,15 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
-);
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+if (!SERVICE_ROLE_KEY) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY is required for payment operations');
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
-const SHORTCODE = process.env.MPESA_SHORTCODE || '174379';
-const PASSKEY = process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
+const SHORTCODE = process.env.MPESA_SHORTCODE || '';
+const PASSKEY = process.env.MPESA_PASSKEY || '';
 const MPESA_ENV = process.env.MPESA_ENV || 'sandbox';
 const BASE_URL = MPESA_ENV === 'live'
   ? 'https://api.safaricom.co.ke'
@@ -48,22 +52,45 @@ async function creditUserAccount(userId: string): Promise<boolean> {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || '';
-  res.setHeader('Access-Control-Allow-Origin', origin.endsWith('.vercel.app') ? origin : '*');
+  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
+  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  if (!SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: 'Payment service misconfigured' });
+  }
+
   const { checkoutRequestId, userId } = req.body as { checkoutRequestId: string; userId?: string };
   if (!checkoutRequestId) return res.status(400).json({ error: 'checkoutRequestId required' });
+  if (!userId) return res.status(400).json({ error: 'userId required' });
 
   // Auto-approve test checkout IDs only in sandbox mode
   if (MPESA_ENV !== 'live' && checkoutRequestId.startsWith('ws_CO_TEST_')) {
-    // Credit user server-side for sandbox test
+    // Race-safe sandbox crediting — same insert-first pattern
     let sandboxCredited = false;
-    if (userId) {
+    const { error: sandboxInsertErr } = await supabase
+      .from('mpesa_payments')
+      .insert({
+        checkout_request_id: checkoutRequestId,
+        user_id: userId,
+        result_code: 0,
+        status: 'credited',
+        created_at: new Date().toISOString(),
+      });
+
+    if (sandboxInsertErr && sandboxInsertErr.code === '23505') {
+      sandboxCredited = true; // Already credited
+    } else if (!sandboxInsertErr) {
       sandboxCredited = await creditUserAccount(userId);
+      if (!sandboxCredited) {
+        await supabase.from('mpesa_payments').delete().eq('checkout_request_id', checkoutRequestId);
+      }
     }
+
     return res.status(200).json({
       paid: true,
       cancelled: false,
@@ -109,26 +136,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Credit user server-side when payment confirmed
     let serverCredited = false;
     if (paid && userId) {
-      // Check if already credited for this checkout to prevent double-crediting
-      const { data: existing } = await supabase
+      // Race-safe: INSERT the "credited" record FIRST as a lock.
+      // If a concurrent request already inserted it, this will fail (conflict),
+      // preventing double-crediting.
+      const { error: insertErr } = await supabase
         .from('mpesa_payments')
-        .select('id')
-        .eq('checkout_request_id', checkoutRequestId)
-        .eq('status', 'credited')
-        .limit(1);
+        .insert({
+          checkout_request_id: checkoutRequestId,
+          user_id: userId,
+          result_code: 0,
+          status: 'credited',
+          created_at: new Date().toISOString(),
+        });
 
-      if (!existing || existing.length === 0) {
-        serverCredited = await creditUserAccount(userId);
-        if (serverCredited) {
-          await supabase.from('mpesa_payments').upsert({
-            checkout_request_id: checkoutRequestId,
-            result_code: 0,
-            status: 'credited',
-            created_at: new Date().toISOString(),
-          }, { onConflict: 'checkout_request_id' });
+      if (insertErr) {
+        // Conflict = already credited by another request — that's fine
+        if (insertErr.code === '23505') {
+          serverCredited = true; // Already credited before
+        } else {
+          console.error('Failed to insert mpesa_payment record:', insertErr);
         }
       } else {
-        serverCredited = true; // Already credited before
+        // We own the lock — now safely credit the user
+        serverCredited = await creditUserAccount(userId);
+        if (!serverCredited) {
+          // Crediting failed — remove the lock so it can be retried
+          await supabase
+            .from('mpesa_payments')
+            .delete()
+            .eq('checkout_request_id', checkoutRequestId);
+        }
       }
     }
 

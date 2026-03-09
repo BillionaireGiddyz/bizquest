@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
-const SHORTCODE = process.env.MPESA_SHORTCODE || '174379';
-const PASSKEY = process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
+const SHORTCODE = process.env.MPESA_SHORTCODE || '';
+const PASSKEY = process.env.MPESA_PASSKEY || '';
 const MPESA_ENV = process.env.MPESA_ENV || 'sandbox';
 const BASE_URL = MPESA_ENV === 'live'
   ? 'https://api.safaricom.co.ke'
@@ -26,16 +26,22 @@ async function getAccessToken(): Promise<string> {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || '';
-  res.setHeader('Access-Control-Allow-Origin', origin.endsWith('.vercel.app') ? origin : '*');
+  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
+  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { phone, amount } = req.body as { phone: string; amount: number };
+  const { phone, amount, userId } = req.body as { phone: string; amount: number; userId?: string };
 
   if (!phone || !amount) {
     return res.status(400).json({ error: 'Phone and amount are required' });
+  }
+
+  if (!userId) {
+    return res.status(400).json({ error: 'Authentication required. Please sign in.' });
   }
 
   // Normalize phone number to 254XXXXXXXXX format

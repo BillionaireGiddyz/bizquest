@@ -6,19 +6,28 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-03-31.basil' as any,
 });
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
-);
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+if (!SERVICE_ROLE_KEY) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY is required for payment operations');
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || '';
-  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : (process.env.PRODUCTION_URL || '*');
+  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
+  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (!SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: 'Payment service misconfigured' });
+  }
 
   const { sessionId } = req.body as { sessionId: string };
 
@@ -42,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } as any);
 
       const userId = session.metadata?.userId;
-      const creditsToAdd = parseInt(session.metadata?.credits || '5');
+      const CREDITS_PER_PURCHASE = 5; // Single tier — hardcoded, not from metadata
       let serverCredited = false;
 
       // Add credits SERVER-SIDE so the client can't manipulate the amount
@@ -54,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .single();
 
         if (profile) {
-          const newCredits = (profile.credits || 0) + creditsToAdd;
+          const newCredits = (profile.credits || 0) + CREDITS_PER_PURCHASE;
           const expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
           const { error: updateErr } = await supabase
             .from('profiles')
@@ -67,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       return res.status(200).json({
         paid: true,
-        credits: creditsToAdd,
+        credits: CREDITS_PER_PURCHASE,
         serverCredited,
       });
     }
