@@ -20,6 +20,7 @@ interface ChatInterfaceProps {
   onSignOut?: () => void;
   followUpsLeft?: number;
   hasAnalysis?: boolean;
+  onNewChat?: () => void;
 }
 
 const DATA_SOURCES = [
@@ -62,7 +63,7 @@ const SUGGESTIONS = [
   "Market saturation for mobile accessories in CBD?"
 ];
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false, onNewChat }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
   const [mode, setMode] = useState<'followup' | 'new'>('followup');
@@ -166,8 +167,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
             </div>
         </div>
         
-        {/* Right side: credits + user controls */}
+        {/* Right side: new chat + credits + user controls */}
         <div className="flex items-center gap-2">
+          {/* New Chat button — visible when there's an active analysis or messages */}
+          {(hasAnalysis || messages.length > 0) && onNewChat && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onNewChat}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold rounded-full shadow-md shadow-indigo-200/50 hover:shadow-lg hover:shadow-indigo-300/50 transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New</span>
+            </motion.button>
+          )}
           <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

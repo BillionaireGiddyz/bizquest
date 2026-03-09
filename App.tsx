@@ -226,6 +226,12 @@ const App: React.FC = () => {
     if (user?.id) localStorage.removeItem(getHistoryKey(user.id));
   };
 
+  const startNewChat = () => {
+    setMessages([]);
+    setCurrentAnalysis(null);
+    setFollowUpsLeft(0);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -329,6 +335,7 @@ const App: React.FC = () => {
               onSignOut={signOut}
               followUpsLeft={followUpsLeft}
               hasAnalysis={!!currentAnalysis}
+              onNewChat={startNewChat}
             />
           </motion.div>
 
