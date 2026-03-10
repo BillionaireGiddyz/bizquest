@@ -45,9 +45,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Normalize phone number to 254XXXXXXXXX format
-  let normalizedPhone = phone.replace(/\s+/g, '').replace(/^0/, '254').replace(/^\+/, '');
+  let normalizedPhone = phone.trim().replace(/\s+/g, '').replace(/^0/, '254').replace(/^\+/, '');
   if (!normalizedPhone.startsWith('254')) {
     normalizedPhone = `254${normalizedPhone}`;
+  }
+
+  // Strict Kenyan phone validation: must be 254 + 9 digits
+  if (!/^254\d{9}$/.test(normalizedPhone)) {
+    return res.status(400).json({ error: 'Invalid phone number. Use format: 07XXXXXXXX or 254XXXXXXXXX' });
   }
 
   // M-Pesa sandbox test number — auto-approve only in sandbox mode
@@ -118,7 +123,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (err: unknown) {
-    console.error('M-Pesa STK error:', err);
+    const ref = Math.random().toString(36).slice(2, 8);
+    console.error(`M-Pesa STK error (ref:${ref}):`, err instanceof Error ? err.message : 'Unknown error');
     return res.status(500).json({ error: 'Failed to initiate M-Pesa payment. Please try again.' });
   }
 }

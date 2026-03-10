@@ -302,7 +302,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                     : ""
                 )}>
                   {msg.role === 'assistant' ? (
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown disallowedElements={['script', 'iframe', 'object', 'embed', 'form']} unwrapDisallowed>{msg.content}</ReactMarkdown>
                   ) : (
                     <span className="whitespace-pre-wrap">{msg.content}</span>
                   )}

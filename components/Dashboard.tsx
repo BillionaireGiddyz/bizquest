@@ -383,7 +383,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           Analyst Summary
         </h4>
         <div className="prose prose-sm prose-slate prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-headings:my-2 prose-strong:font-bold prose-strong:text-slate-900 text-slate-600 leading-relaxed font-medium max-w-none">
-          <ReactMarkdown>{data.explanation}</ReactMarkdown>
+          <ReactMarkdown disallowedElements={['script', 'iframe', 'object', 'embed', 'form']} unwrapDisallowed>{data.explanation}</ReactMarkdown>
         </div>
       </motion.div>
 

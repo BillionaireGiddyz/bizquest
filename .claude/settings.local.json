@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(vercel:*)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(npm ls:*)",
+      "Bash(printf:*)",
+      "Bash(npx vite:*)",
+      "Bash(node:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(cd:2)",
+      "Bash(git:*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(npx vercel:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

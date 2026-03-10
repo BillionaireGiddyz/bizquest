@@ -1,10 +1,10 @@
 import { AnalysisResult } from "../types";
 
-export const analyzeMarketQuery = async (query: string): Promise<AnalysisResult> => {
+export const analyzeMarketQuery = async (query: string, userId?: string): Promise<AnalysisResult> => {
   const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, userId }),
   });
 
   if (!res.ok) {

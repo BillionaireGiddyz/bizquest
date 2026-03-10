@@ -7,11 +7,28 @@ const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
 const CACHE_TTL_HOURS = 24;
+
+// ── Simple in-memory rate limiter ────────────────────────────────
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX = 15; // max 15 analyses per IP per hour
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
@@ -24,7 +41,7 @@ function getCorsOrigin(req: VercelRequest): string {
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) return origin;
   if (origin.endsWith('.vercel.app')) return origin;
-  return ALLOWED_ORIGINS[0] || '*';
+  return process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
 }
 
 // ── Google Trends ──────────────────────────────────────────────────
@@ -225,12 +242,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { query } = req.body as { query: string };
-  if (!query || typeof query !== 'string' || query.trim().length === 0) {
+  // Rate limit by IP
+  const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a few minutes before trying again.' });
+  }
+
+  const { query: rawQuery } = req.body as { query: string };
+  if (!rawQuery || typeof rawQuery !== 'string' || rawQuery.trim().length === 0) {
     return res.status(400).json({ error: 'Query is required' });
   }
-  if (query.length > 500) {
+  if (rawQuery.length > 500) {
     return res.status(400).json({ error: 'Query too long. Please keep it under 500 characters.' });
+  }
+  // Sanitize: keep letters (any script), numbers, basic punctuation, strip the rest
+  const query = rawQuery.trim().replace(/[^\p{L}\p{N}\s&\-,.()'?!:]/gu, '').slice(0, 300);
+  if (query.length < 3) {
+    return res.status(400).json({ error: 'Query too short. Please describe what you want to analyze.' });
   }
 
   if (!apiKey) {
@@ -270,7 +298,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const retryable = msg.includes('503') || msg.includes('429') ||
           msg.toLowerCase().includes('overloaded') || msg.toLowerCase().includes('unavailable') ||
           msg.toLowerCase().includes('quota');
-        console.warn(`Model ${modelId} failed (retryable=${retryable}): ${msg.slice(0, 200)}`);
+        console.warn(`Model ${modelId} failed (retryable=${retryable})`);
         if (!retryable || modelId === MODELS[MODELS.length - 1]) throw err;
       }
     }
@@ -482,13 +510,14 @@ Respond with valid JSON matching the schema.`
 
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("Gemini analysis failed:", message);
+    const ref = Math.random().toString(36).slice(2, 8);
+    console.error(`Analysis failed (ref:${ref}):`, message);
     const isQuota = message.includes('429') || message.toLowerCase().includes('quota');
     const isOverloaded = message.includes('503') || message.toLowerCase().includes('overloaded');
     const clientMessage = isQuota
-      ? 'AI service quota exceeded. Please try again later.'
+      ? 'AI service is busy. Please try again in a moment.'
       : isOverloaded
-      ? 'AI service is temporarily busy. Please try again in a moment.'
+      ? 'AI service is temporarily unavailable. Please try again shortly.'
       : 'Analysis failed. Please try again.';
     return res.status(500).json({ error: clientMessage });
   }
