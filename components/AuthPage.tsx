@@ -47,6 +47,7 @@ export const AuthPage: React.FC = () => {
   const { signIn, signUp, resetPassword } = useAuth();
   const [view, setView] = useState<View>('auth');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [mobileStage, setMobileStage] = useState<'welcome' | 'form'>('welcome');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -101,6 +102,7 @@ export const AuthPage: React.FC = () => {
     setIsSignUp(false);
     setError('');
     setPassword('');
+    setMobileStage('form');
   };
 
   if (view === 'signup-confirm' || view === 'forgot-sent') {
@@ -170,49 +172,106 @@ export const AuthPage: React.FC = () => {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1440px] items-center">
         <div className="w-full">
-          <div className="mb-4 rounded-[28px] border border-white/10 bg-white/[0.06] p-4 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md lg:hidden">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10">
-                <BarChart3 className="h-6 w-6 text-indigo-200" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl font-bold tracking-tight">BizQuest</div>
-                <div className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-300">
-                  AI market intelligence
+          <div className="lg:hidden">
+            {mobileStage === 'welcome' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.06] p-5 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10">
+                    <BarChart3 className="h-6 w-6 text-indigo-200" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xl font-bold tracking-tight">BizQuest</div>
+                    <div className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-300">
+                      AI market intelligence
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setView('auth');
-                  setIsSignUp(false);
-                  setError('');
-                }}
-                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
-                  !isSignUp && view === 'auth'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'border border-white/10 bg-white/8 text-white'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => {
-                  setView('auth');
-                  setIsSignUp(true);
-                  setError('');
-                }}
-                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
-                  isSignUp && view === 'auth'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'border border-white/10 bg-white/8 text-white'
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
+                  <Sparkles className="h-3 w-3" />
+                  Launch smarter
+                </div>
+
+                <h1 className="mt-4 text-3xl font-black tracking-tight text-white">
+                  Know what will sell
+                  <span className="block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                    before you invest.
+                  </span>
+                </h1>
+
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  BizQuest turns product ideas into location-specific market verdicts. Analyze demand, competition, and timing before you spend on stock, rent, or ads.
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {VALUE_POINTS.slice(0, 2).map((point) => (
+                    <div
+                      key={point.title}
+                      className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
+                    >
+                      <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-indigo-200">
+                        {point.icon}
+                      </div>
+                      <h2 className="text-sm font-semibold text-white">{point.title}</h2>
+                      <p className="mt-1 text-sm leading-6 text-slate-300">{point.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      setView('auth');
+                      setIsSignUp(false);
+                      setError('');
+                      setMobileStage('form');
+                    }}
+                    className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-sm transition-transform active:scale-[0.98]"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      setView('auth');
+                      setIsSignUp(true);
+                      setError('');
+                      setMobileStage('form');
+                    }}
+                    className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm font-bold text-white transition-transform active:scale-[0.98]"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="mb-4 flex items-center justify-between rounded-[28px] border border-white/10 bg-white/[0.06] p-4 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10">
+                    <BarChart3 className="h-6 w-6 text-indigo-200" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xl font-bold tracking-tight">BizQuest</div>
+                    <div className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-300">
+                      AI market intelligence
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setMobileStage('welcome');
+                    setView('auth');
+                    setError('');
+                  }}
+                  className="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Back
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid w-full gap-6 lg:grid-cols-[1.08fr_0.92fr]">
@@ -316,7 +375,7 @@ export const AuthPage: React.FC = () => {
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.45, delay: 0.05 }}
-            className="flex items-center justify-center"
+            className={`${mobileStage === 'welcome' ? 'hidden lg:flex' : 'flex'} items-center justify-center`}
           >
             <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-white/12 bg-white/95 shadow-2xl shadow-slate-950/40 lg:rounded-[34px]">
               <div className="border-b border-slate-100 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-8 py-8 text-white">
