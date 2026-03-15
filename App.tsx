@@ -4,13 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
 import { HistorySidebar } from './components/HistorySidebar';
+import { DesktopHistoryMenu } from './components/DesktopHistoryMenu';
 import { PaymentModal } from './components/PaymentModal';
 import { AuthPage } from './components/AuthPage';
 import { AdminPanel } from './components/AdminPanel';
 import { AnalysisResult, ChatMessage, AnalysisHistoryItem } from './types';
 import { analyzeMarketQuery } from './services/geminiService';
 import { useAuth } from './lib/AuthContext';
-import { Menu, X, Shield, LogOut } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function getHistoryKey(userId: string) {
@@ -302,6 +303,30 @@ const App: React.FC = () => {
         </div>
       </div>
 
+      {/* Desktop Toolbar */}
+      <div className="hidden lg:block relative z-20 px-6 pt-6">
+        <div className="mx-auto flex w-full max-w-[1600px] items-start justify-between gap-6">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-600 shadow-sm backdrop-blur-md">
+              <Sparkles className="h-3.5 w-3.5" />
+              Workspace
+            </div>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">
+              Market intelligence, organized
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Reopen earlier analyses from a dedicated desktop history menu without disrupting the active session.
+            </p>
+          </div>
+
+          <DesktopHistoryMenu
+            history={history}
+            onSelect={loadFromHistory}
+            onClear={clearHistory}
+          />
+        </div>
+      </div>
+
       <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Sidebar (History) */}
         <HistorySidebar
@@ -313,7 +338,7 @@ const App: React.FC = () => {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:p-6 w-full max-w-[1600px] mx-auto overflow-y-auto lg:overflow-hidden">
+        <main className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:px-6 lg:pb-6 lg:pt-5 w-full max-w-[1600px] mx-auto overflow-y-auto lg:overflow-hidden">
 
           {/* Left Panel: Chat */}
           <motion.div
