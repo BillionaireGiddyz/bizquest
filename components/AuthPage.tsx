@@ -170,33 +170,12 @@ export const AuthPage: React.FC = () => {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1440px] items-center">
         <div className="w-full">
-          <div className="mb-4 flex items-center justify-between rounded-full border border-white/10 bg-white/8 px-4 py-3 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md lg:hidden">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
-                BizQuest Access
-              </p>
-              <p className="mt-1 text-sm font-semibold text-white">
-                Already have an account?
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                setView('auth');
-                setIsSignUp(false);
-                setError('');
-              }}
-              className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm transition-transform active:scale-[0.98]"
-            >
-              Sign In
-            </button>
-          </div>
-
-          <div className="mb-4 overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.06] p-5 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl lg:hidden">
+          <div className="mb-4 rounded-[28px] border border-white/10 bg-white/[0.06] p-4 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md lg:hidden">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10">
                 <BarChart3 className="h-6 w-6 text-indigo-200" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-xl font-bold tracking-tight">BizQuest</div>
                 <div className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-300">
                   AI market intelligence
@@ -204,35 +183,35 @@ export const AuthPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
-              <Sparkles className="h-3 w-3" />
-              Launch smarter
-            </div>
-
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-white">
-              Know what will sell
-              <span className="block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-                before you invest.
-              </span>
-            </h1>
-
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Analyze demand, competition, and timing in one place built for founders who need clarity before spending money.
-            </p>
-
-            <div className="mt-5 space-y-3">
-              {VALUE_POINTS.slice(0, 2).map((point) => (
-                <div
-                  key={point.title}
-                  className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
-                >
-                  <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-indigo-200">
-                    {point.icon}
-                  </div>
-                  <h2 className="text-sm font-semibold text-white">{point.title}</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-300">{point.description}</p>
-                </div>
-              ))}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setView('auth');
+                  setIsSignUp(false);
+                  setError('');
+                }}
+                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+                  !isSignUp && view === 'auth'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'border border-white/10 bg-white/8 text-white'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => {
+                  setView('auth');
+                  setIsSignUp(true);
+                  setError('');
+                }}
+                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+                  isSignUp && view === 'auth'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'border border-white/10 bg-white/8 text-white'
+                }`}
+              >
+                Sign Up
+              </button>
             </div>
           </div>
 
