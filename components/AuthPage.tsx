@@ -1,9 +1,47 @@
 import React, { useState } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import { motion } from 'framer-motion';
-import { LogIn, UserPlus, Mail, Lock, AlertCircle, Sparkles, ArrowLeft, CheckCircle, KeyRound } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  BarChart3,
+  CheckCircle2,
+  KeyRound,
+  Lock,
+  LogIn,
+  Mail,
+  MapPinned,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  UserPlus,
+} from 'lucide-react';
 
 type View = 'auth' | 'forgot' | 'forgot-sent' | 'signup-confirm';
+
+const VALUE_POINTS = [
+  {
+    icon: <TrendingUp className="h-5 w-5" />,
+    title: 'Demand scoring in seconds',
+    description: 'Turn vague business ideas into quantified market signals before you spend capital.',
+  },
+  {
+    icon: <MapPinned className="h-5 w-5" />,
+    title: 'Location-aware verdicts',
+    description: 'See how product demand, competition, and timing shift across towns, estates, and cities.',
+  },
+  {
+    icon: <ShieldCheck className="h-5 w-5" />,
+    title: 'Decision-grade summaries',
+    description: 'Get structured recommendations you can act on, not generic AI chatter.',
+  },
+];
+
+const INSIGHT_ROWS = [
+  { label: 'Demand Signal', value: '74 / 100', tone: 'text-emerald-600' },
+  { label: 'Competition', value: 'Medium', tone: 'text-amber-600' },
+  { label: 'Timing Window', value: 'Early', tone: 'text-indigo-600' },
+];
 
 export const AuthPage: React.FC = () => {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -65,251 +103,421 @@ export const AuthPage: React.FC = () => {
     setPassword('');
   };
 
-  // Success screens
   if (view === 'signup-confirm' || view === 'forgot-sent') {
     const isForgot = view === 'forgot-sent';
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center border border-slate-200"
-        >
-          <div className={`w-16 h-16 ${isForgot ? 'bg-indigo-100' : 'bg-emerald-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-            {isForgot
-              ? <KeyRound className="w-8 h-8 text-indigo-600" />
-              : <Mail className="w-8 h-8 text-emerald-600" />
-            }
-          </div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">
-            {isForgot ? 'Reset link sent' : 'Check your email'}
-          </h2>
-          <p className="text-slate-500 mb-6">
-            {isForgot
-              ? <>We sent a password reset link to <strong className="text-slate-700">{email}</strong>. Click it to set a new password.</>
-              : <>We sent a confirmation link to <strong className="text-slate-700">{email}</strong>. Click it to activate your account.</>
-            }
-          </p>
-          <button
-            onClick={goBackToSignIn}
-            className="text-indigo-600 font-medium hover:underline flex items-center gap-1.5 mx-auto"
+      <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.22),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.18),_transparent_28%),linear-gradient(135deg,#020617,#0f172a_45%,#111827)]" />
+        <div className="absolute inset-0 pattern-grid-lg opacity-[0.08]" />
+
+        <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-lg overflow-hidden rounded-[32px] border border-white/10 bg-white/95 shadow-2xl shadow-slate-950/40"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to sign in
-          </button>
-        </motion.div>
+            <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-8 py-9 text-center text-white">
+              <div className={`mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-3xl ${isForgot ? 'bg-indigo-500/20' : 'bg-emerald-500/20'} border border-white/10`}>
+                {isForgot ? (
+                  <KeyRound className="h-9 w-9 text-indigo-200" />
+                ) : (
+                  <Mail className="h-9 w-9 text-emerald-200" />
+                )}
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {isForgot ? 'Reset link sent' : 'Check your email'}
+              </h1>
+              <p className="mt-3 text-sm text-slate-300">
+                {isForgot
+                  ? 'We have prepared a secure password reset link for your inbox.'
+                  : 'Your account confirmation link is on its way.'}
+              </p>
+            </div>
+
+            <div className="px-8 py-8 text-center">
+              <p className="text-slate-500">
+                {isForgot ? (
+                  <>
+                    We sent a password reset link to <strong className="text-slate-800">{email}</strong>. Open it to choose a new password.
+                  </>
+                ) : (
+                  <>
+                    We sent a confirmation link to <strong className="text-slate-800">{email}</strong>. Activate your account, then return to BizQuest.
+                  </>
+                )}
+              </p>
+
+              <button
+                onClick={goBackToSignIn}
+                className="mt-7 inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to sign in
+              </button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pattern-grid-lg opacity-[0.03] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500" />
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.22),_transparent_28%),radial-gradient(circle_at_80%_20%,_rgba(139,92,246,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.16),_transparent_24%),linear-gradient(135deg,#020617,#0f172a_42%,#111827)]" />
+      <div className="absolute inset-0 pattern-grid-lg opacity-[0.08]" />
+      <div className="absolute left-[10%] top-[16%] h-44 w-44 rounded-full bg-indigo-500/12 blur-3xl" />
+      <div className="absolute bottom-[12%] right-[12%] h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 relative z-10"
-      >
-        {/* Header */}
-        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-500/10 rounded-full blur-2xl" />
-
+      <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1440px] items-center">
+        <div className="grid w-full gap-6 lg:grid-cols-[1.08fr_0.92fr]">
           <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-            className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md border border-white/10"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.45 }}
+            className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.06] p-6 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl lg:min-h-[760px] lg:p-8"
           >
-            <Sparkles className="w-8 h-8 text-white" />
-          </motion.div>
-
-          <h1 className="text-2xl font-bold text-white tracking-tight">BizQuest</h1>
-          <p className="text-slate-400 text-sm mt-1">AI-Powered Market Intelligence</p>
-        </div>
-
-        {/* Body */}
-        <div className="p-8">
-          {/* Forgot Password View */}
-          {view === 'forgot' ? (
-            <motion.div
-              key="forgot"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <button
-                onClick={goBackToSignIn}
-                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-5"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to sign in
-              </button>
-
-              <h2 className="text-lg font-bold text-slate-800 mb-1">Forgot your password?</h2>
-              <p className="text-sm text-slate-500 mb-5">Enter your email and we'll send you a reset link.</p>
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-100 rounded-xl mb-4 text-rose-600 text-sm"
-                >
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  {error}
-                </motion.div>
-              )}
-
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400"
-                    required
-                    autoFocus
-                  />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.22),_transparent_28%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.14),_transparent_26%)]" />
+            <div className="relative flex h-full flex-col">
+              <div className="flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-md">
+                  <BarChart3 className="h-7 w-7 text-indigo-200" />
                 </div>
-
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <Mail className="w-4 h-4" />
-                      Send Reset Link
-                    </>
-                  )}
-                </motion.button>
-              </form>
-            </motion.div>
-          ) : (
-            /* Sign In / Sign Up View */
-            <motion.div
-              key="auth"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
-                <button
-                  onClick={() => { setIsSignUp(false); setError(''); }}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                    !isSignUp ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <LogIn className="w-4 h-4" /> Sign In
-                </button>
-                <button
-                  onClick={() => { setIsSignUp(true); setError(''); }}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                    isSignUp ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <UserPlus className="w-4 h-4" /> Sign Up
-                </button>
+                <div>
+                  <div className="text-2xl font-bold tracking-tight">BizQuest</div>
+                  <div className="text-xs font-medium uppercase tracking-[0.28em] text-slate-300">
+                    AI market intelligence
+                  </div>
+                </div>
               </div>
 
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-100 rounded-xl mb-4 text-rose-600 text-sm"
-                >
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <div className="flex-1">
-                    {error}
-                    {!isSignUp && error.toLowerCase().includes('invalid') && (
-                      <button
-                        onClick={() => { setView('forgot'); setError(''); }}
-                        className="block text-indigo-600 font-medium hover:underline mt-1"
-                      >
-                        Reset your password
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400"
-                      required
-                    />
-                  </div>
+              <div className="mt-10 max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Launch smarter
                 </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between ml-1 mr-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
-                    {!isSignUp && (
-                      <button
-                        type="button"
-                        onClick={() => { setView('forgot'); setError(''); }}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium hover:underline"
-                      >
-                        Forgot password?
-                      </button>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={isSignUp ? 'Min 6 characters' : 'Your password'}
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 placeholder:text-slate-400"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      {isSignUp ? <UserPlus className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
-                      {isSignUp ? 'Create Account' : 'Sign In'}
-                    </>
-                  )}
-                </motion.button>
-              </form>
-
-              {isSignUp && (
-                <p className="text-center text-xs text-slate-400 mt-4">
-                  You'll get <strong className="text-indigo-600">3 free analysis credits</strong> on sign up
+                <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                  Know what will sell
+                  <span className="block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                    before you invest.
+                  </span>
+                </h1>
+                <p className="mt-5 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
+                  BizQuest turns product ideas into location-specific market verdicts. Analyze demand, competition, and timing in one workspace built for founders who need clarity before spending money.
                 </p>
-              )}
-            </motion.div>
-          )}
+              </div>
+
+              <div className="mt-10 grid gap-4 md:grid-cols-3">
+                {VALUE_POINTS.map((point, index) => (
+                  <motion.div
+                    key={point.title}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.12 + index * 0.08 }}
+                    className="rounded-[24px] border border-white/10 bg-white/[0.06] p-4 shadow-lg shadow-slate-950/10"
+                  >
+                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-indigo-200">
+                      {point.icon}
+                    </div>
+                    <h2 className="text-sm font-semibold text-white">{point.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{point.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="mt-10 rounded-[30px] border border-white/10 bg-slate-950/45 p-5 shadow-2xl shadow-slate-950/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">
+                      Example market brief
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-white">
+                      Portable blender in Nairobi West
+                    </h3>
+                  </div>
+                  <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-300">
+                    GO
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {INSIGHT_ROWS.map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                        {item.label}
+                      </p>
+                      <p className={`mt-2 text-lg font-bold ${item.tone}`}>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 flex items-start gap-3 rounded-2xl border border-cyan-400/15 bg-cyan-400/8 px-4 py-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                  <p className="text-sm leading-6 text-slate-200">
+                    Our market scan suggests healthy demand, manageable competition, and a favorable timing window for a value-positioned launch.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-auto hidden items-center gap-6 pt-8 text-sm text-slate-400 lg:flex">
+                <span className="font-medium text-slate-300">3 free credits on sign up</span>
+                <span>Follow-up questions included</span>
+                <span>Built for East African entrepreneurs</span>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+            className="flex items-center justify-center"
+          >
+            <div className="w-full max-w-xl overflow-hidden rounded-[34px] border border-white/12 bg-white/95 shadow-2xl shadow-slate-950/40">
+              <div className="border-b border-slate-100 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-8 py-8 text-white">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/10 ring-1 ring-white/10 backdrop-blur-md">
+                    <Sparkles className="h-8 w-8 text-indigo-200" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold tracking-tight">
+                      {view === 'forgot' ? 'Recover your access' : isSignUp ? 'Create your account' : 'Welcome back'}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-300">
+                      {view === 'forgot'
+                        ? 'Secure your account and continue where you left off.'
+                        : isSignUp
+                        ? 'Start evaluating market opportunities with 3 free credits.'
+                        : 'Sign in to continue analyzing your next market opportunity.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-8 py-8">
+                {view === 'forgot' ? (
+                  <motion.div
+                    key="forgot"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <button
+                      onClick={goBackToSignIn}
+                      className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back to sign in
+                    </button>
+
+                    <p className="mb-6 text-sm leading-6 text-slate-500">
+                      Enter the email attached to your BizQuest account and we’ll send a secure reset link.
+                    </p>
+
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-5 flex items-center gap-2 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+                      >
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        {error}
+                      </motion.div>
+                    )}
+
+                    <form onSubmit={handleForgotPassword} className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="ml-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                          Email address
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-4 h-4 w-4 text-slate-400" />
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-slate-800 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                            required
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <motion.button
+                        type="submit"
+                        disabled={loading}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 py-3.5 text-sm font-bold text-white shadow-lg shadow-slate-200 transition-all hover:bg-slate-800 disabled:bg-slate-400"
+                      >
+                        {loading ? (
+                          <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        ) : (
+                          <>
+                            <Mail className="h-4 w-4" />
+                            Send Reset Link
+                          </>
+                        )}
+                      </motion.button>
+                    </form>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="auth"
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <div className="mb-6 grid grid-cols-2 rounded-2xl bg-slate-100 p-1.5">
+                      <button
+                        onClick={() => {
+                          setIsSignUp(false);
+                          setError('');
+                        }}
+                        className={`rounded-xl px-4 py-3 text-sm font-bold transition-all ${
+                          !isSignUp
+                            ? 'bg-white text-slate-900 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <LogIn className="h-4 w-4" />
+                          Sign In
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsSignUp(true);
+                          setError('');
+                        }}
+                        className={`rounded-xl px-4 py-3 text-sm font-bold transition-all ${
+                          isSignUp
+                            ? 'bg-white text-slate-900 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <UserPlus className="h-4 w-4" />
+                          Sign Up
+                        </span>
+                      </button>
+                    </div>
+
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+                      >
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                          <div className="flex-1">
+                            {error}
+                            {!isSignUp && error.toLowerCase().includes('invalid') && (
+                              <button
+                                onClick={() => {
+                                  setView('forgot');
+                                  setError('');
+                                }}
+                                className="mt-1 block font-medium text-indigo-600 hover:underline"
+                              >
+                                Reset your password
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="ml-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                          Email address
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-4 h-4 w-4 text-slate-400" />
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-slate-800 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <label className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                            Password
+                          </label>
+                          {!isSignUp && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setView('forgot');
+                                setError('');
+                              }}
+                              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+                            >
+                              Forgot password?
+                            </button>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-4 h-4 w-4 text-slate-400" />
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder={isSignUp ? 'Minimum 6 characters' : 'Your password'}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-slate-800 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <motion.button
+                        type="submit"
+                        disabled={loading}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-200/70 disabled:from-indigo-400 disabled:to-violet-400"
+                      >
+                        {loading ? (
+                          <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        ) : (
+                          <>
+                            {isSignUp ? <UserPlus className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                            {isSignUp ? 'Create Account' : 'Sign In'}
+                          </>
+                        )}
+                      </motion.button>
+                    </form>
+
+                    <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 px-4 py-4">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+                          <Sparkles className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">
+                            {isSignUp ? 'You start with 3 free analysis credits.' : 'Continue your saved market research instantly.'}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {isSignUp
+                              ? 'Test your first product ideas before committing cash to inventory, ads, or rent.'
+                              : 'Your account keeps your credits, history, and follow-up workflow in one place.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
