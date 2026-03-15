@@ -4,13 +4,6 @@ import App from './App';
 import { AuthProvider } from './lib/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-const CANONICAL_HOST = 'bizquest-eight.vercel.app';
-const { hostname, pathname, search, hash, protocol } = window.location;
-
-if (hostname !== CANONICAL_HOST && hostname !== 'localhost' && hostname !== '127.0.0.1') {
-  window.location.replace(`${protocol}//${CANONICAL_HOST}${pathname}${search}${hash}`);
-}
-
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
