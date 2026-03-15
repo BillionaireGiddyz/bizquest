@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { getAllowedOrigin } from './_app';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-03-31.basil' as any,
@@ -16,10 +17,7 @@ if (!SERVICE_ROLE_KEY) {
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin || '';
-  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
-  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Origin', getAllowedOrigin(req));
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();

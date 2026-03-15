@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
+import { getAllowedOrigin } from './_app';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
@@ -22,10 +23,7 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin || '';
-  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
-  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Origin', getAllowedOrigin(req));
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();

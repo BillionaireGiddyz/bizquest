@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { getAllowedOrigin, getAppCallbackUrl } from './_app';
 
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
@@ -25,10 +26,7 @@ async function getAccessToken(): Promise<string> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin || '';
-  const APP_URL = process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
-  const allowedOrigin = origin.endsWith('.vercel.app') || origin.includes('localhost') ? origin : APP_URL;
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Origin', getAllowedOrigin(req));
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -76,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const timestamp = now.toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
     const password = Buffer.from(`${SHORTCODE}${PASSKEY}${timestamp}`).toString('base64');
 
-    const callbackUrl = process.env.MPESA_CALLBACK_URL || 'https://bizquest.vercel.app/api/mpesa-callback';
+    const callbackUrl = process.env.MPESA_CALLBACK_URL || getAppCallbackUrl('/api/mpesa-callback');
 
     const stkBody = {
       BusinessShortCode: SHORTCODE,

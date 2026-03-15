@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import googleTrends from 'google-trends-api';
 import { createClient } from '@supabase/supabase-js';
+import { APP_URL } from './_app';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
@@ -33,15 +34,13 @@ function checkRateLimit(ip: string): boolean {
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5173',
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
-  process.env.PRODUCTION_URL || '',
+  APP_URL,
 ].filter(Boolean);
 
 function getCorsOrigin(req: VercelRequest): string {
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) return origin;
-  if (origin.endsWith('.vercel.app')) return origin;
-  return process.env.PRODUCTION_URL || 'https://bizquest-eight.vercel.app';
+  return APP_URL;
 }
 
 // ── Google Trends ──────────────────────────────────────────────────
