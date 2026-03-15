@@ -169,12 +169,79 @@ export const AuthPage: React.FC = () => {
       <div className="absolute bottom-[12%] right-[12%] h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1440px] items-center">
-        <div className="grid w-full gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+        <div className="w-full">
+          <div className="mb-4 flex items-center justify-between rounded-full border border-white/10 bg-white/8 px-4 py-3 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md lg:hidden">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
+                BizQuest Access
+              </p>
+              <p className="mt-1 text-sm font-semibold text-white">
+                Already have an account?
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setView('auth');
+                setIsSignUp(false);
+                setError('');
+              }}
+              className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm transition-transform active:scale-[0.98]"
+            >
+              Sign In
+            </button>
+          </div>
+
+          <div className="mb-4 overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.06] p-5 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl lg:hidden">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-slate-950/20 ring-1 ring-white/10">
+                <BarChart3 className="h-6 w-6 text-indigo-200" />
+              </div>
+              <div>
+                <div className="text-xl font-bold tracking-tight">BizQuest</div>
+                <div className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-300">
+                  AI market intelligence
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
+              <Sparkles className="h-3 w-3" />
+              Launch smarter
+            </div>
+
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-white">
+              Know what will sell
+              <span className="block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                before you invest.
+              </span>
+            </h1>
+
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              Analyze demand, competition, and timing in one place built for founders who need clarity before spending money.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              {VALUE_POINTS.slice(0, 2).map((point) => (
+                <div
+                  key={point.title}
+                  className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
+                >
+                  <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-indigo-200">
+                    {point.icon}
+                  </div>
+                  <h2 className="text-sm font-semibold text-white">{point.title}</h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">{point.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid w-full gap-6 lg:grid-cols-[1.08fr_0.92fr]">
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.45 }}
-            className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.06] p-6 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl lg:min-h-[760px] lg:p-8"
+            className="relative hidden overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.06] p-6 text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl lg:block lg:min-h-[760px] lg:p-8"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.22),_transparent_28%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.14),_transparent_26%)]" />
             <div className="relative flex h-full flex-col">
@@ -272,14 +339,14 @@ export const AuthPage: React.FC = () => {
             transition={{ duration: 0.45, delay: 0.05 }}
             className="flex items-center justify-center"
           >
-            <div className="w-full max-w-xl overflow-hidden rounded-[34px] border border-white/12 bg-white/95 shadow-2xl shadow-slate-950/40">
+            <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-white/12 bg-white/95 shadow-2xl shadow-slate-950/40 lg:rounded-[34px]">
               <div className="border-b border-slate-100 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-8 py-8 text-white">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/10 ring-1 ring-white/10 backdrop-blur-md">
                     <Sparkles className="h-8 w-8 text-indigo-200" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold tracking-tight">
+                    <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                       {view === 'forgot' ? 'Recover your access' : isSignUp ? 'Create your account' : 'Welcome back'}
                     </h2>
                     <p className="mt-1 text-sm text-slate-300">
@@ -293,7 +360,7 @@ export const AuthPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="px-8 py-8">
+              <div className="px-5 py-6 sm:px-8 sm:py-8">
                 {view === 'forgot' ? (
                   <motion.div
                     key="forgot"
@@ -517,6 +584,7 @@ export const AuthPage: React.FC = () => {
             </div>
           </motion.div>
         </div>
+      </div>
       </div>
     </div>
   );
