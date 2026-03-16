@@ -166,6 +166,13 @@ export const AuthPage: React.FC = () => {
     setDesktopStage('form');
   };
 
+  const closeDesktopOverlay = () => {
+    setView('auth');
+    setError('');
+    setPassword('');
+    setDesktopStage('welcome');
+  };
+
   const headerCopy = getHeaderCopy(view, isSignUp);
 
   if (view === 'signup-confirm' || view === 'forgot-sent') {
@@ -284,9 +291,14 @@ export const AuthPage: React.FC = () => {
 
                   <h1 className="relative mt-4 text-[2.1rem] font-black leading-[1.02] tracking-tight">
                     Launch with signal,
-                    <span className="mt-1 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                    <motion.span
+                      className="mt-1 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent"
+                      style={{ backgroundSize: '200% 200%' }}
+                      animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    >
                       not guesswork.
-                    </span>
+                    </motion.span>
                   </h1>
 
                   <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300">
@@ -294,16 +306,27 @@ export const AuthPage: React.FC = () => {
                   </p>
 
                   <div className="mt-5 grid grid-cols-3 gap-2.5">
-                    {TRUST_METRICS.map((metric) => (
-                      <div key={metric.label} className="rounded-[22px] border border-white/10 bg-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    {TRUST_METRICS.map((metric, index) => (
+                      <motion.div
+                        key={metric.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.08 + index * 0.06 }}
+                        className="rounded-[22px] border border-white/10 bg-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                      >
                         <div className="text-base font-black text-white">{metric.value}</div>
                         <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">{metric.label}</div>
                         <div className="mt-1 text-[11px] text-slate-400">{metric.note}</div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
-                  <div className="mt-5 rounded-[26px] border border-white/10 bg-slate-950/38 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="mt-5 rounded-[26px] border border-white/10 bg-slate-950/38 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
@@ -330,7 +353,7 @@ export const AuthPage: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
 
                   <div className="mt-5 rounded-[22px] border border-cyan-400/10 bg-cyan-400/8 px-4 py-3 text-sm leading-6 text-slate-200">
                     Start with a quick sign in or create an account to unlock your first market brief.
@@ -417,9 +440,14 @@ export const AuthPage: React.FC = () => {
 
                       <h1 className="mt-6 max-w-[470px] text-[3.8rem] font-black leading-[0.92] tracking-[-0.05em] text-white">
                         Launch with signal,
-                        <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                        <motion.span
+                          className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent"
+                          style={{ backgroundSize: '200% 200%' }}
+                          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                        >
                           not guesswork.
-                        </span>
+                        </motion.span>
                       </h1>
 
                       <p className="mt-5 max-w-[470px] text-lg leading-8 text-slate-300">
@@ -427,19 +455,30 @@ export const AuthPage: React.FC = () => {
                       </p>
 
                       <div className="mt-7 grid grid-cols-3 gap-3">
-                        {TRUST_METRICS.map((metric) => (
-                          <div key={metric.label} className="rounded-[22px] border border-white/8 bg-white/[0.06] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                        {TRUST_METRICS.map((metric, index) => (
+                          <motion.div
+                            key={metric.label}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.08 + index * 0.07 }}
+                            whileHover={{ y: -4 }}
+                            className="rounded-[22px] border border-white/8 bg-white/[0.06] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                          >
                             <div className="text-xl font-black text-white">{metric.value}</div>
                             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
                             <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
 
                       <div className="mt-7 grid gap-3">
-                        {VALUE_PILLARS.slice(0, 2).map((card) => (
-                          <div
+                        {VALUE_PILLARS.slice(0, 2).map((card, index) => (
+                          <motion.div
                             key={card.title}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.18 + index * 0.08 }}
+                            whileHover={{ y: -3, scale: 1.01 }}
                             className="flex items-start gap-4 rounded-[24px] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]"
                           >
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -449,7 +488,7 @@ export const AuthPage: React.FC = () => {
                               <div className="text-base font-semibold text-white">{card.title}</div>
                               <p className="mt-1 text-sm leading-6 text-slate-300">{card.body}</p>
                             </div>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
 
@@ -536,6 +575,12 @@ export const AuthPage: React.FC = () => {
                 className="flex items-start justify-center"
               >
               <div className="premium-shadow relative w-full max-w-xl overflow-hidden rounded-[32px] border border-white/12 bg-white/95 lg:rounded-[38px]">
+                <button
+                  onClick={closeDesktopOverlay}
+                  className="absolute right-5 top-5 z-20 rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-slate-600 shadow-sm transition-colors hover:border-indigo-200 hover:text-indigo-700"
+                >
+                  Back
+                </button>
                 <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(180deg,rgba(99,102,241,0.1),transparent)]" />
                 <div className="relative overflow-hidden border-b border-slate-100 bg-[linear-gradient(135deg,#020617,#111827_55%,#312e81)] px-5 py-6 text-white sm:px-8 sm:py-8">
                   <div className="noise-surface absolute inset-0 opacity-25" />
