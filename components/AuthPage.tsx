@@ -57,7 +57,8 @@ const OPPORTUNITY_SIGNALS = [
 
 const SAMPLE_QUESTION = 'Will a portable blender sell well in Nairobi West?';
 const SAMPLE_TITLE = 'Portable blender in Nairobi West';
-const SAMPLE_VERDICT = 'Strong trend';
+const SAMPLE_VERDICT = 'Analysis indicates a strong trend in Nairobi West';
+const SAMPLE_HINT = 'Healthy signal density, manageable pressure, and more beneath the surface';
 
 function useTypewriter(text: string, speedMs: number, resetKey: number) {
   const [displayed, setDisplayed] = useState('');
@@ -118,43 +119,47 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
   return (
     <>
       <div className={`rounded-[22px] border border-white/10 bg-slate-950/24 ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}>
-        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
-          <div className="h-2 w-2 rounded-full bg-cyan-300/80" />
-          Input question
-        </div>
-        <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
-          {typedQuestion}
-          <span className="ml-0.5 inline-block h-[1.1em] w-[1px] translate-y-0.5 animate-pulse bg-cyan-200/80 align-middle" />
-        </div>
-      </div>
-
-      <motion.div
-        initial={false}
-        animate={{
-          opacity: phase === 'analyzing' ? 1 : 0,
-          height: phase === 'analyzing' ? 'auto' : 0,
-          marginTop: phase === 'analyzing' ? (compact ? 12 : 14) : 0,
-        }}
-        transition={{ duration: 0.28, ease: 'easeOut' }}
-        className="overflow-hidden"
-      >
-        <div className={`rounded-[20px] border border-cyan-400/12 bg-cyan-400/[0.07] ${compact ? 'px-3 py-2.5' : 'px-4 py-3'}`}>
+        <motion.div
+          initial={false}
+          animate={{
+            borderColor: phase === 'analyzing' ? 'rgba(34,211,238,0.18)' : 'rgba(255,255,255,0)',
+            backgroundColor: phase === 'analyzing' ? 'rgba(34,211,238,0.05)' : 'rgba(2,6,23,0)',
+          }}
+          transition={{ duration: 0.28, ease: 'easeOut' }}
+          className={`rounded-[18px] ${phase === 'analyzing' ? 'px-3 py-2.5' : 'p-0'}`}
+        >
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-200">Analyzing live data</div>
-              <div className={`mt-1 text-slate-300 ${compact ? 'text-xs' : 'text-sm'}`}>
-                Checking demand, competition, and timing signals.
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+              <div className={`h-2 w-2 rounded-full ${phase === 'analyzing' ? 'bg-cyan-300 animate-pulse' : 'bg-cyan-300/80'}`} />
+              {phase === 'analyzing' ? 'Analyzing live data' : 'Input question'}
+            </div>
+            {phase === 'analyzing' && (
+              <div className="rounded-full border border-cyan-300/18 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-100">
+                Live scan
               </div>
-            </div>
-            <div className="rounded-full border border-cyan-300/18 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-100">
-              Live scan
-            </div>
+            )}
           </div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
-            <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
+          <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
+            {typedQuestion}
+            <span className="ml-0.5 inline-block h-[1.1em] w-[1px] translate-y-0.5 animate-pulse bg-cyan-200/80 align-middle" />
           </div>
-        </div>
-      </motion.div>
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: phase === 'analyzing' ? 1 : 0,
+              height: phase === 'analyzing' ? 'auto' : 0,
+              marginTop: phase === 'analyzing' ? 10 : 0,
+            }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+            className="overflow-hidden"
+          >
+            <div className="text-[11px] text-slate-300">Checking demand, competition, and timing signals.</div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
 
       <motion.div
         initial={false}
@@ -172,13 +177,14 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
               Sample verdict
             </div>
             <div className={`mt-2 font-semibold text-white ${compact ? 'text-base' : 'text-[2rem] leading-tight'}`}>{SAMPLE_TITLE}</div>
-            <div className={`mt-1 flex items-center gap-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
+            <div className={`mt-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
               <span className="font-medium text-emerald-200">{SAMPLE_VERDICT}</span>
-              <span className="inline-flex">
+              <span className="ml-1 inline-flex">
                 <span className="animate-pulse [animation-delay:0ms]">.</span>
                 <span className="animate-pulse [animation-delay:180ms]">.</span>
                 <span className="animate-pulse [animation-delay:360ms]">.</span>
               </span>
+              <div className="mt-1 text-slate-400/90">{SAMPLE_HINT}</div>
             </div>
           </div>
           <div className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
