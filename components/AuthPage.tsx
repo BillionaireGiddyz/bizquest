@@ -60,38 +60,9 @@ const SAMPLE_TITLE = 'Portable blender in Nairobi West';
 const SAMPLE_VERDICT = 'Analysis indicates a strong trend in Nairobi West';
 const SAMPLE_HINT = 'Healthy signal density, manageable pressure, and more beneath the surface';
 
-function useTypewriter(text: string, speedMs: number, resetKey: number) {
-  const [displayed, setDisplayed] = useState('');
-
-  useEffect(() => {
-    let frame: ReturnType<typeof setTimeout> | null = null;
-    let index = 0;
-
-    setDisplayed('');
-
-    const step = () => {
-      index += 1;
-      setDisplayed(text.slice(0, index));
-      if (index < text.length) {
-        frame = setTimeout(step, speedMs);
-      }
-    };
-
-    frame = setTimeout(step, speedMs);
-
-    return () => {
-      if (frame) clearTimeout(frame);
-    };
-  }, [text, speedMs, resetKey]);
-
-  return displayed;
-}
-
 const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   const [cycle, setCycle] = useState(0);
   const [phase, setPhase] = useState<'typing' | 'analyzing' | 'answer' | 'signals'>('typing');
-  const typedQuestion = useTypewriter(SAMPLE_QUESTION, compact ? 26 : 22, cycle);
-  const isQuestionComplete = typedQuestion.length === SAMPLE_QUESTION.length;
 
   useEffect(() => {
     let analyzingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -100,13 +71,10 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
     let restartTimer: ReturnType<typeof setTimeout> | null = null;
 
     setPhase('typing');
-
-    if (isQuestionComplete) {
-      analyzingTimer = setTimeout(() => setPhase('analyzing'), 220);
-      answerTimer = setTimeout(() => setPhase('answer'), 1220);
-      signalsTimer = setTimeout(() => setPhase('signals'), 1860);
-      restartTimer = setTimeout(() => setCycle((value) => value + 1), 8800);
-    }
+    analyzingTimer = setTimeout(() => setPhase('analyzing'), compact ? 1650 : 1500);
+    answerTimer = setTimeout(() => setPhase('answer'), compact ? 2650 : 2450);
+    signalsTimer = setTimeout(() => setPhase('signals'), compact ? 3300 : 3050);
+    restartTimer = setTimeout(() => setCycle((value) => value + 1), 9000);
 
     return () => {
       if (analyzingTimer) clearTimeout(analyzingTimer);
@@ -114,20 +82,12 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
       if (signalsTimer) clearTimeout(signalsTimer);
       if (restartTimer) clearTimeout(restartTimer);
     };
-  }, [isQuestionComplete, cycle]);
+  }, [compact, cycle]);
 
   return (
     <>
       <div className={`rounded-[22px] border border-white/10 bg-slate-950/24 ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}>
-        <motion.div
-          initial={false}
-          animate={{
-            borderColor: phase === 'analyzing' ? 'rgba(34,211,238,0.18)' : 'rgba(255,255,255,0)',
-            backgroundColor: phase === 'analyzing' ? 'rgba(34,211,238,0.05)' : 'rgba(2,6,23,0)',
-          }}
-          transition={{ duration: 0.28, ease: 'easeOut' }}
-          className={`rounded-[18px] ${phase === 'analyzing' ? 'px-3 py-2.5' : 'p-0'}`}
-        >
+        <div className={`demo-question-shell ${phase === 'analyzing' ? 'is-analyzing' : ''}`}>
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
               <div className={`h-2 w-2 rounded-full ${phase === 'analyzing' ? 'bg-cyan-300 animate-pulse' : 'bg-cyan-300/80'}`} />
@@ -140,35 +100,23 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             )}
           </div>
           <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
-            {typedQuestion}
-            <span className="ml-0.5 inline-block h-[1.1em] w-[1px] translate-y-0.5 animate-pulse bg-cyan-200/80 align-middle" />
+            <span key={cycle} className={compact ? 'demo-type-line-compact' : 'demo-type-line'}>
+              {SAMPLE_QUESTION}
+            </span>
           </div>
-          <motion.div
-            initial={false}
-            animate={{
-              opacity: phase === 'analyzing' ? 1 : 0,
-              height: phase === 'analyzing' ? 'auto' : 0,
-              marginTop: phase === 'analyzing' ? 10 : 0,
-            }}
-            transition={{ duration: 0.24, ease: 'easeOut' }}
-            className="overflow-hidden"
+          <div
+            className={`overflow-hidden transition-all duration-200 ease-out ${phase === 'analyzing' ? 'mt-2.5 max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}
           >
             <div className="text-[11px] text-slate-300">Checking demand, competition, and timing signals.</div>
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
               <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
 
-      <motion.div
-        initial={false}
-        animate={{
-          opacity: phase === 'typing' || phase === 'analyzing' ? 0.28 : 1,
-          y: phase === 'typing' || phase === 'analyzing' ? 8 : 0,
-          scale: phase === 'typing' || phase === 'analyzing' ? 0.985 : 1,
-        }}
-        transition={{ duration: 0.42, ease: 'easeOut' }}
+      <div
+        className={`mt-4 transition-all duration-300 ease-out ${phase === 'typing' || phase === 'analyzing' ? 'translate-y-2 opacity-30 scale-[0.985]' : 'translate-y-0 opacity-100 scale-100'}`}
       >
         <div className="mt-4 flex items-start justify-between gap-3">
           <div>
@@ -191,42 +139,27 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             GO
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="gradient-divider my-4" />
 
-      <motion.div
-        initial={false}
-        animate={{
-          opacity: phase === 'signals' ? 1 : 0.36,
-          y: phase === 'signals' ? 0 : 6,
-        }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'}`}
-      >
+      <div className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'}`}>
         {OPPORTUNITY_SIGNALS.map((signal, index) => (
-          <motion.div
+          <div
             key={signal.label}
-            initial={false}
-            animate={{
-              opacity: phase === 'signals' ? 1 : 0,
-              y: phase === 'signals' ? 0 : 10,
-              scale: phase === 'signals' ? 1 : 0.992,
-            }}
-            transition={{ duration: 0.32, delay: phase === 'signals' ? 0.12 + index * 0.14 : 0, ease: 'easeOut' }}
-            className={`rounded-[22px] border border-white/8 bg-white/[0.05] ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
+            style={{ transitionDelay: phase === 'signals' ? `${120 + index * 140}ms` : '0ms' }}
+            className={`rounded-[22px] border border-white/8 bg-white/[0.05] transition-all duration-300 ease-out ${phase === 'signals' ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2.5 opacity-0 scale-[0.992]'} ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
           >
             <div className={`font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
               {signal.label}
             </div>
             <div className={`mt-2 font-bold ${signal.tone} ${compact ? 'text-sm' : 'text-lg'}`}>{signal.value}</div>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </>
   );
 };
-
 function openMobileAuth(
   mode: 'signin' | 'signup',
   setView: (view: View) => void,
@@ -406,18 +339,19 @@ export const AuthPage: React.FC = () => {
     <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,_rgba(34,211,238,0.12),_transparent_24%),radial-gradient(circle_at_88%_10%,_rgba(129,140,248,0.14),_transparent_22%),radial-gradient(circle_at_68%_78%,_rgba(16,185,129,0.12),_transparent_20%),linear-gradient(135deg,#020617_0%,#0f172a_42%,#111827_100%)]" />
       <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
-      <div className="pointer-events-none noise-surface absolute inset-0 opacity-18" />
-      <div className="pointer-events-none absolute left-[8%] top-[14%] h-44 w-44 rounded-full bg-indigo-500/8 blur-2xl" />
-      <div className="pointer-events-none absolute right-[9%] top-[18%] h-40 w-40 rounded-full bg-cyan-400/8 blur-2xl" />
-      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-36 w-36 rounded-full bg-emerald-400/6 blur-2xl" />
+      <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
+      <div className="pointer-events-none absolute left-[8%] top-[14%] h-56 w-56 rounded-full bg-indigo-500/12 blur-3xl" />
+      <div className="pointer-events-none absolute right-[9%] top-[18%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-44 w-44 rounded-full bg-emerald-400/8 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center">
         <div className="w-full">
           <div className="lg:hidden">
             {showMobileWelcome ? (
-              <section className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-md">
+              <section className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-2xl">
                 <div className="relative overflow-hidden px-5 pb-5 pt-6">
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(99,102,241,0.16),transparent_38%)]" />
+                  <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
 
                   <div className="relative mb-5 grid grid-cols-2 gap-3">
                     <button
@@ -491,7 +425,7 @@ export const AuthPage: React.FC = () => {
                 </div>
               </section>
             ) : (
-              <div className="mb-4 flex items-center justify-between rounded-[28px] border border-white/12 bg-white/[0.07] p-4 text-white premium-shadow backdrop-blur-md">
+              <div className="mb-4 flex items-center justify-between rounded-[28px] border border-white/12 bg-white/[0.07] p-4 text-white premium-shadow backdrop-blur-xl">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-[20px] border border-white/12 bg-white/10">
                     <BarChart3 className="h-5 w-5 text-indigo-200" />
@@ -520,10 +454,11 @@ export const AuthPage: React.FC = () => {
           <div className="hidden lg:block">
             <div className="relative min-h-[760px]">
               <div
-                className={`relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.06] p-9 text-white premium-shadow backdrop-blur-md transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.99] opacity-40' : 'scale-100 opacity-100'}`}
+                className={`relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.06] p-9 text-white premium-shadow backdrop-blur-xl transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] blur-[3px] opacity-45' : 'scale-100 opacity-100'}`}
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.16),_transparent_28%),radial-gradient(circle_at_80%_18%,_rgba(34,211,238,0.1),_transparent_22%),linear-gradient(145deg,rgba(15,23,42,0.96),rgba(23,37,84,0.88)_48%,rgba(15,23,42,0.98))]" />
                 <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.04]" />
+                <div className="pointer-events-none noise-surface absolute inset-0 opacity-30" />
 
                 <div className="relative">
                   <div className="flex items-center justify-between gap-6">
