@@ -88,11 +88,12 @@ function useTypewriter(text: string, speedMs: number, resetKey: number) {
 
 const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   const [cycle, setCycle] = useState(0);
-  const [phase, setPhase] = useState<'typing' | 'answer' | 'signals'>('typing');
+  const [phase, setPhase] = useState<'typing' | 'analyzing' | 'answer' | 'signals'>('typing');
   const typedQuestion = useTypewriter(SAMPLE_QUESTION, compact ? 26 : 22, cycle);
   const isQuestionComplete = typedQuestion.length === SAMPLE_QUESTION.length;
 
   useEffect(() => {
+    let analyzingTimer: ReturnType<typeof setTimeout> | null = null;
     let answerTimer: ReturnType<typeof setTimeout> | null = null;
     let signalsTimer: ReturnType<typeof setTimeout> | null = null;
     let restartTimer: ReturnType<typeof setTimeout> | null = null;
@@ -100,12 +101,14 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
     setPhase('typing');
 
     if (isQuestionComplete) {
-      answerTimer = setTimeout(() => setPhase('answer'), 280);
-      signalsTimer = setTimeout(() => setPhase('signals'), 900);
-      restartTimer = setTimeout(() => setCycle((value) => value + 1), 5400);
+      analyzingTimer = setTimeout(() => setPhase('analyzing'), 220);
+      answerTimer = setTimeout(() => setPhase('answer'), 1220);
+      signalsTimer = setTimeout(() => setPhase('signals'), 1860);
+      restartTimer = setTimeout(() => setCycle((value) => value + 1), 6200);
     }
 
     return () => {
+      if (analyzingTimer) clearTimeout(analyzingTimer);
       if (answerTimer) clearTimeout(answerTimer);
       if (signalsTimer) clearTimeout(signalsTimer);
       if (restartTimer) clearTimeout(restartTimer);
@@ -128,9 +131,48 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
       <motion.div
         initial={false}
         animate={{
-          opacity: phase === 'typing' ? 0.28 : 1,
-          y: phase === 'typing' ? 8 : 0,
-          scale: phase === 'typing' ? 0.985 : 1,
+          opacity: phase === 'analyzing' ? 1 : 0,
+          height: phase === 'analyzing' ? 'auto' : 0,
+          marginTop: phase === 'analyzing' ? (compact ? 12 : 14) : 0,
+        }}
+        transition={{ duration: 0.28, ease: 'easeOut' }}
+        className="overflow-hidden"
+      >
+        <div className={`rounded-[20px] border border-cyan-400/12 bg-cyan-400/[0.07] ${compact ? 'px-3 py-2.5' : 'px-4 py-3'}`}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-200">Analyzing live data</div>
+              <div className={`mt-1 text-slate-300 ${compact ? 'text-xs' : 'text-sm'}`}>
+                Checking demand, competition, and timing signals.
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2].map((index) => (
+                <motion.span
+                  key={index}
+                  animate={{ opacity: [0.35, 1, 0.35], y: [0, -2, 0] }}
+                  transition={{ duration: 0.9, repeat: Infinity, delay: index * 0.12, ease: 'easeInOut' }}
+                  className="h-2 w-2 rounded-full bg-cyan-300/90"
+                />
+              ))}
+            </div>
+          </div>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+            <motion.div
+              animate={{ x: ['-105%', '105%'] }}
+              transition={{ duration: 1.3, repeat: Infinity, ease: 'easeInOut' }}
+              className="h-full w-1/2 rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(34,211,238,0.92),rgba(59,130,246,0))]"
+            />
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: phase === 'typing' || phase === 'analyzing' ? 0.28 : 1,
+          y: phase === 'typing' || phase === 'analyzing' ? 8 : 0,
+          scale: phase === 'typing' || phase === 'analyzing' ? 0.985 : 1,
         }}
         transition={{ duration: 0.42, ease: 'easeOut' }}
       >
