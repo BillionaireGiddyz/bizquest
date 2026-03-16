@@ -270,9 +270,9 @@ export const AuthPage: React.FC = () => {
                   <div className="relative flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <motion.div
-                        animate={{ y: [0, -2, 0], scale: [1, 1.03, 1] }}
-                        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                        className="flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
+                        animate={{ y: [0, -1, 0], scale: [1, 1.012, 1] }}
+                        transition={{ duration: 5.6, repeat: Infinity, ease: 'easeInOut' }}
+                        className="glass-tab flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12"
                       >
                         <BarChart3 className="h-6 w-6 text-indigo-200" />
                       </motion.div>
@@ -283,9 +283,9 @@ export const AuthPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.14)]">
+                    <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
                       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
-                      Live brief
+                      Live data
                     </div>
                   </div>
 
@@ -312,7 +312,7 @@ export const AuthPage: React.FC = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.08 + index * 0.06 }}
-                        className={`rounded-[22px] border border-white/10 bg-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
+                        className={`calm-surface rounded-[22px] border border-white/10 px-3 py-3 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                       >
                         <div className="text-base font-black text-white">{metric.value}</div>
                         <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">{metric.label}</div>
@@ -325,7 +325,7 @@ export const AuthPage: React.FC = () => {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="floating-panel-delayed mt-5 rounded-[26px] border border-white/10 bg-slate-950/38 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                    className="floating-panel-delayed calm-surface mt-5 rounded-[26px] border border-white/10 p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -403,9 +403,9 @@ export const AuthPage: React.FC = () => {
                   <div className="flex items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                       <motion.div
-                        animate={{ y: [0, -2, 0], scale: [1, 1.03, 1] }}
-                        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+                        animate={{ y: [0, -1, 0], scale: [1, 1.01, 1] }}
+                        transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
+                        className="glass-tab flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12"
                       >
                         <BarChart3 className="h-8 w-8 text-indigo-200" />
                       </motion.div>
@@ -417,17 +417,17 @@ export const AuthPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="rounded-full border border-white/10 bg-white/[0.08] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_12px_30px_rgba(2,6,23,0.18)]">
+                    <div className="glass-tab rounded-full border border-white/10 p-1">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={openDesktopSignIn}
-                          className="rounded-full px-4 py-2 text-sm font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white"
+                          className="rounded-full px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
                         >
                           Sign In
                         </button>
                         <button
                           onClick={openDesktopSignUp}
-                          className="rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-900 shadow-[0_12px_28px_rgba(255,255,255,0.16)] transition-transform hover:-translate-y-0.5"
+                          className="rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-900 shadow-[0_8px_20px_rgba(255,255,255,0.12)] transition-colors hover:bg-slate-100"
                         >
                           Sign Up
                         </button>
@@ -460,8 +460,7 @@ export const AuthPage: React.FC = () => {
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.08 + index * 0.07 }}
-                            whileHover={{ y: -4 }}
-                            className={`rounded-[22px] border border-white/8 bg-white/[0.06] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
+                            className={`calm-surface rounded-[22px] border border-white/8 px-4 py-4 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                           >
                             <div className="text-xl font-black text-white">{metric.value}</div>
                             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
@@ -477,8 +476,7 @@ export const AuthPage: React.FC = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.18 + index * 0.08 }}
-                            whileHover={{ y: -3, scale: 1.01 }}
-                            className={`flex items-start gap-4 rounded-[24px] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)] ${index === 0 ? 'floating-panel' : 'floating-panel-delayed'}`}
+                            className={`calm-surface flex items-start gap-4 rounded-[24px] border border-white/10 px-5 py-4 ${index === 0 ? 'floating-panel' : 'floating-panel-delayed'}`}
                           >
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                               {card.icon}
@@ -505,15 +503,15 @@ export const AuthPage: React.FC = () => {
                     </div>
 
                     <div className="grid gap-4">
-                      <div className="floating-panel-delayed w-full rounded-[36px] border border-white/10 bg-slate-950/44 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
+                      <div className="floating-panel-delayed calm-surface w-full rounded-[36px] border border-white/10 p-6">
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Sample verdict</div>
                             <div className="mt-2 text-[2rem] font-semibold leading-tight text-white">Portable blender in Nairobi West</div>
                           </div>
-                          <div className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.14)]">
+                          <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
                             <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
-                            Live brief
+                            Live data
                           </div>
                         </div>
 
@@ -543,14 +541,14 @@ export const AuthPage: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-[1.1fr_0.9fr] gap-4">
-                        <div className="floating-panel rounded-[28px] border border-white/10 bg-white/[0.05] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
+                        <div className="floating-panel calm-surface rounded-[28px] border border-white/10 p-5">
                           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why it feels premium</div>
                           <p className="mt-3 text-sm leading-7 text-slate-300">
                             Saved analysis history, clean verdict framing, and location-aware demand signals in one calm interface.
                           </p>
                         </div>
 
-                        <div className="floating-panel-delayed rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
+                        <div className="floating-panel-delayed calm-surface rounded-[28px] border border-white/10 p-5">
                           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Operator note</div>
                           <div className="mt-3 text-lg font-semibold text-white">Move early when timing is favorable.</div>
                         </div>
