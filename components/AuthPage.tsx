@@ -19,7 +19,6 @@ import {
   Sparkles,
   TrendingUp,
   UserPlus,
-  Zap,
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
@@ -360,12 +359,12 @@ export const AuthPage: React.FC = () => {
             )}
           </div>
 
-          <div className="grid w-full gap-6 lg:grid-cols-[1.14fr_0.86fr]">
+          <div className="grid w-full gap-8 lg:grid-cols-[1.02fr_0.98fr]">
             <motion.div
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45 }}
-              className="relative hidden overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.06] p-8 text-white premium-shadow backdrop-blur-xl lg:block lg:min-h-[760px]"
+              className="relative hidden overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.06] p-10 text-white premium-shadow backdrop-blur-xl lg:block lg:min-h-[760px]"
             >
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,rgba(99,102,241,0.12),transparent_34%,rgba(16,185,129,0.05)_80%,transparent)]" />
               <div className="pointer-events-none noise-surface absolute inset-0 opacity-25" />
@@ -402,21 +401,21 @@ export const AuthPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-10 grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-                  <div className="max-w-2xl">
+                <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+                  <div className="max-w-[560px]">
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
                       <Sparkles className="h-3.5 w-3.5" />
                       Market clarity, faster
                     </div>
 
-                    <h1 className="mt-6 text-5xl font-black leading-[0.96] tracking-tight text-white xl:text-6xl">
+                    <h1 className="mt-7 text-[4.25rem] font-black leading-[0.94] tracking-[-0.04em] text-white">
                       The premium workspace for
                       <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
                         smarter market bets.
                       </span>
                     </h1>
 
-                    <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">
+                    <p className="mt-6 max-w-[520px] text-[1.05rem] leading-8 text-slate-300">
                       BizQuest turns product ideas into concise, location-specific market briefs so founders can move with signal instead of intuition alone.
                     </p>
 
@@ -431,50 +430,52 @@ export const AuthPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-9 grid gap-4 md:grid-cols-3">
-                      {VALUE_PILLARS.map((card, index) => (
+                    <div className="mt-10 space-y-4">
+                      {VALUE_PILLARS.map((card) => (
                         <div
                           key={card.title}
-                          className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.16)]"
+                          className="flex items-start gap-4 rounded-[24px] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]"
                         >
-                          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                             {card.icon}
                           </div>
-                          <div className="text-sm font-semibold text-white">{card.title}</div>
-                          <p className="mt-2 text-sm leading-6 text-slate-300">{card.body}</p>
+                          <div>
+                            <div className="text-base font-semibold text-white">{card.title}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-300">{card.body}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <div className="rounded-[34px] border border-white/10 bg-slate-950/38 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_28px_80px_rgba(2,6,23,0.28)]">
-                      <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-full rounded-[36px] border border-white/10 bg-slate-950/40 p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
+                      <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Live opportunity brief</div>
-                          <div className="mt-2 text-2xl font-semibold text-white">Portable blender in Nairobi West</div>
+                          <div className="mt-2 text-[2rem] font-semibold leading-tight text-white">Portable blender in Nairobi West</div>
                         </div>
                         <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-300">
                           GO
                         </div>
                       </div>
 
-                      <p className="mt-4 text-sm leading-7 text-slate-300">
+                      <p className="mt-5 text-[15px] leading-8 text-slate-300">
                         Rising health-and-convenience demand, moderate competitor density, and a strong fit for content-led acquisition.
                       </p>
 
-                      <div className="gradient-divider my-5" />
+                      <div className="gradient-divider my-6" />
 
                       <div className="grid grid-cols-3 gap-3">
                         {OPPORTUNITY_SIGNALS.map((signal) => (
-                          <div key={signal.label} className="rounded-2xl border border-white/8 bg-white/[0.05] px-4 py-4">
+                          <div key={signal.label} className="rounded-[22px] border border-white/8 bg-white/[0.05] px-4 py-4">
                             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{signal.label}</div>
                             <div className={`mt-2 text-lg font-bold ${signal.tone}`}>{signal.value}</div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="mt-5 rounded-[24px] border border-cyan-400/12 bg-cyan-400/8 px-4 py-4">
+                      <div className="mt-6 rounded-[26px] border border-cyan-400/12 bg-cyan-400/8 px-5 py-4">
                         <div className="flex items-start gap-3">
                           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                           <p className="text-sm leading-6 text-slate-200">
@@ -482,35 +483,20 @@ export const AuthPage: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                    </div>
-
-                    <motion.div
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
-                      className="absolute -bottom-8 -left-10 max-w-[270px] rounded-[28px] border border-white/10 bg-white/[0.08] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_60px_rgba(2,6,23,0.24)] backdrop-blur-xl"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12">
-                          <Zap className="h-5 w-5 text-amber-300" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-white">Operator advantage</div>
-                          <div className="text-xs text-slate-300">Less guesswork, better timing.</div>
-                        </div>
-                      </div>
-                      <div className="mt-4 grid grid-cols-3 gap-2">
+                      <div className="mt-6 grid grid-cols-3 gap-3">
                         {TRUST_METRICS.map((metric) => (
-                          <div key={metric.label} className="rounded-2xl border border-white/8 bg-white/[0.05] px-3 py-2 text-center">
-                            <div className="text-sm font-black text-white">{metric.value}</div>
+                          <div key={metric.label} className="rounded-[22px] border border-white/8 bg-white/[0.04] px-4 py-4 text-center">
+                            <div className="text-lg font-black text-white">{metric.value}</div>
                             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
+                            <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
                           </div>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-auto pt-12">
+                <div className="mt-auto pt-14">
                   <div className="gradient-divider" />
                   <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-slate-400">
                     <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-indigo-300" />3 complimentary analyses on sign up</div>
