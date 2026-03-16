@@ -68,8 +68,8 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: gradient-wave 14s ease-in-out infinite;
-    filter: drop-shadow(0 0 4px rgba(148, 163, 184, 0.08));
+    animation: gradient-wave 20s ease-in-out infinite;
+    filter: drop-shadow(0 0 2px rgba(148, 163, 184, 0.05));
   }
 
   .hero-glow {
@@ -83,17 +83,16 @@
     background: radial-gradient(circle, rgba(96, 165, 250, 0.09), transparent 60%);
     filter: blur(28px);
     opacity: 0.4;
-    animation: pulse-glow 14s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
   }
 
   .floating-panel {
-    animation: float-slow 20s ease-in-out infinite;
+    animation: none;
   }
 
   .floating-panel-delayed {
-    animation: float-slower 24s ease-in-out infinite;
+    animation: none;
   }
 }
 

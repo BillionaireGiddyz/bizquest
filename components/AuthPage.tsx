@@ -105,7 +105,7 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
       analyzingTimer = setTimeout(() => setPhase('analyzing'), 220);
       answerTimer = setTimeout(() => setPhase('answer'), 1220);
       signalsTimer = setTimeout(() => setPhase('signals'), 1860);
-      restartTimer = setTimeout(() => setCycle((value) => value + 1), 6200);
+      restartTimer = setTimeout(() => setCycle((value) => value + 1), 8800);
     }
 
     return () => {
@@ -199,9 +199,9 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
         initial={false}
         animate={{
           opacity: phase === 'signals' ? 1 : 0.36,
-          y: phase === 'signals' ? 0 : 10,
+          y: phase === 'signals' ? 0 : 6,
         }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
         className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'}`}
       >
         {OPPORTUNITY_SIGNALS.map((signal, index) => (
@@ -209,11 +209,11 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             key={signal.label}
             initial={false}
             animate={{
-              opacity: phase === 'signals' ? 1 : 0.42,
-              y: phase === 'signals' ? 0 : 12,
-              scale: phase === 'signals' ? 1 : 0.985,
+              opacity: phase === 'signals' ? 1 : 0,
+              y: phase === 'signals' ? 0 : 10,
+              scale: phase === 'signals' ? 1 : 0.992,
             }}
-            transition={{ duration: 0.34, delay: phase === 'signals' ? index * 0.09 : 0, ease: 'easeOut' }}
+            transition={{ duration: 0.32, delay: phase === 'signals' ? 0.12 + index * 0.14 : 0, ease: 'easeOut' }}
             className={`rounded-[22px] border border-white/8 bg-white/[0.05] ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
           >
             <div className={`font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
@@ -441,13 +441,9 @@ export const AuthPage: React.FC = () => {
 
                   <div className="relative flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <motion.div
-                        animate={{ y: [0, -1, 0], scale: [1, 1.012, 1] }}
-                        transition={{ duration: 5.6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="glass-tab flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12"
-                      >
+                      <div className="glass-tab flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12">
                         <BarChart3 className="h-6 w-6 text-indigo-200" />
-                      </motion.div>
+                      </div>
                       <div>
                         <div className="text-2xl font-black tracking-tight">BizQuest</div>
                         <div className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-300">
@@ -456,7 +452,7 @@ export const AuthPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
-                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
                       Live data
                     </div>
                   </div>
@@ -549,13 +545,9 @@ export const AuthPage: React.FC = () => {
                 <div className="relative">
                   <div className="flex items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                      <motion.div
-                        animate={{ y: [0, -1, 0], scale: [1, 1.01, 1] }}
-                        transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
-                        className="glass-tab flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12"
-                      >
+                      <div className="glass-tab flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12">
                         <BarChart3 className="h-8 w-8 text-indigo-200" />
-                      </motion.div>
+                      </div>
                       <div>
                         <div className="text-4xl font-black tracking-tight">BizQuest</div>
                         <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-300">
@@ -656,7 +648,7 @@ export const AuthPage: React.FC = () => {
                             <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Sample verdict</div>
                           </div>
                           <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
-                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
                             Live data
                           </div>
                         </div>
