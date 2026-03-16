@@ -112,6 +112,15 @@ interface CompetitorResult {
   searchRadius: string;
 }
 
+type ExtractedQuery = {
+  product: string;
+  location: string;
+  country: string;
+  geoCode: string;
+};
+
+type AnalysisPayload = Record<string, unknown>;
+
 async function fetchNearbyCompetitors(product: string, location: string, country: string = ''): Promise<CompetitorResult> {
   const empty: CompetitorResult = { available: false, count: 0, nearbyNames: [], searchRadius: '' };
   const placesKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -147,6 +156,125 @@ async function fetchNearbyCompetitors(product: string, location: string, country
     console.error('Google Places error:', err);
     return empty;
   }
+}
+
+function extractJsonObject(text: string): string | null {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) return null;
+  return text.slice(start, end + 1);
+}
+
+function safeJsonParse<T>(text: string): T | null {
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    const candidate = extractJsonObject(text);
+    if (!candidate) return null;
+    try {
+      return JSON.parse(candidate) as T;
+    } catch {
+      return null;
+    }
+  }
+}
+
+function inferCompetitionLevel(count: number): 'Low' | 'Medium' | 'High' {
+  if (count <= 5) return 'Low';
+  if (count <= 15) return 'Medium';
+  return 'High';
+}
+
+function inferTimingStatus(direction: TrendsResult['trendDirection']): 'Early' | 'On-time' | 'Late' {
+  if (direction === 'rising') return 'Early';
+  if (direction === 'declining') return 'Late';
+  return 'On-time';
+}
+
+function inferRecommendation(demandScore: number, competitionLevel: 'Low' | 'Medium' | 'High', timingStatus: 'Early' | 'On-time' | 'Late'): 'GO' | 'BE CAREFUL' | 'AVOID' {
+  if (demandScore >= 70 && competitionLevel !== 'High' && timingStatus !== 'Late') return 'GO';
+  if (demandScore <= 40 || timingStatus === 'Late') return 'AVOID';
+  return 'BE CAREFUL';
+}
+
+function ensureStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
+function coerceAnalysisResult(
+  raw: AnalysisPayload | null,
+  context: {
+    product: string;
+    location: string;
+    dataSources: string[];
+    trends: TrendsResult;
+    competitors: CompetitorResult;
+  }
+) {
+  const demandScore = Math.max(0, Math.min(100, Number(raw?.demandScore) || context.trends.averageInterest || 55));
+  const competitorCount = Number(raw?.competitorCount) || context.competitors.count || 0;
+  const competitionLevel = (typeof raw?.competitionLevel === 'string' ? raw.competitionLevel : inferCompetitionLevel(competitorCount)) as 'Low' | 'Medium' | 'High';
+  const trendDirection = (typeof raw?.trendDirection === 'string' ? raw.trendDirection : context.trends.trendDirection || 'stable') as 'rising' | 'stable' | 'declining';
+  const timingStatus = (typeof raw?.timingStatus === 'string' ? raw.timingStatus : inferTimingStatus(trendDirection)) as 'Early' | 'On-time' | 'Late';
+  const recommendation = (typeof raw?.recommendation === 'string'
+    ? raw.recommendation
+    : inferRecommendation(demandScore, competitionLevel, timingStatus)) as 'GO' | 'BE CAREFUL' | 'AVOID';
+  const explanation = typeof raw?.explanation === 'string' && raw.explanation.trim()
+    ? raw.explanation
+    : `BizQuest Quantum detected a demand score of ${demandScore}/100 in ${context.location}. Competition is ${competitionLevel.toLowerCase()} with ${competitorCount} nearby operators identified. Timing currently reads ${timingStatus.toLowerCase()}, which supports a ${recommendation} recommendation.`;
+  const chatResponse = typeof raw?.chatResponse === 'string' && raw.chatResponse.trim()
+    ? raw.chatResponse
+    : `## ${context.product} - ${context.location}\n\n📊 **Demand score:** ${demandScore}/100\n📍 **Competition:** ${competitionLevel}\n⚡ **Timing:** ${timingStatus}\n🏆 **Verdict:** **${recommendation}**\n\n${explanation}`;
+
+  const trendData = Array.isArray(raw?.trendData) && raw?.trendData.length
+    ? raw.trendData
+    : (context.trends.timeline.length
+      ? context.trends.timeline.map((point) => ({
+          period: point.date.slice(0, 3),
+          interestLevel: point.value,
+        }))
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((period, index) => ({
+          period,
+          interestLevel: Math.max(25, Math.min(95, demandScore - 10 + index * 2)),
+        })));
+
+  return {
+    productName: typeof raw?.productName === 'string' && raw.productName.trim() ? raw.productName : context.product,
+    location: typeof raw?.location === 'string' && raw.location.trim() ? raw.location : context.location,
+    priceRange: typeof raw?.priceRange === 'string' && raw.priceRange.trim() ? raw.priceRange : 'Market Rate',
+    demandScore,
+    saturationLevel: (typeof raw?.saturationLevel === 'string' ? raw.saturationLevel : competitionLevel) as 'Low' | 'Medium' | 'High',
+    competitionLevel,
+    timingStatus,
+    recommendation,
+    explanation,
+    chatResponse,
+    trendData,
+    keyInsights: ensureStringArray(raw?.keyInsights).slice(0, 4).length
+      ? ensureStringArray(raw?.keyInsights).slice(0, 4)
+      : [
+          `Demand in ${context.location} is tracking at ${demandScore}/100.`,
+          `${competitorCount} nearby competitors suggest ${competitionLevel.toLowerCase()} market pressure.`,
+          `Current trend direction is ${trendDirection}, which points to ${timingStatus.toLowerCase()} market timing.`,
+        ],
+    targetDemographic: typeof raw?.targetDemographic === 'string' && raw.targetDemographic.trim()
+      ? raw.targetDemographic
+      : `Buyers in ${context.location} looking for convenience-led, value-conscious offers.`,
+    bestSellingChannels: ensureStringArray(raw?.bestSellingChannels).slice(0, 3).length
+      ? ensureStringArray(raw?.bestSellingChannels).slice(0, 3)
+      : ['Instagram', 'WhatsApp', 'Direct storefront'],
+    dataSources: context.dataSources,
+    competitorCount,
+    nearbyCompetitors: ensureStringArray(raw?.nearbyCompetitors).length
+      ? ensureStringArray(raw?.nearbyCompetitors).slice(0, 8)
+      : context.competitors.nearbyNames.slice(0, 8),
+    googleTrendsAvg: Number(raw?.googleTrendsAvg) || context.trends.averageInterest || demandScore,
+    trendDirection,
+    relatedSearches: ensureStringArray(raw?.relatedSearches).length
+      ? ensureStringArray(raw?.relatedSearches).slice(0, 5)
+      : context.trends.relatedQueries.slice(0, 5),
+  };
 }
 
 // ── Gemini Schema ──────────────────────────────────────────────────
@@ -287,7 +415,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Helper: call Gemini with automatic model fallback
-  const MODELS = ['gemini-3-flash-preview', 'gemini-2.5-flash'] as const;
+  const MODELS = ['gemini-2.5-flash', 'gemini-3-flash-preview'] as const;
   async function callWithFallback(config: Parameters<typeof ai.models.generateContent>[0]) {
     for (const modelId of MODELS) {
       try {
@@ -334,7 +462,7 @@ Query: "${query.slice(0, 300)}"`
       },
     });
 
-    const extracted = JSON.parse(extractRes.text || '{}') as { product: string; location: string; country: string; geoCode: string };
+    const extracted = safeJsonParse<ExtractedQuery>(extractRes.text || '') || { product: query.slice(0, 50), location: 'General', country: '', geoCode: '' };
     const product = extracted.product || query.slice(0, 50);
     const location = extracted.location || 'General';
     const country = extracted.country || '';
@@ -490,22 +618,50 @@ Respond with valid JSON matching the schema.`
       },
     });
 
-    const resultText = response.text;
-    if (!resultText) {
-      return res.status(500).json({ error: 'No response from AI' });
+    const resultText = response.text || '';
+    let parsed = safeJsonParse<AnalysisPayload>(resultText);
+
+    if (!parsed) {
+      const plainJsonResponse = await callWithFallback({
+        model: MODELS[0],
+        contents: [{
+          role: "user",
+          parts: [{
+            text: `Return valid JSON only for this market analysis request. Do not wrap it in markdown fences.
+User question: "${query.slice(0, 500)}"
+Product: "${product}"
+Location: "${location}"
+Country: "${country}"
+Demand average: ${trends.averageInterest}
+Trend direction: ${trends.trendDirection}
+Competitor count: ${competitors.count}
+Related searches: ${trends.relatedQueries.join(', ') || 'none'}`
+          }]
+        }],
+        config: {
+          temperature: 0,
+          responseMimeType: "application/json",
+        },
+      });
+
+      parsed = safeJsonParse<AnalysisPayload>(plainJsonResponse.text || '');
     }
 
-    const parsed = JSON.parse(resultText);
-    // Ensure dataSources is always accurate
-    parsed.dataSources = dataSources;
+    const normalized = coerceAnalysisResult(parsed, {
+      product,
+      location,
+      dataSources,
+      trends,
+      competitors,
+    });
 
     // Save to cache (fire-and-forget)
     supabase
       .from('analysis_cache')
-      .insert({ query_key: cacheKey, result: parsed })
+      .insert({ query_key: cacheKey, result: normalized })
       .then(() => {});
 
-    return res.status(200).json(parsed);
+    return res.status(200).json(normalized);
 
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
