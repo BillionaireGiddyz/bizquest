@@ -415,7 +415,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Helper: call Gemini with automatic model fallback
-  const MODELS = ['gemini-2.5-flash', 'gemini-3-flash-preview'] as const;
+  const MODELS = ['gemini-3-flash-preview', 'gemini-2.5-flash'] as const;
   async function callWithFallback(config: Parameters<typeof ai.models.generateContent>[0]) {
     for (const modelId of MODELS) {
       try {
