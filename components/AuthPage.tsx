@@ -57,7 +57,7 @@ const OPPORTUNITY_SIGNALS = [
 
 const SAMPLE_QUESTION = 'Will a portable blender sell well in Nairobi West?';
 const SAMPLE_TITLE = 'Portable blender in Nairobi West';
-const SAMPLE_SUMMARY = 'Strong interest, manageable competition, and favorable timing for a focused launch.';
+const SAMPLE_VERDICT = 'Strong trend';
 
 function useTypewriter(text: string, speedMs: number, resetKey: number) {
   const [displayed, setDisplayed] = useState('');
@@ -146,23 +146,12 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
                 Checking demand, competition, and timing signals.
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              {[0, 1, 2].map((index) => (
-                <motion.span
-                  key={index}
-                  animate={{ opacity: [0.35, 1, 0.35], y: [0, -2, 0] }}
-                  transition={{ duration: 0.9, repeat: Infinity, delay: index * 0.12, ease: 'easeInOut' }}
-                  className="h-2 w-2 rounded-full bg-cyan-300/90"
-                />
-              ))}
+            <div className="rounded-full border border-cyan-300/18 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-100">
+              Live scan
             </div>
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
-            <motion.div
-              animate={{ x: ['-105%', '105%'] }}
-              transition={{ duration: 1.3, repeat: Infinity, ease: 'easeInOut' }}
-              className="h-full w-1/2 rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(34,211,238,0.92),rgba(59,130,246,0))]"
-            />
+            <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
           </div>
         </div>
       </motion.div>
@@ -183,9 +172,14 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
               Sample verdict
             </div>
             <div className={`mt-2 font-semibold text-white ${compact ? 'text-base' : 'text-[2rem] leading-tight'}`}>{SAMPLE_TITLE}</div>
-            <p className={`mt-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
-              {SAMPLE_SUMMARY}
-            </p>
+            <div className={`mt-1 flex items-center gap-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
+              <span className="font-medium text-emerald-200">{SAMPLE_VERDICT}</span>
+              <span className="inline-flex">
+                <span className="animate-pulse [animation-delay:0ms]">.</span>
+                <span className="animate-pulse [animation-delay:180ms]">.</span>
+                <span className="animate-pulse [animation-delay:360ms]">.</span>
+              </span>
+            </div>
           </div>
           <div className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
             GO
