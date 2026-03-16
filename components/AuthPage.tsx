@@ -406,23 +406,18 @@ export const AuthPage: React.FC = () => {
     <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,_rgba(34,211,238,0.12),_transparent_24%),radial-gradient(circle_at_88%_10%,_rgba(129,140,248,0.14),_transparent_22%),radial-gradient(circle_at_68%_78%,_rgba(16,185,129,0.12),_transparent_20%),linear-gradient(135deg,#020617_0%,#0f172a_42%,#111827_100%)]" />
       <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
-      <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
-      <div className="pointer-events-none absolute left-[8%] top-[14%] h-56 w-56 rounded-full bg-indigo-500/12 blur-3xl" />
-      <div className="pointer-events-none absolute right-[9%] top-[18%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-44 w-44 rounded-full bg-emerald-400/8 blur-3xl" />
+      <div className="pointer-events-none noise-surface absolute inset-0 opacity-18" />
+      <div className="pointer-events-none absolute left-[8%] top-[14%] h-44 w-44 rounded-full bg-indigo-500/8 blur-2xl" />
+      <div className="pointer-events-none absolute right-[9%] top-[18%] h-40 w-40 rounded-full bg-cyan-400/8 blur-2xl" />
+      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-36 w-36 rounded-full bg-emerald-400/6 blur-2xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center">
         <div className="w-full">
           <div className="lg:hidden">
             {showMobileWelcome ? (
-              <motion.section
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-2xl"
-              >
+              <section className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-md">
                 <div className="relative overflow-hidden px-5 pb-5 pt-6">
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(99,102,241,0.16),transparent_38%)]" />
-                  <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
 
                   <div className="relative mb-5 grid grid-cols-2 gap-3">
                     <button
@@ -475,36 +470,28 @@ export const AuthPage: React.FC = () => {
 
                   <div className="mt-5 grid grid-cols-3 gap-2.5">
                     {TRUST_METRICS.map((metric, index) => (
-                      <motion.div
+                      <div
                         key={metric.label}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.08 + index * 0.06 }}
                         className={`calm-surface rounded-[22px] border border-white/10 px-3 py-3 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                       >
                         <div className="text-base font-black text-white">{metric.value}</div>
                         <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">{metric.label}</div>
                         <div className="mt-1 text-[11px] text-slate-400">{metric.note}</div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="floating-panel-delayed calm-surface mt-5 rounded-[26px] border border-white/10 p-4"
-                  >
+                  <div className="floating-panel-delayed calm-surface mt-5 rounded-[26px] border border-white/10 p-4">
                     <SampleVerdictDemo compact />
-                  </motion.div>
+                  </div>
 
                   <div className="mt-5 rounded-[22px] border border-cyan-400/10 bg-cyan-400/8 px-4 py-3 text-sm leading-6 text-slate-200">
                     Start with a quick sign in or create an account to unlock your first market brief.
                   </div>
                 </div>
-              </motion.section>
+              </section>
             ) : (
-              <div className="mb-4 flex items-center justify-between rounded-[28px] border border-white/12 bg-white/[0.07] p-4 text-white premium-shadow backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between rounded-[28px] border border-white/12 bg-white/[0.07] p-4 text-white premium-shadow backdrop-blur-md">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-[20px] border border-white/12 bg-white/10">
                     <BarChart3 className="h-5 w-5 text-indigo-200" />
@@ -532,15 +519,11 @@ export const AuthPage: React.FC = () => {
 
           <div className="hidden lg:block">
             <div className="relative min-h-[760px]">
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45 }}
-                className={`relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.06] p-9 text-white premium-shadow backdrop-blur-xl transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] blur-[3px] opacity-45' : 'scale-100 opacity-100'}`}
+              <div
+                className={`relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.06] p-9 text-white premium-shadow backdrop-blur-md transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.99] opacity-40' : 'scale-100 opacity-100'}`}
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.16),_transparent_28%),radial-gradient(circle_at_80%_18%,_rgba(34,211,238,0.1),_transparent_22%),linear-gradient(145deg,rgba(15,23,42,0.96),rgba(23,37,84,0.88)_48%,rgba(15,23,42,0.98))]" />
                 <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.04]" />
-                <div className="pointer-events-none noise-surface absolute inset-0 opacity-30" />
 
                 <div className="relative">
                   <div className="flex items-center justify-between gap-6">
@@ -594,27 +577,21 @@ export const AuthPage: React.FC = () => {
 
                       <div className="mt-7 grid grid-cols-3 gap-3">
                         {TRUST_METRICS.map((metric, index) => (
-                          <motion.div
+                          <div
                             key={metric.label}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.08 + index * 0.07 }}
                             className={`calm-surface rounded-[22px] border border-white/8 px-4 py-4 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                           >
                             <div className="text-xl font-black text-white">{metric.value}</div>
                             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
                             <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
 
                       <div className="mt-7 grid gap-3">
                         {VALUE_PILLARS.slice(0, 2).map((card, index) => (
-                          <motion.div
+                          <div
                             key={card.title}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.18 + index * 0.08 }}
                             className={`calm-surface flex items-start gap-4 rounded-[24px] border border-white/10 px-5 py-4 ${index === 0 ? 'floating-panel' : 'floating-panel-delayed'}`}
                           >
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -624,7 +601,7 @@ export const AuthPage: React.FC = () => {
                               <div className="text-base font-semibold text-white">{card.title}</div>
                               <p className="mt-1 text-sm leading-6 text-slate-300">{card.body}</p>
                             </div>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
 
@@ -683,7 +660,7 @@ export const AuthPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {showDesktopOverlay && (
                 <motion.div
