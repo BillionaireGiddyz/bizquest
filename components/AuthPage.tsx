@@ -5,7 +5,6 @@ import {
   AlertCircle,
   ArrowLeft,
   BarChart3,
-  BriefcaseBusiness,
   CheckCircle2,
   ChevronRight,
   Clock3,
@@ -372,7 +371,7 @@ export const AuthPage: React.FC = () => {
               <div className="pointer-events-none absolute bottom-16 right-18 h-44 w-44 rounded-full border border-indigo-300/18 bg-indigo-400/12 blur-3xl" />
 
               <div className="relative flex h-full flex-col">
-                <div className="flex items-start justify-between gap-4">
+                <div className="grid grid-cols-[1fr_auto] items-start gap-6">
                   <div className="flex items-center gap-4">
                     <div className="flex h-15 w-15 items-center justify-center rounded-[24px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
                       <BarChart3 className="h-7 w-7 text-indigo-200" />
@@ -401,40 +400,39 @@ export const AuthPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-10 grid items-center gap-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(340px,0.88fr)]">
-                  <div className="max-w-[470px]">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
+                <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(340px,0.92fr)]">
+                  <div className="flex flex-col">
+                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
                       <Sparkles className="h-3.5 w-3.5" />
                       Market clarity, faster
                     </div>
 
-                    <h1 className="mt-6 text-[3.3rem] font-black leading-[0.95] tracking-[-0.04em] text-white">
-                      The premium workspace for
+                    <h1 className="mt-5 max-w-[420px] text-[3rem] font-black leading-[0.96] tracking-[-0.04em] text-white">
+                      Launch with signal,
                       <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-                        smarter market bets.
+                        not guesswork.
                       </span>
                     </h1>
 
-                    <p className="mt-5 max-w-[450px] text-base leading-7 text-slate-300">
-                      BizQuest turns product ideas into concise, location-specific market briefs so founders can move with signal instead of intuition alone.
+                    <p className="mt-4 max-w-[420px] text-base leading-7 text-slate-300">
+                      BizQuest turns product ideas into concise market briefs so you can test demand, competition, and timing before committing money.
                     </p>
 
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-slate-200">
-                        <Clock3 className="h-4 w-4 text-cyan-300" />
-                        First verdict in under a minute
-                      </div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-slate-200">
-                        <BriefcaseBusiness className="h-4 w-4 text-indigo-300" />
-                        Built for real operators
-                      </div>
+                    <div className="mt-6 grid grid-cols-3 gap-3">
+                      {TRUST_METRICS.map((metric) => (
+                        <div key={metric.label} className="rounded-[20px] border border-white/8 bg-white/[0.05] px-3 py-4 text-center">
+                          <div className="text-lg font-black text-white">{metric.value}</div>
+                          <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
+                          <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="mt-8 grid gap-3">
-                      {VALUE_PILLARS.map((card) => (
+                    <div className="mt-6 space-y-3">
+                      {VALUE_PILLARS.slice(0, 2).map((card) => (
                         <div
                           key={card.title}
-                          className="flex items-start gap-4 rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]"
+                          className="flex items-start gap-4 rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]"
                         >
                           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                             {card.icon}
@@ -448,11 +446,11 @@ export const AuthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center">
-                    <div className="w-full rounded-[34px] border border-white/10 bg-slate-950/40 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
+                  <div className="flex items-stretch">
+                    <div className="w-full rounded-[34px] border border-white/10 bg-slate-950/42 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Live opportunity brief</div>
+                          <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Sample verdict</div>
                           <div className="mt-2 text-[1.8rem] font-semibold leading-tight text-white">Portable blender in Nairobi West</div>
                         </div>
                         <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-300">
@@ -461,7 +459,7 @@ export const AuthPage: React.FC = () => {
                       </div>
 
                       <p className="mt-4 text-sm leading-7 text-slate-300">
-                        Rising health-and-convenience demand, moderate competitor density, and a strong fit for content-led acquisition.
+                        Rising health-and-convenience demand, manageable competition, and favorable timing for a focused launch.
                       </p>
 
                       <div className="gradient-divider my-5" />
@@ -479,30 +477,29 @@ export const AuthPage: React.FC = () => {
                         <div className="flex items-start gap-3">
                           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                           <p className="text-sm leading-6 text-slate-200">
-                            Best suited for a controlled launch, mid-ticket pricing, and visual social proof creatives.
+                            Strongest fit for a controlled launch with clear visual positioning and mid-ticket pricing.
                           </p>
                         </div>
                       </div>
 
-                      <div className="mt-5 grid grid-cols-3 gap-3">
-                        {TRUST_METRICS.map((metric) => (
-                          <div key={metric.label} className="rounded-[20px] border border-white/8 bg-white/[0.04] px-3 py-3 text-center">
-                            <div className="text-base font-black text-white">{metric.value}</div>
-                            <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
-                            <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
-                          </div>
-                        ))}
+                      <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.04] px-4 py-4">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                          <Clock3 className="h-4 w-4 text-cyan-300" />
+                          First verdict in under a minute
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
+                          Reopen saved analyses, continue follow-ups, and keep your workspace organized in one place.
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-auto pt-10">
+                <div className="mt-auto pt-8">
                   <div className="gradient-divider" />
-                  <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-slate-400">
+                  <div className="mt-5 flex flex-wrap items-center gap-6 text-sm text-slate-400">
                     <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-indigo-300" />3 complimentary analyses on sign up</div>
                     <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-indigo-300" />Follow-up questions included</div>
-                    <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-indigo-300" />Designed for confident launches</div>
                   </div>
                 </div>
               </div>
@@ -512,7 +509,7 @@ export const AuthPage: React.FC = () => {
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45, delay: 0.05 }}
-              className={`${showMobileWelcome ? 'hidden lg:flex' : 'flex'} items-center justify-center`}
+              className={`${showMobileWelcome ? 'hidden lg:flex' : 'flex'} items-start justify-center pt-1`}
             >
               <div className="premium-shadow relative w-full max-w-xl overflow-hidden rounded-[32px] border border-white/12 bg-white/95 lg:rounded-[38px]">
                 <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(180deg,rgba(99,102,241,0.1),transparent)]" />
