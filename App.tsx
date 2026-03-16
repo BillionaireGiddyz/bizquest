@@ -163,7 +163,7 @@ const App: React.FC = () => {
 
       } else {
         // ── New analysis: full pipeline ──
-        const result = await analyzeMarketQuery(text);
+        const result = await analyzeMarketQuery(text, user?.id);
 
         // Deduct credit AFTER successful analysis — no refund logic needed
         const deducted = await deductCredit();
@@ -205,10 +205,11 @@ const App: React.FC = () => {
 
     } catch (error) {
       console.error("Error processing request", error);
+      const message = error instanceof Error ? error.message : 'I encountered an error. Please try again.';
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: "I'm sorry, I encountered an error. Please try again — no credit was deducted.",
+        content: `${message} No credit was deducted.`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
