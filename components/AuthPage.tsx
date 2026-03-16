@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -100,13 +100,6 @@ export const AuthPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const parallaxX = useMotionValue(0);
-  const parallaxY = useMotionValue(0);
-  const heroOrbitX = useTransform(parallaxX, [-1, 1], [-18, 18]);
-  const heroOrbitY = useTransform(parallaxY, [-1, 1], [-16, 16]);
-  const heroCardX = useTransform(parallaxX, [-1, 1], [-10, 10]);
-  const heroCardY = useTransform(parallaxY, [-1, 1], [-8, 8]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -177,9 +170,9 @@ export const AuthPage: React.FC = () => {
 
     return (
       <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.22),_transparent_30%),radial-gradient(circle_at_86%_18%,_rgba(16,185,129,0.18),_transparent_22%),linear-gradient(140deg,#020617,#0f172a_50%,#111827)]" />
-        <div className="absolute inset-0 pattern-grid-lg opacity-[0.05]" />
-        <div className="noise-surface absolute inset-0 opacity-35" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.22),_transparent_30%),radial-gradient(circle_at_86%_18%,_rgba(16,185,129,0.18),_transparent_22%),linear-gradient(140deg,#020617,#0f172a_50%,#111827)]" />
+        <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
+        <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
 
         <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl items-center justify-center">
           <motion.div
@@ -188,7 +181,7 @@ export const AuthPage: React.FC = () => {
             className="premium-shadow w-full max-w-xl overflow-hidden rounded-[34px] border border-white/10 bg-white/95"
           >
             <div className="relative overflow-hidden bg-[linear-gradient(135deg,#020617,#111827_55%,#312e81)] px-8 py-9 text-center text-white">
-              <div className="noise-surface absolute inset-0 opacity-25" />
+              <div className="pointer-events-none noise-surface absolute inset-0 opacity-25" />
               <div className={`relative mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-[28px] border border-white/10 ${isForgot ? 'bg-indigo-500/18' : 'bg-emerald-500/18'}`}>
                 {isForgot ? <KeyRound className="h-9 w-9 text-indigo-100" /> : <Mail className="h-9 w-9 text-emerald-100" />}
               </div>
@@ -228,12 +221,12 @@ export const AuthPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,_rgba(34,211,238,0.12),_transparent_24%),radial-gradient(circle_at_88%_10%,_rgba(129,140,248,0.14),_transparent_22%),radial-gradient(circle_at_68%_78%,_rgba(16,185,129,0.12),_transparent_20%),linear-gradient(135deg,#020617_0%,#0f172a_42%,#111827_100%)]" />
-      <div className="absolute inset-0 pattern-grid-lg opacity-[0.05]" />
-      <div className="noise-surface absolute inset-0 opacity-35" />
-      <div className="absolute left-[8%] top-[14%] h-56 w-56 rounded-full bg-indigo-500/12 blur-3xl" />
-      <div className="absolute right-[9%] top-[18%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
-      <div className="absolute bottom-[10%] right-[24%] h-44 w-44 rounded-full bg-emerald-400/8 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,_rgba(34,211,238,0.12),_transparent_24%),radial-gradient(circle_at_88%_10%,_rgba(129,140,248,0.14),_transparent_22%),radial-gradient(circle_at_68%_78%,_rgba(16,185,129,0.12),_transparent_20%),linear-gradient(135deg,#020617_0%,#0f172a_42%,#111827_100%)]" />
+      <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
+      <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
+      <div className="pointer-events-none absolute left-[8%] top-[14%] h-56 w-56 rounded-full bg-indigo-500/12 blur-3xl" />
+      <div className="pointer-events-none absolute right-[9%] top-[18%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-44 w-44 rounded-full bg-emerald-400/8 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center">
         <div className="w-full">
@@ -245,8 +238,23 @@ export const AuthPage: React.FC = () => {
                 className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-2xl"
               >
                 <div className="relative overflow-hidden px-5 pb-5 pt-6">
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(99,102,241,0.16),transparent_38%)]" />
-                  <div className="noise-surface absolute inset-0 opacity-35" />
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(99,102,241,0.16),transparent_38%)]" />
+                  <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
+
+                  <div className="relative mb-5 grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => openMobileAuth('signin', setView, setIsSignUp, setError, setMobileStage)}
+                      className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-[0_10px_28px_rgba(255,255,255,0.16)] transition-transform active:scale-[0.98]"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => openMobileAuth('signup', setView, setIsSignUp, setError, setMobileStage)}
+                      className="rounded-2xl border border-white/12 bg-white/10 px-4 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] transition-transform active:scale-[0.98]"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
 
                   <div className="relative flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -320,19 +328,8 @@ export const AuthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => openMobileAuth('signin', setView, setIsSignUp, setError, setMobileStage)}
-                      className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-[0_10px_28px_rgba(255,255,255,0.16)] transition-transform active:scale-[0.98]"
-                    >
-                      Sign In
-                    </button>
-                    <button
-                      onClick={() => openMobileAuth('signup', setView, setIsSignUp, setError, setMobileStage)}
-                      className="rounded-2xl border border-white/12 bg-white/10 px-4 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] transition-transform active:scale-[0.98]"
-                    >
-                      Sign Up
-                    </button>
+                  <div className="mt-5 rounded-[22px] border border-cyan-400/10 bg-cyan-400/8 px-4 py-3 text-sm leading-6 text-slate-200">
+                    Start with a quick sign in or create an account to unlock your first market brief.
                   </div>
                 </div>
               </motion.section>
@@ -368,29 +365,12 @@ export const AuthPage: React.FC = () => {
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45 }}
-              onMouseMove={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                const x = (event.clientX - rect.left) / rect.width;
-                const y = (event.clientY - rect.top) / rect.height;
-                parallaxX.set((x - 0.5) * 2);
-                parallaxY.set((y - 0.5) * 2);
-              }}
-              onMouseLeave={() => {
-                parallaxX.set(0);
-                parallaxY.set(0);
-              }}
-              className="relative hidden overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.07] p-8 text-white premium-shadow backdrop-blur-2xl lg:block lg:min-h-[780px]"
+              className="relative hidden overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.06] p-8 text-white premium-shadow backdrop-blur-xl lg:block lg:min-h-[760px]"
             >
-              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(99,102,241,0.14),transparent_32%,rgba(16,185,129,0.06)_78%,transparent)]" />
-              <div className="noise-surface absolute inset-0 opacity-30" />
-              <motion.div
-                style={{ x: heroOrbitX, y: heroOrbitY }}
-                className="absolute right-14 top-18 h-32 w-32 rounded-full border border-cyan-300/20 bg-cyan-300/10 blur-3xl"
-              />
-              <motion.div
-                style={{ x: heroCardX, y: heroCardY }}
-                className="absolute bottom-16 right-18 h-44 w-44 rounded-full border border-indigo-300/18 bg-indigo-400/12 blur-3xl"
-              />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,rgba(99,102,241,0.12),transparent_34%,rgba(16,185,129,0.05)_80%,transparent)]" />
+              <div className="pointer-events-none noise-surface absolute inset-0 opacity-25" />
+              <div className="pointer-events-none absolute right-14 top-18 h-32 w-32 rounded-full border border-cyan-300/20 bg-cyan-300/10 blur-3xl" />
+              <div className="pointer-events-none absolute bottom-16 right-18 h-44 w-44 rounded-full border border-indigo-300/18 bg-indigo-400/12 blur-3xl" />
 
               <div className="relative flex h-full flex-col">
                 <div className="flex items-start justify-between gap-4">
@@ -453,12 +433,8 @@ export const AuthPage: React.FC = () => {
 
                     <div className="mt-9 grid gap-4 md:grid-cols-3">
                       {VALUE_PILLARS.map((card, index) => (
-                        <motion.div
+                        <div
                           key={card.title}
-                          initial={{ opacity: 0, y: 14 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.12 + index * 0.08 }}
-                          style={{ x: heroCardX, y: heroCardY }}
                           className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.16)]"
                         >
                           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -466,16 +442,13 @@ export const AuthPage: React.FC = () => {
                           </div>
                           <div className="text-sm font-semibold text-white">{card.title}</div>
                           <p className="mt-2 text-sm leading-6 text-slate-300">{card.body}</p>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   </div>
 
                   <div className="relative">
-                    <motion.div
-                      style={{ x: heroOrbitX, y: heroOrbitY }}
-                      className="rounded-[34px] border border-white/10 bg-slate-950/38 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_28px_80px_rgba(2,6,23,0.28)]"
-                    >
+                    <div className="rounded-[34px] border border-white/10 bg-slate-950/38 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_28px_80px_rgba(2,6,23,0.28)]">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Live opportunity brief</div>
@@ -509,7 +482,7 @@ export const AuthPage: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
 
                     <motion.div
                       animate={{ y: [0, -8, 0] }}
