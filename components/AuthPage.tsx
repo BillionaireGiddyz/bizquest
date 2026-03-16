@@ -269,9 +269,13 @@ export const AuthPage: React.FC = () => {
 
                   <div className="relative flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+                      <motion.div
+                        animate={{ y: [0, -2, 0], scale: [1, 1.03, 1] }}
+                        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                        className="flex h-13 w-13 items-center justify-center rounded-[22px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
+                      >
                         <BarChart3 className="h-6 w-6 text-indigo-200" />
-                      </div>
+                      </motion.div>
                       <div>
                         <div className="text-2xl font-black tracking-tight">BizQuest</div>
                         <div className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-300">
@@ -279,7 +283,8 @@ export const AuthPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200">
+                    <div className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.14)]">
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
                       Live brief
                     </div>
                   </div>
@@ -397,9 +402,13 @@ export const AuthPage: React.FC = () => {
                 <div className="relative">
                   <div className="flex items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]">
+                      <motion.div
+                        animate={{ y: [0, -2, 0], scale: [1, 1.03, 1] }}
+                        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                        className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+                      >
                         <BarChart3 className="h-8 w-8 text-indigo-200" />
-                      </div>
+                      </motion.div>
                       <div>
                         <div className="text-4xl font-black tracking-tight">BizQuest</div>
                         <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-300">
@@ -430,7 +439,7 @@ export const AuthPage: React.FC = () => {
                     <div className="flex flex-col justify-between">
                       <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
                         <Sparkles className="h-3.5 w-3.5" />
-                        Welcome to smarter launches
+                        Market clarity, faster
                       </div>
 
                       <h1 className="hero-glow mt-6 max-w-[470px] text-[3.8rem] font-black leading-[0.92] tracking-[-0.05em] text-white">
@@ -441,7 +450,7 @@ export const AuthPage: React.FC = () => {
                       </h1>
 
                       <p className="mt-5 max-w-[470px] text-lg leading-8 text-slate-300">
-                        Explore demand, competition, and timing in one polished workspace designed for decisive founders and operators.
+                        BizQuest helps founders assess demand, competition, and timing before they commit money to a market.
                       </p>
 
                       <div className="mt-7 grid grid-cols-3 gap-3">
@@ -482,33 +491,34 @@ export const AuthPage: React.FC = () => {
                         ))}
                       </div>
 
-                      <div className="mt-4 rounded-[26px] border border-cyan-400/12 bg-cyan-400/8 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
-                          <div>
-                            <div className="text-sm font-semibold text-white">Built for confident decisions</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-200">
-                              Test a product idea, save the result, and come back with follow-up questions in the same workspace.
-                            </p>
+                        <div className="mt-4 rounded-[26px] border border-cyan-400/12 bg-cyan-400/8 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                          <div className="flex items-start gap-3">
+                            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                            <div>
+                              <div className="text-sm font-semibold text-white">Start with a quick sign in</div>
+                              <p className="mt-1 text-sm leading-6 text-slate-200">
+                                Create an account or sign in to unlock your first market brief and keep everything in one workspace.
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
                     </div>
 
                     <div className="grid gap-4">
                       <div className="floating-panel-delayed w-full rounded-[36px] border border-white/10 bg-slate-950/44 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Sample verdict</div>
+                            <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Sample verdict</div>
                             <div className="mt-2 text-[2rem] font-semibold leading-tight text-white">Portable blender in Nairobi West</div>
                           </div>
-                          <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-300">
-                            GO
+                          <div className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.14)]">
+                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                            Live brief
                           </div>
                         </div>
 
                         <p className="mt-4 text-sm leading-7 text-slate-300">
-                          Strong interest, manageable competition, and favorable timing for a focused launch with healthy upside.
+                          Strong interest, manageable competition, and favorable timing for a focused launch.
                         </p>
 
                         <div className="gradient-divider my-5" />
