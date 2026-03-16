@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -54,6 +54,136 @@ const OPPORTUNITY_SIGNALS = [
   { label: 'Competition', value: 'Moderate', tone: 'text-amber-300' },
   { label: 'Timing', value: 'Early', tone: 'text-cyan-300' },
 ];
+
+const SAMPLE_QUESTION = 'Will a portable blender sell well in Nairobi West?';
+const SAMPLE_TITLE = 'Portable blender in Nairobi West';
+const SAMPLE_SUMMARY = 'Strong interest, manageable competition, and favorable timing for a focused launch.';
+
+function useTypewriter(text: string, speedMs: number, resetKey: number) {
+  const [displayed, setDisplayed] = useState('');
+
+  useEffect(() => {
+    let frame: ReturnType<typeof setTimeout> | null = null;
+    let index = 0;
+
+    setDisplayed('');
+
+    const step = () => {
+      index += 1;
+      setDisplayed(text.slice(0, index));
+      if (index < text.length) {
+        frame = setTimeout(step, speedMs);
+      }
+    };
+
+    frame = setTimeout(step, speedMs);
+
+    return () => {
+      if (frame) clearTimeout(frame);
+    };
+  }, [text, speedMs, resetKey]);
+
+  return displayed;
+}
+
+const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const [cycle, setCycle] = useState(0);
+  const [phase, setPhase] = useState<'typing' | 'answer' | 'signals'>('typing');
+  const typedQuestion = useTypewriter(SAMPLE_QUESTION, compact ? 26 : 22, cycle);
+  const isQuestionComplete = typedQuestion.length === SAMPLE_QUESTION.length;
+
+  useEffect(() => {
+    let answerTimer: ReturnType<typeof setTimeout> | null = null;
+    let signalsTimer: ReturnType<typeof setTimeout> | null = null;
+    let restartTimer: ReturnType<typeof setTimeout> | null = null;
+
+    setPhase('typing');
+
+    if (isQuestionComplete) {
+      answerTimer = setTimeout(() => setPhase('answer'), 280);
+      signalsTimer = setTimeout(() => setPhase('signals'), 900);
+      restartTimer = setTimeout(() => setCycle((value) => value + 1), 5400);
+    }
+
+    return () => {
+      if (answerTimer) clearTimeout(answerTimer);
+      if (signalsTimer) clearTimeout(signalsTimer);
+      if (restartTimer) clearTimeout(restartTimer);
+    };
+  }, [isQuestionComplete, cycle]);
+
+  return (
+    <>
+      <div className={`rounded-[22px] border border-white/10 bg-slate-950/24 ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}>
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+          <div className="h-2 w-2 rounded-full bg-cyan-300/80" />
+          Input question
+        </div>
+        <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
+          {typedQuestion}
+          <span className="ml-0.5 inline-block h-[1.1em] w-[1px] translate-y-0.5 animate-pulse bg-cyan-200/80 align-middle" />
+        </div>
+      </div>
+
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: phase === 'typing' ? 0.28 : 1,
+          y: phase === 'typing' ? 8 : 0,
+          scale: phase === 'typing' ? 0.985 : 1,
+        }}
+        transition={{ duration: 0.42, ease: 'easeOut' }}
+      >
+        <div className="mt-4 flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
+              <LineChart className="h-4 w-4" />
+              Sample verdict
+            </div>
+            <div className={`mt-2 font-semibold text-white ${compact ? 'text-base' : 'text-[2rem] leading-tight'}`}>{SAMPLE_TITLE}</div>
+            <p className={`mt-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
+              {SAMPLE_SUMMARY}
+            </p>
+          </div>
+          <div className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
+            GO
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="gradient-divider my-4" />
+
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: phase === 'signals' ? 1 : 0.36,
+          y: phase === 'signals' ? 0 : 10,
+        }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'}`}
+      >
+        {OPPORTUNITY_SIGNALS.map((signal, index) => (
+          <motion.div
+            key={signal.label}
+            initial={false}
+            animate={{
+              opacity: phase === 'signals' ? 1 : 0.42,
+              y: phase === 'signals' ? 0 : 12,
+              scale: phase === 'signals' ? 1 : 0.985,
+            }}
+            transition={{ duration: 0.34, delay: phase === 'signals' ? index * 0.09 : 0, ease: 'easeOut' }}
+            className={`rounded-[22px] border border-white/8 bg-white/[0.05] ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
+          >
+            <div className={`font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
+              {signal.label}
+            </div>
+            <div className={`mt-2 font-bold ${signal.tone} ${compact ? 'text-sm' : 'text-lg'}`}>{signal.value}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </>
+  );
+};
 
 function openMobileAuth(
   mode: 'signin' | 'signup',
@@ -327,32 +457,7 @@ export const AuthPage: React.FC = () => {
                     transition={{ delay: 0.2 }}
                     className="floating-panel-delayed calm-surface mt-5 rounded-[26px] border border-white/10 p-4"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
-                          <LineChart className="h-4 w-4" />
-                          Sample verdict
-                        </div>
-                        <div className="mt-2 text-base font-semibold text-white">Portable blender in Nairobi West</div>
-                        <p className="mt-1 text-sm leading-6 text-slate-300">
-                          Strong interest, manageable competition, and favorable timing for a focused launch.
-                        </p>
-                      </div>
-                      <div className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
-                        GO
-                      </div>
-                    </div>
-
-                    <div className="gradient-divider my-4" />
-
-                    <div className="grid grid-cols-3 gap-2">
-                      {OPPORTUNITY_SIGNALS.map((signal) => (
-                        <div key={signal.label} className="rounded-2xl border border-white/8 bg-white/[0.05] px-3 py-3">
-                          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">{signal.label}</div>
-                          <div className={`mt-2 text-sm font-bold ${signal.tone}`}>{signal.value}</div>
-                        </div>
-                      ))}
-                    </div>
+                    <SampleVerdictDemo compact />
                   </motion.div>
 
                   <div className="mt-5 rounded-[22px] border border-cyan-400/10 bg-cyan-400/8 px-4 py-3 text-sm leading-6 text-slate-200">
@@ -507,7 +612,6 @@ export const AuthPage: React.FC = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Sample verdict</div>
-                            <div className="mt-2 text-[2rem] font-semibold leading-tight text-white">Portable blender in Nairobi West</div>
                           </div>
                           <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
                             <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
@@ -515,19 +619,8 @@ export const AuthPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <p className="mt-4 text-sm leading-7 text-slate-300">
-                          Strong interest, manageable competition, and favorable timing for a focused launch.
-                        </p>
-
-                        <div className="gradient-divider my-5" />
-
-                        <div className="grid grid-cols-3 gap-3">
-                          {OPPORTUNITY_SIGNALS.map((signal) => (
-                            <div key={signal.label} className="rounded-[22px] border border-white/8 bg-white/[0.05] px-4 py-4">
-                              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{signal.label}</div>
-                              <div className={`mt-2 text-lg font-bold ${signal.tone}`}>{signal.value}</div>
-                            </div>
-                          ))}
+                        <div className="mt-4">
+                          <SampleVerdictDemo />
                         </div>
 
                         <div className="mt-5 rounded-[24px] border border-cyan-400/12 bg-cyan-400/8 px-4 py-4">
