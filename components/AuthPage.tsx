@@ -289,16 +289,11 @@ export const AuthPage: React.FC = () => {
                     Market clarity, faster
                   </div>
 
-                  <h1 className="relative mt-4 text-[2.1rem] font-black leading-[1.02] tracking-tight">
+                  <h1 className="hero-glow relative mt-4 text-[2.1rem] font-black leading-[1.02] tracking-tight">
                     Launch with signal,
-                    <motion.span
-                      className="mt-1 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent"
-                      style={{ backgroundSize: '200% 200%' }}
-                      animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                    >
+                    <span className="animated-gradient-text mt-1 block">
                       not guesswork.
-                    </motion.span>
+                    </span>
                   </h1>
 
                   <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300">
@@ -312,7 +307,7 @@ export const AuthPage: React.FC = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.08 + index * 0.06 }}
-                        className="rounded-[22px] border border-white/10 bg-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                        className={`rounded-[22px] border border-white/10 bg-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                       >
                         <div className="text-base font-black text-white">{metric.value}</div>
                         <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">{metric.label}</div>
@@ -325,7 +320,7 @@ export const AuthPage: React.FC = () => {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mt-5 rounded-[26px] border border-white/10 bg-slate-950/38 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                    className="floating-panel-delayed mt-5 rounded-[26px] border border-white/10 bg-slate-950/38 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -438,16 +433,11 @@ export const AuthPage: React.FC = () => {
                         Welcome to smarter launches
                       </div>
 
-                      <h1 className="mt-6 max-w-[470px] text-[3.8rem] font-black leading-[0.92] tracking-[-0.05em] text-white">
+                      <h1 className="hero-glow mt-6 max-w-[470px] text-[3.8rem] font-black leading-[0.92] tracking-[-0.05em] text-white">
                         Launch with signal,
-                        <motion.span
-                          className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent"
-                          style={{ backgroundSize: '200% 200%' }}
-                          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                        >
+                        <span className="animated-gradient-text mt-2 block">
                           not guesswork.
-                        </motion.span>
+                        </span>
                       </h1>
 
                       <p className="mt-5 max-w-[470px] text-lg leading-8 text-slate-300">
@@ -462,7 +452,7 @@ export const AuthPage: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.08 + index * 0.07 }}
                             whileHover={{ y: -4 }}
-                            className="rounded-[22px] border border-white/8 bg-white/[0.06] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                            className={`rounded-[22px] border border-white/8 bg-white/[0.06] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
                           >
                             <div className="text-xl font-black text-white">{metric.value}</div>
                             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
@@ -479,7 +469,7 @@ export const AuthPage: React.FC = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.18 + index * 0.08 }}
                             whileHover={{ y: -3, scale: 1.01 }}
-                            className="flex items-start gap-4 rounded-[24px] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]"
+                            className={`flex items-start gap-4 rounded-[24px] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)] ${index === 0 ? 'floating-panel' : 'floating-panel-delayed'}`}
                           >
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                               {card.icon}
@@ -506,7 +496,7 @@ export const AuthPage: React.FC = () => {
                     </div>
 
                     <div className="grid gap-4">
-                      <div className="w-full rounded-[36px] border border-white/10 bg-slate-950/44 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
+                      <div className="floating-panel-delayed w-full rounded-[36px] border border-white/10 bg-slate-950/44 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(2,6,23,0.24)]">
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">Sample verdict</div>
@@ -543,14 +533,14 @@ export const AuthPage: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-[1.1fr_0.9fr] gap-4">
-                        <div className="rounded-[28px] border border-white/10 bg-white/[0.05] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
+                        <div className="floating-panel rounded-[28px] border border-white/10 bg-white/[0.05] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
                           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why it feels premium</div>
                           <p className="mt-3 text-sm leading-7 text-slate-300">
                             Saved analysis history, clean verdict framing, and location-aware demand signals in one calm interface.
                           </p>
                         </div>
 
-                        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
+                        <div className="floating-panel-delayed rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_18px_40px_rgba(2,6,23,0.12)]">
                           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Operator note</div>
                           <div className="mt-3 text-lg font-semibold text-white">Move early when timing is favorable.</div>
                         </div>
