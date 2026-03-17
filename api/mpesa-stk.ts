@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getAllowedOrigin, getAppCallbackUrl } from './_app';
+import { getAllowedOrigin, getAppCallbackUrl } from './_app.js';
 
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';

@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import googleTrends from 'google-trends-api';
 import { createClient } from '@supabase/supabase-js';
-import { APP_URL } from './_app';
+import { APP_URL } from './_app.js';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
