@@ -2,10 +2,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { getAllowedOrigin } from './_app';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = supabaseUrl && supabaseServiceRoleKey
+  ? createClient(supabaseUrl, supabaseServiceRoleKey)
+  : null;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', getAllowedOrigin(req));
@@ -23,6 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     if (!productName) return res.status(400).json({ error: 'productName required' });
+    if (!supabase) return res.status(200).json({ ok: true });
 
     try {
       await supabase.from('trending_searches').insert({
@@ -41,6 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // GET: return trending searches from the last 7 days
   if (req.method === 'GET') {
     try {
+      if (!supabase) return res.status(200).json([]);
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
       const { data, error } = await supabase

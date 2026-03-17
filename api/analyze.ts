@@ -7,10 +7,11 @@ import { APP_URL } from './_app';
 const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = supabaseUrl && supabaseServiceRoleKey
+  ? createClient(supabaseUrl, supabaseServiceRoleKey)
+  : null;
 
 const CACHE_TTL_HOURS = 24;
 
@@ -397,18 +398,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Check cache first
   try {
-    const cutoff = new Date(Date.now() - CACHE_TTL_HOURS * 60 * 60 * 1000).toISOString();
-    const { data: cached } = await supabase
-      .from('analysis_cache')
-      .select('result')
-      .eq('query_key', cacheKey)
-      .gte('created_at', cutoff)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+    if (supabase) {
+      const cutoff = new Date(Date.now() - CACHE_TTL_HOURS * 60 * 60 * 1000).toISOString();
+      const { data: cached } = await supabase
+        .from('analysis_cache')
+        .select('result')
+        .eq('query_key', cacheKey)
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
-    if (cached?.result) {
-      return res.status(200).json(cached.result);
+      if (cached?.result) {
+        return res.status(200).json(cached.result);
+      }
     }
   } catch {
     // Cache miss or table doesn't exist yet — continue with fresh analysis
@@ -656,10 +659,12 @@ Related searches: ${trends.relatedQueries.join(', ') || 'none'}`
     });
 
     // Save to cache (fire-and-forget)
-    supabase
-      .from('analysis_cache')
-      .insert({ query_key: cacheKey, result: normalized })
-      .then(() => {});
+    if (supabase) {
+      supabase
+        .from('analysis_cache')
+        .insert({ query_key: cacheKey, result: normalized })
+        .then(() => {});
+    }
 
     return res.status(200).json(normalized);
 
