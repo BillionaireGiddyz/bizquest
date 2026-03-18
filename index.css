@@ -324,128 +324,6 @@
   .terminal-cta-shine:hover::after {
     transform: translateX(140%) skewX(-18deg);
   }
-
-  .empty-step-card {
-    background:
-      linear-gradient(180deg, rgba(17, 24, 39, 0.92), rgba(12, 18, 31, 0.94)),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 55%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 10px 24px rgba(2, 6, 23, 0.18);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: default;
-  }
-
-  .empty-step-card:hover {
-    transform: translateY(-6px);
-  }
-
-  .empty-step-card:hover .empty-step-badge {
-    transform: scale(1.15);
-  }
-
-  .empty-step-card-indigo:hover {
-    box-shadow:
-      0 8px 32px rgba(99, 102, 241, 0.25),
-      0 2px 8px rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-
-  .empty-step-card-purple:hover {
-    box-shadow:
-      0 8px 32px rgba(168, 85, 247, 0.25),
-      0 2px 8px rgba(168, 85, 247, 0.1);
-    border-color: rgba(168, 85, 247, 0.3);
-  }
-
-  .empty-step-card-green:hover {
-    box-shadow:
-      0 8px 32px rgba(16, 185, 129, 0.25),
-      0 2px 8px rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
-  }
-
-  .empty-flow-connector {
-    overflow: visible;
-  }
-
-  .empty-flow-line {
-    stroke: rgba(255, 255, 255, 0.15);
-    stroke-width: 1.5;
-    stroke-dasharray: 4 3;
-    transition:
-      stroke 0.25s ease,
-      stroke-dashoffset 0.25s ease;
-  }
-
-  .empty-flow-arrow {
-    fill: rgba(255, 255, 255, 0.15);
-    transition: fill 0.25s ease;
-  }
-
-  .empty-flow-group:hover .empty-flow-line {
-    stroke: rgba(59, 130, 246, 0.45);
-    stroke-dashoffset: -7;
-  }
-
-  .empty-flow-group:hover .empty-flow-arrow {
-    fill: rgba(59, 130, 246, 0.45);
-  }
-
-  .example-prompt-pill {
-    cursor: pointer;
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 360ms both;
-  }
-
-  .example-prompt-dot {
-    animation: gentlePulse 2.5s ease-in-out infinite;
-  }
-
-  .example-prompt-arrow {
-    opacity: 0;
-    transform: translateX(-2px);
-    transition: all 0.2s ease;
-  }
-
-  .example-prompt-pill:hover {
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .example-prompt-pill:hover .example-prompt-arrow {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .empty-state-icon-wrap {
-    animation:
-      fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both,
-      iconRotate 6s ease-in-out infinite 0.6s;
-  }
-
-  .empty-state-icon-shell {
-    animation: iconGlow 3s ease-in-out infinite;
-  }
-
-  .empty-state-title {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0ms both;
-  }
-
-  .empty-state-subtitle {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 60ms both;
-  }
-
-  .step-card-1 {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0ms both;
-  }
-
-  .step-card-2 {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 120ms both;
-  }
-
-  .step-card-3 {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 240ms both;
-  }
 }
 
 /* Custom Scrollbar */
@@ -473,46 +351,6 @@
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-20deg); }
   100% { transform: translateX(200%) skewX(-20deg); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes gentlePulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.85);
-  }
-}
-
-@keyframes iconGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-  }
-  50% {
-    box-shadow:
-      0 0 40px rgba(139, 92, 246, 0.6),
-      0 0 60px rgba(139, 92, 246, 0.2);
-  }
-}
-
-@keyframes iconRotate {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(3deg); }
-  75% { transform: rotate(-3deg); }
-  100% { transform: rotate(0deg); }
 }
 
 @keyframes demo-type-desktop {
@@ -624,18 +462,6 @@
   .demo-answer-stage,
   .demo-signal-stage,
   .demo-ellipsis span {
-    animation: none !important;
-  }
-
-  .empty-state-icon-wrap,
-  .empty-state-icon-shell,
-  .empty-state-title,
-  .empty-state-subtitle,
-  .step-card-1,
-  .step-card-2,
-  .step-card-3,
-  .example-prompt-pill,
-  .example-prompt-dot {
     animation: none !important;
   }
 

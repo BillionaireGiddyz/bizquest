@@ -21,7 +21,6 @@ interface ChatInterfaceProps {
   followUpsLeft?: number;
   hasAnalysis?: boolean;
   onNewChat?: () => void;
-  prefillPrompt?: { id: number; text: string } | null;
 }
 
 const DATA_SOURCES = [
@@ -118,7 +117,7 @@ const CreditArc: React.FC<{ credits: number; expiryDate: string | null; onClick:
   );
 };
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false, onNewChat, prefillPrompt }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false, onNewChat }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
   const [mode, setMode] = useState<'followup' | 'new'>('followup');
@@ -128,14 +127,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
   // Reset mode when analysis changes
   useEffect(() => {
     if (hasAnalysis && followUpsLeft > 0) setMode('followup');
-  }, [hasAnalysis, followUpsLeft]);
-
-  useEffect(() => {
-    if (!prefillPrompt?.text) return;
-    setInputText(prefillPrompt.text);
-    if (hasAnalysis && followUpsLeft > 0) setMode('followup');
-    requestAnimationFrame(() => inputRef.current?.focus());
-  }, [prefillPrompt?.id, prefillPrompt?.text, hasAnalysis, followUpsLeft]);
+  }, [hasAnalysis]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -504,10 +496,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 onChange={(e) => setInputText(e.target.value.slice(0, 500))}
                 placeholder={isFollowUpMode ? "Ask a follow-up about this analysis..." : "Ask about any product & market..."}
                 className={cn(
-                  "flex-1 rounded-xl border bg-slate-50 px-4 py-3.5 text-sm text-slate-800 shadow-sm transition-all duration-200 ease-out placeholder:text-slate-400 focus:outline-none focus:ring-0 focus:placeholder:text-slate-400/50 focus:[box-shadow:0_0_0_3px_rgba(59,130,246,0.1),0_0_20px_rgba(59,130,246,0.08)] focus:bg-[rgba(59,130,246,0.03)]",
+                  "flex-1 px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm",
                   isFollowUpMode
-                    ? "border-indigo-200 hover:border-indigo-300 focus:border-[rgba(59,130,246,0.5)]"
-                    : "border-violet-200 hover:border-violet-300 focus:border-[rgba(59,130,246,0.5)]"
+                    ? "border-indigo-200 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-300"
+                    : "border-violet-200 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300"
                 )}
                 disabled={isLoading}
             />
@@ -517,11 +509,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={cn(
-                  "flex min-w-[52px] items-center justify-center rounded-xl p-3.5 text-white shadow-lg transition-all duration-200 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none",
+                  "disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white p-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center min-w-[52px]",
                   isFollowUpMode
-                    ? "bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700 hover:[box-shadow:0_10px_24px_rgba(59,130,246,0.18)]"
-                    : "bg-violet-600 shadow-violet-200 hover:bg-violet-700 hover:[box-shadow:0_10px_24px_rgba(59,130,246,0.18)]",
-                  inputText.trim() && !isLoading && "hover:text-blue-100"
+                    ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
+                    : "bg-violet-600 hover:bg-violet-700 shadow-violet-200"
                 )}
             >
                 {isLoading ? (

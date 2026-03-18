@@ -39,7 +39,6 @@ const App: React.FC = () => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [followUpsLeft, setFollowUpsLeft] = useState(0);
-  const [prefillPrompt, setPrefillPrompt] = useState<{ id: number; text: string } | null>(null);
 
   const credits = profile?.credits ?? 0;
 
@@ -363,7 +362,6 @@ const App: React.FC = () => {
               followUpsLeft={followUpsLeft}
               hasAnalysis={!!currentAnalysis}
               onNewChat={startNewChat}
-              prefillPrompt={prefillPrompt}
             />
           </motion.div>
 
@@ -374,10 +372,7 @@ const App: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full lg:w-[65%] min-h-[60vh] lg:h-full lg:min-h-0 bg-transparent p-1"
           >
-            <Dashboard
-              data={currentAnalysis}
-              onExamplePromptSelect={(text) => setPrefillPrompt({ id: Date.now(), text })}
-            />
+            <Dashboard data={currentAnalysis} />
           </motion.div>
 
         </main>
