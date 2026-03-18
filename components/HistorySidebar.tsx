@@ -13,6 +13,13 @@ interface HistorySidebarProps {
 }
 
 export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelect, onClear, isOpen, setIsOpen }) => {
+  const getVerdictBorder = (recommendation?: string) => {
+    if (recommendation === 'GO') return 'border-l-[#10b981]';
+    if (recommendation === 'BE CAREFUL') return 'border-l-[#f59e0b]';
+    if (recommendation === 'AVOID') return 'border-l-[#ef4444]';
+    return 'border-l-white/10';
+  };
+
   return (
     <AnimatePresence>
       {/* Overlay for mobile */}
@@ -84,7 +91,17 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
                         onSelect(item);
                         setIsOpen(false);
                     }}
-                    className="w-full text-left p-3.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all group relative overflow-hidden"
+                    className={cn(
+                      "w-full text-left p-3.5 rounded-xl border border-transparent border-l-[3px] transition-all group relative overflow-hidden",
+                      getVerdictBorder(item.recommendation),
+                      item.recommendation === 'GO'
+                        ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-emerald-400'
+                        : item.recommendation === 'BE CAREFUL'
+                          ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-amber-400'
+                          : item.recommendation === 'AVOID'
+                            ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-rose-400'
+                            : 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-white/20',
+                    )}
                 >
                     <div className="flex justify-between items-start mb-1.5 relative z-10">
                         <span className="font-semibold text-slate-700 text-sm truncate w-[90%] group-hover:text-indigo-700 transition-colors">{item.productName}</span>

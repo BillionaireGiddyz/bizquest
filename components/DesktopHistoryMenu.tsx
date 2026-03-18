@@ -15,6 +15,13 @@ export const DesktopHistoryMenu: React.FC<DesktopHistoryMenuProps> = ({
   onSelect,
   onClear,
 }) => {
+  const getVerdictBorder = (recommendation?: string) => {
+    if (recommendation === 'GO') return 'border-l-[#10b981]';
+    if (recommendation === 'BE CAREFUL') return 'border-l-[#f59e0b]';
+    if (recommendation === 'AVOID') return 'border-l-[#ef4444]';
+    return 'border-l-white/10';
+  };
+
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -135,7 +142,17 @@ export const DesktopHistoryMenu: React.FC<DesktopHistoryMenuProps> = ({
                         onSelect(item);
                         setIsOpen(false);
                       }}
-                      className="group w-full rounded-[22px] border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/60"
+                      className={cn(
+                        'group w-full rounded-[22px] border border-slate-200 border-l-[3px] bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[rgba(255,255,255,0.04)] hover:shadow-lg hover:shadow-indigo-100/60',
+                        getVerdictBorder(item.recommendation),
+                        item.recommendation === 'GO'
+                          ? 'hover:border-l-emerald-400'
+                          : item.recommendation === 'BE CAREFUL'
+                            ? 'hover:border-l-amber-400'
+                            : item.recommendation === 'AVOID'
+                              ? 'hover:border-l-rose-400'
+                              : 'hover:border-l-white/20',
+                      )}
                     >
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">

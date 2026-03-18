@@ -32,6 +32,10 @@ import {
   Store,
   ShieldCheck,
   Zap,
+  Package,
+  CreditCard,
+  Rocket,
+  Megaphone,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -53,6 +57,71 @@ const container = {
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
+};
+
+function getActionIcon(bullet: string) {
+  const content = bullet.toLowerCase();
+
+  if (/(inventory|product|stock|stationery)/.test(content)) {
+    return { icon: <Package className="h-4 w-4" />, color: 'text-blue-400' };
+  }
+  if (/(m-pesa|payment|till|cash|mobile money)/.test(content)) {
+    return { icon: <CreditCard className="h-4 w-4" />, color: 'text-emerald-400' };
+  }
+  if (/(pilot|launch|scale|rollout|start)/.test(content)) {
+    return { icon: <Rocket className="h-4 w-4" />, color: 'text-violet-400' };
+  }
+  if (/(marketing|instagram|social|ads)/.test(content)) {
+    return { icon: <Megaphone className="h-4 w-4" />, color: 'text-amber-400' };
+  }
+  if (/(location|estate|area|town)/.test(content)) {
+    return { icon: <MapPin className="h-4 w-4" />, color: 'text-blue-400' };
+  }
+
+  return { icon: <ArrowRight className="h-4 w-4" />, color: 'text-blue-400' };
+}
+
+const TrendTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
+      <div className="text-xs font-semibold text-slate-200">{label}</div>
+      <div className="mt-1 text-sm font-bold">Interest: {payload[0].value}</div>
+    </div>
+  );
+};
+
+const TrendDot = ({ cx, cy }: any) => {
+  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={4}
+      fill="#f59e0b"
+      stroke="#1f2937"
+      strokeWidth={1.5}
+      style={{ filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}
+    />
+  );
+};
+
+const ActiveTrendDot = ({ cx, cy }: any) => {
+  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={6}
+      fill="#f59e0b"
+      stroke="#0f172a"
+      strokeWidth={2}
+      style={{ filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.72))' }}
+    />
+  );
 };
 
 function getRecommendationSummary(data: AnalysisResult) {
@@ -420,6 +489,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         heading={data.recommendation === 'GO' ? 'What to do next' : data.recommendation === 'BE CAREFUL' ? 'Proceed carefully' : 'Before you move'}
         summary={getRecommendationSummary(data)}
         bullets={getRecommendationBullets(data)}
+        getIcon={getActionIcon}
       />
 
       <motion.div variants={item} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
@@ -438,9 +508,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {(data.keyInsights || data.targetDemographic || data.bestSellingChannels) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {data.keyInsights && data.keyInsights.length > 0 && (
-            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <motion.div variants={item} className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-500" />
+                <Lightbulb className="w-4 h-4 text-amber-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.45)]" />
                 Key Insights
               </h4>
               <ul className="space-y-2.5">
@@ -455,9 +525,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.targetDemographic && (
-            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <motion.div variants={item} className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
-                <Users className="w-4 h-4 text-violet-500" />
+                <Users className="w-4 h-4 text-violet-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.45)]" />
                 Target Demographic
               </h4>
               <p className="text-sm text-slate-600 leading-relaxed">{data.targetDemographic}</p>
@@ -465,9 +535,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.bestSellingChannels && data.bestSellingChannels.length > 0 && (
-            <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <motion.div variants={item} className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <h4 className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest flex items-center gap-2">
-                <ShoppingBag className="w-4 h-4 text-emerald-500" />
+                <ShoppingBag className="w-4 h-4 text-emerald-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
                 Best Selling Channels
               </h4>
               <div className="flex flex-wrap gap-2">
@@ -522,36 +592,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-        <h4 className="text-xs font-bold text-slate-500 mb-6 uppercase tracking-widest flex items-center gap-2">
+      <motion.div variants={item} className="bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+        <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
         </h4>
-        <div className="h-64 w-full">
+        <div className="h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.08} />
                   <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.06)" />
               <XAxis
                 dataKey="period"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }}
                 dy={10}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }}
                 domain={[0, 100]}
               />
               <Tooltip
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#ffffff', color: '#1e293b', padding: '12px' }}
+                content={<TrendTooltip />}
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
               />
               <Area
@@ -559,28 +629,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 dataKey="interestLevel"
                 stroke="#f59e0b"
                 strokeWidth={3}
+                style={{ filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' }}
                 fillOpacity={1}
                 fill="url(#colorInterest)"
-                dot={{ r: 4, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
-                activeDot={{ r: 6, strokeWidth: 0, fill: '#f59e0b', stroke: '#fff' }}
+                dot={<TrendDot />}
+                activeDot={<ActiveTrendDot />}
                 animationDuration={1500}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex items-center justify-center gap-6 mt-6 text-xs font-medium text-slate-500">
+        <div className="flex items-center justify-center gap-6 mt-6 text-xs font-medium text-slate-400">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-amber-500"></span>
             <span>Search Interest</span>
           </div>
           {data.googleTrendsAvg > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-emerald-600 font-bold">Avg: {data.googleTrendsAvg}/100</span>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-bold text-amber-300">Avg: {data.googleTrendsAvg}/100</span>
             </div>
           )}
           {data.trendDirection && data.trendDirection !== 'stable' && (
             <div className="flex items-center gap-2">
-              <span className={data.trendDirection === 'rising' ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
+              <span className={data.trendDirection === 'rising' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
                 {data.trendDirection === 'rising' ? '↑ Rising' : '↓ Declining'}
               </span>
             </div>

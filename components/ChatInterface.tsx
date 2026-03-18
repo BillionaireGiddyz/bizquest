@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
-import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Lock, Coins, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus } from 'lucide-react';
+import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Lock, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
@@ -63,6 +63,60 @@ const SUGGESTIONS = [
   "Market saturation for mobile accessories in CBD?"
 ];
 
+const CREDIT_CAPACITY = 20;
+
+const CreditArc: React.FC<{ credits: number; expiryDate: string | null; onClick: () => void }> = ({ credits, expiryDate, onClick }) => {
+  const normalizedCredits = Math.max(0, credits);
+  const maxCredits = Math.max(CREDIT_CAPACITY, normalizedCredits || CREDIT_CAPACITY);
+  const progress = Math.min(normalizedCredits / maxCredits, 1);
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - progress);
+  const isLow = normalizedCredits <= 3;
+  const strokeColor = isLow ? '#ef4444' : '#3b82f6';
+  const days = expiryDate ? Math.ceil((new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className="group flex cursor-pointer flex-col items-center"
+      title={`${normalizedCredits} of ${maxCredits} credits remaining`}
+    >
+      <div className="relative">
+        <svg className="h-12 w-12 -rotate-90" viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+          <circle
+            cx="22"
+            cy="22"
+            r={radius}
+            fill="none"
+            stroke={strokeColor}
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="transition-[stroke-dashoffset] duration-500 ease-out"
+          />
+        </svg>
+        <div className={cn(
+          "absolute inset-0 flex items-center justify-center text-sm font-bold text-white",
+          isLow && "animate-[lowCredit_2s_ease-in-out_infinite]"
+        )}>
+          {normalizedCredits}
+        </div>
+        <div className="pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-20 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-[#1e2433] px-2.5 py-1.5 text-[11px] font-medium text-white shadow-lg group-hover:block">
+          {normalizedCredits} of {maxCredits} credits remaining
+        </div>
+      </div>
+      {days && days > 0 ? (
+        <span className="mt-1 text-[10px] font-medium text-[#6b7280]">{days}d left</span>
+      ) : null}
+    </motion.div>
+  );
+};
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false, onNewChat }) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
@@ -116,9 +170,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
   };
 
   const handleSuggestionClick = (text: string) => {
-    if (!isLoading && credits > 0) {
-      onSendMessage(text);
-    }
+    if (isLoading) return;
+    setInputText(text);
+    if (hasAnalysis && followUpsLeft > 0) setMode('followup');
+    inputRef.current?.focus();
   };
 
   const getSourceIcon = (source: string) => {
@@ -184,33 +239,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
               <span className="relative tracking-wide">New Chat</span>
             </motion.button>
           )}
-          <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onRecharge}
-              className="flex flex-col items-end cursor-pointer group"
-          >
-              <div className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-sm",
-                credits > 0
-                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 group-hover:bg-indigo-100 group-hover:shadow-indigo-100"
-                  : "bg-rose-50 border-rose-100 text-rose-600 group-hover:bg-rose-100 animate-pulse"
-              )}>
-                  <Coins className="w-4 h-4" />
-                  <span className="font-bold text-sm">{credits}</span>
-              </div>
-              {expiryDate && credits > 0 && (() => {
-                const days = Math.ceil((new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                return days > 0 ? (
-                  <span className={cn(
-                    "text-[10px] font-medium mr-1 mt-0.5",
-                    days <= 3 ? "text-rose-500" : days <= 7 ? "text-amber-500" : "text-slate-400"
-                  )}>
-                    {days}d left
-                  </span>
-                ) : null;
-              })()}
-          </motion.div>
+          <CreditArc credits={credits} expiryDate={expiryDate} onClick={onRecharge} />
 
           {/* Desktop user controls */}
           <div className="hidden lg:flex items-center gap-1">
@@ -260,13 +289,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                      initial={{ opacity: 0, x: -20 }}
                      animate={{ opacity: 1, x: 0 }}
                      transition={{ delay: 0.2 + idx * 0.1 }}
-                     whileHover={{ scale: 1.02, backgroundColor: "#f8fafc" }}
+                     whileHover={{ scale: 1.01 }}
                      whileTap={{ scale: 0.98 }}
                      onClick={() => handleSuggestionClick(suggestion)}
-                     className="text-left p-3 text-xs md:text-sm text-slate-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-indigo-200 hover:text-indigo-600 hover:shadow-md transition-all flex items-center justify-between group"
+                     className="cursor-pointer text-left p-3 text-xs md:text-sm text-slate-500 bg-white border border-slate-200 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:bg-[rgba(59,130,246,0.08)] hover:border-[rgba(59,130,246,0.3)] hover:text-slate-50 hover:shadow-md flex items-center justify-between group"
                    >
                      <span className="truncate mr-2">{suggestion}</span>
-                     <Zap className="w-3 h-3 opacity-0 group-hover:opacity-100 text-indigo-400 transition-opacity" />
+                     <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-blue-400 transition-all duration-200 group-hover:translate-x-0.5" />
                    </motion.button>
                  ))}
                </div>
