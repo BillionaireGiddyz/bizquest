@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -18,6 +18,7 @@ import {
   Sparkles,
   TrendingUp,
   UserPlus,
+  CircleDot,
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
@@ -27,26 +28,27 @@ type DesktopStage = 'welcome' | 'form';
 
 const VALUE_PILLARS = [
   {
-    icon: <TrendingUp className="h-5 w-5" />,
+    id: 'demand',
     title: 'Demand scoring in seconds',
     body: 'Pressure-test product ideas before you spend on stock, ads, or rent.',
+    badge: 'Verified by live data',
   },
   {
-    icon: <MapPinned className="h-5 w-5" />,
+    id: 'location',
     title: 'Location-aware verdicts',
     body: 'See how opportunity changes by town, estate, and customer profile.',
   },
   {
-    icon: <ShieldCheck className="h-5 w-5" />,
+    id: 'summary',
     title: 'Decision-grade summaries',
     body: 'Clear GO, BE CAREFUL, and AVOID guidance with supporting context.',
   },
 ];
 
 const TRUST_METRICS = [
-  { label: 'Free credits', value: '3', note: 'on sign up' },
-  { label: 'Follow-ups', value: '3', note: 'per analysis' },
-  { label: 'Decision time', value: '<60s', note: 'to first brief' },
+  { label: 'Free credits', value: '3', note: 'on sign up', countTo: 3 },
+  { label: 'Follow-ups', value: '3', note: 'per analysis', countTo: 3 },
+  { label: 'Decision time', value: '<60s', note: 'to first brief', countTo: 60, prefix: '<', suffix: 's' },
 ];
 
 const OPPORTUNITY_SIGNALS = [
@@ -60,41 +62,226 @@ const SAMPLE_TITLE = 'Portable blender in Nairobi West';
 const SAMPLE_VERDICT = 'Analysis indicates a strong trend in Nairobi West';
 const SAMPLE_HINT = 'Healthy signal density, manageable pressure, and more beneath the surface';
 
-const MetricStrip: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
-  <div className={`grid grid-cols-3 ${compact ? 'gap-2.5' : 'gap-3'}`}>
-    {TRUST_METRICS.map((metric) => (
-      <div
-        key={metric.label}
-        className={`calm-surface rounded-[22px] border border-white/10 text-center ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
-      >
-        <div className={`${compact ? 'text-base' : 'text-xl'} font-black text-white`}>{metric.value}</div>
-        <div className={`mt-1 uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.2em]' : 'text-[10px] tracking-[0.18em]'}`}>
-          {metric.label}
-        </div>
-        <div className={`mt-1 text-slate-500 ${compact ? 'text-[11px]' : 'text-xs'}`}>{metric.note}</div>
-      </div>
-    ))}
+const HERO_WORDS = ['Enter', 'a', 'market', 'with', 'conviction.'];
+
+function useInViewOnce<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current || isVisible) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.22 },
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  return [ref, isVisible] as const;
+}
+
+const AnimatedCounter: React.FC<{
+  active: boolean;
+  countTo: number;
+  prefix?: string;
+  suffix?: string;
+}> = ({ active, countTo, prefix = '', suffix = '' }) => {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+
+    let current = 0;
+    const duration = 1200;
+    const frame = 1000 / 60;
+    const step = Math.max(1, Math.ceil(countTo / (duration / frame)));
+
+    const timer = window.setInterval(() => {
+      current += step;
+      if (current >= countTo) {
+        setValue(countTo);
+        window.clearInterval(timer);
+      } else {
+        setValue(current);
+      }
+    }, frame);
+
+    return () => window.clearInterval(timer);
+  }, [active, countTo]);
+
+  return <>{`${prefix}${value}${suffix}`}</>;
+};
+
+const LiveSignalBadge: React.FC<{ label?: string; compact?: boolean }> = ({ label = 'Live', compact = false }) => (
+  <div className={`terminal-live-pill inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${compact ? 'text-[10px] tracking-[0.26em]' : 'text-[11px] tracking-[0.3em]'} font-bold uppercase text-emerald-100`}>
+    <span className="relative flex h-2.5 w-2.5">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/70" />
+      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+    </span>
+    {label}
   </div>
 );
 
-const ValueRail: React.FC<{ compact?: boolean; limit?: number }> = ({ compact = false, limit = VALUE_PILLARS.length }) => (
-  <div className={`grid ${compact ? 'gap-2.5' : 'gap-3'}`}>
-    {VALUE_PILLARS.slice(0, limit).map((card) => (
-      <div
-        key={card.title}
-        className={`calm-surface flex items-start gap-4 rounded-[24px] border border-white/10 ${compact ? 'px-4 py-3.5' : 'px-5 py-4'}`}
+const AnimatedHeroHeadline: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
+  <h1 className={`hero-glow font-display relative text-white ${compact ? 'mt-4 text-[2.35rem] leading-[0.96] tracking-[-0.04em]' : 'mt-7 max-w-[620px] text-[4.25rem] leading-[0.9] tracking-[-0.055em]'}`}>
+    {HERO_WORDS.map((word, index) => (
+      <motion.span
+        key={word}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 + index * 0.08, duration: 0.45, ease: 'easeOut' }}
+        className={`mr-[0.18em] inline-block ${word === 'conviction.' ? 'animated-gradient-text' : ''}`}
       >
-        <div className={`flex shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${compact ? 'h-10 w-10' : 'h-11 w-11'}`}>
-          {card.icon}
-        </div>
-        <div>
-          <div className={`font-semibold text-white ${compact ? 'text-sm' : 'text-base'}`}>{card.title}</div>
-          <p className={`mt-1 text-slate-300 ${compact ? 'text-xs leading-5' : 'text-sm leading-6'}`}>{card.body}</p>
-        </div>
-      </div>
+        {word}
+      </motion.span>
     ))}
-  </div>
+  </h1>
 );
+
+const MetricStrip: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const [ref, isVisible] = useInViewOnce<HTMLDivElement>();
+
+  return (
+    <div ref={ref} className={`terminal-metric-strip relative grid grid-cols-3 ${compact ? 'gap-2.5' : 'gap-3'}`}>
+      <div className="pointer-events-none absolute inset-y-4 left-1/3 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-400/40 to-transparent md:block" />
+      <div className="pointer-events-none absolute inset-y-4 left-2/3 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-emerald-400/40 to-transparent md:block" />
+      {TRUST_METRICS.map((metric, index) => (
+        <div
+          key={metric.label}
+          className={`terminal-metric-card rounded-[22px] border text-center ${compact ? 'px-3 py-3.5' : 'px-4 py-4.5'}`}
+          style={{ transitionDelay: `${index * 120}ms` }}
+        >
+          <div className={`${compact ? 'text-base' : 'text-xl'} font-black text-white`}>
+            {metric.countTo ? (
+              <AnimatedCounter
+                active={isVisible}
+                countTo={metric.countTo}
+                prefix={metric.prefix}
+                suffix={metric.suffix}
+              />
+            ) : (
+              metric.value
+            )}
+          </div>
+          <div className={`font-data mt-1 uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.24em]' : 'text-[10px] tracking-[0.22em]'}`}>
+            {metric.label}
+          </div>
+          <div className={`mt-1 text-slate-500 ${compact ? 'text-[11px]' : 'text-xs'}`}>{metric.note}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const FeaturePreviewCard: React.FC<{
+  id: string;
+  title: string;
+  body: string;
+  compact?: boolean;
+  badge?: string;
+  index: number;
+  visible: boolean;
+}> = ({ id, title, body, compact = false, badge, index, visible }) => {
+  return (
+    <div
+      className={`terminal-feature-card group rounded-[24px] border border-white/10 ${compact ? 'px-4 py-4' : 'px-5 py-4.5'} transition-all duration-500`}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(18px)',
+        transitionDelay: `${index * 120}ms`,
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className={`font-data text-slate-400 uppercase ${compact ? 'text-[10px] tracking-[0.24em]' : 'text-[10px] tracking-[0.26em]'}`}>
+            {title}
+          </div>
+          <div className={`mt-2 font-semibold text-white ${compact ? 'text-sm' : 'text-base'}`}>{body}</div>
+        </div>
+        {badge && <div className="terminal-verified-badge rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-100">{badge}</div>}
+      </div>
+
+      <div className={`mt-4 ${compact ? 'min-h-[74px]' : 'min-h-[88px]'}`}>
+        {id === 'demand' && (
+          <div className="flex items-center gap-4">
+            <div className={`terminal-ring relative flex items-center justify-center rounded-full ${compact ? 'h-14 w-14' : 'h-16 w-16'}`}>
+              <div className="terminal-ring-inner flex h-[calc(100%-8px)] w-[calc(100%-8px)] items-center justify-center rounded-full bg-slate-950/75 font-black text-emerald-200">
+                78
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <span>Demand score</span>
+                <span className="text-emerald-300">Rising</span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-white/8">
+                <div className="h-full w-[78%] rounded-full bg-[linear-gradient(90deg,rgba(16,185,129,0.5),rgba(16,185,129,1))]" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {id === 'location' && (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              <span className="terminal-tag rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-100">
+                Karen, Nairobi
+              </span>
+              <span className="terminal-tag rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-100">
+                KES 450-7,500
+              </span>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-3 text-sm text-slate-300">
+              Location shifts the verdict by estate, price band, and customer density.
+            </div>
+          </div>
+        )}
+
+        {id === 'summary' && (
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/14 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-200">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              GO
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 rounded-full bg-white/10" />
+              <div className="h-3 w-4/5 rounded-full bg-white/7 blur-[0.5px]" />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ValueRail: React.FC<{ compact?: boolean; limit?: number }> = ({ compact = false, limit = VALUE_PILLARS.length }) => {
+  const [ref, isVisible] = useInViewOnce<HTMLDivElement>();
+
+  return (
+    <div ref={ref} className={`grid ${compact ? 'gap-2.5' : 'gap-3'}`}>
+      {VALUE_PILLARS.slice(0, limit).map((card, index) => (
+        <FeaturePreviewCard
+          key={card.title}
+          id={card.id}
+          title={card.title}
+          body={card.body}
+          compact={compact}
+          badge={card.badge}
+          index={index}
+          visible={isVisible}
+        />
+      ))}
+    </div>
+  );
+};
 
 const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   return (
@@ -102,12 +289,12 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
       <div className={`rounded-[22px] border border-white/10 bg-slate-950/24 ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}>
         <div className="demo-question-shell">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
-              <div className="h-2 w-2 rounded-full bg-cyan-300/80" />
-              Input question
+            <div className="font-data flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+              <CircleDot className="h-3.5 w-3.5 text-cyan-300/80" />
+              Market query
             </div>
-            <div className="rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">
-              Brief preview
+            <div className="font-data rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">
+              Live scan
             </div>
           </div>
           <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
@@ -116,9 +303,10 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             </span>
           </div>
           <div className="demo-analyze-stage">
-            <div className="text-[11px] text-slate-300">Checking demand, competition, and timing signals.</div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
-              <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
+            <div className="font-data text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Checking live signals</div>
+            <div className="mt-2 text-[11px] text-slate-300">Checking demand, competition, and timing signals.</div>
+            <div className="demo-progress-track mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+              <div className="demo-progress-fill h-full rounded-full" />
             </div>
           </div>
         </div>
@@ -127,7 +315,7 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
       <div className="demo-answer-stage mt-4">
         <div className="flex items-start justify-between gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
+            <div className="font-data flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
               <LineChart className="h-4 w-4" />
               Sample verdict
             </div>
@@ -156,7 +344,7 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             key={signal.label}
             className={`demo-signal-stage rounded-[22px] border border-white/8 bg-white/[0.05] ${index === 1 ? 'demo-signal-stage-2' : index === 2 ? 'demo-signal-stage-3' : ''} ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
           >
-            <div className={`font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
+            <div className={`font-data font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
               {signal.label}
             </div>
             <div className={`mt-2 font-bold ${signal.tone} ${compact ? 'text-sm' : 'text-lg'}`}>{signal.value}</div>
@@ -290,7 +478,7 @@ export const AuthPage: React.FC = () => {
     const isForgot = view === 'forgot-sent';
 
     return (
-      <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-6">
+      <div className="font-body relative min-h-screen overflow-hidden bg-slate-950 px-4 py-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.22),_transparent_30%),radial-gradient(circle_at_86%_18%,_rgba(16,185,129,0.18),_transparent_22%),linear-gradient(140deg,#020617,#0f172a_50%,#111827)]" />
         <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
         <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
@@ -342,11 +530,13 @@ export const AuthPage: React.FC = () => {
   const showDesktopOverlay = view === 'forgot' || (view === 'auth' && desktopStage === 'form');
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
+    <div className="font-body relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,_rgba(99,102,241,0.18),_transparent_24%),radial-gradient(circle_at_82%_14%,_rgba(34,211,238,0.12),_transparent_20%),linear-gradient(145deg,#020617_0%,#0b1120_42%,#111827_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.09),_transparent_58%)]" />
       <div className="pointer-events-none absolute left-[10%] top-[16%] h-52 w-52 rounded-full bg-indigo-500/10 blur-3xl" />
       <div className="pointer-events-none absolute right-[12%] top-[20%] h-44 w-44 rounded-full bg-cyan-400/8 blur-3xl" />
+      <div className="terminal-dot-grid pointer-events-none absolute inset-0 opacity-[0.04]" />
+      <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center">
         <div className="w-full">
@@ -377,50 +567,40 @@ export const AuthPage: React.FC = () => {
                         <BarChart3 className="h-6 w-6 text-indigo-200" />
                       </div>
                       <div>
-                        <div className="text-2xl font-black tracking-tight">BizQuest</div>
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-300">
+                        <div className="font-display text-2xl font-black tracking-tight">BizQuest</div>
+                        <div className="font-data text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-300">
                           AI market intelligence
                         </div>
                       </div>
                     </div>
-                    <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
-                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
-                      Signal feed
-                    </div>
+                    <LiveSignalBadge compact />
                   </div>
 
-                  <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
+                  <div className="font-data mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
                     <Sparkles className="h-3 w-3" />
-                    Built for decisive operators
+                    Intelligence terminal
                   </div>
 
-                  <h1 className="hero-glow relative mt-4 text-[2.15rem] font-black leading-[1.02] tracking-tight">
-                    Read the market
-                    <span className="animated-gradient-text mt-1 block">
-                      before you move.
-                    </span>
-                  </h1>
+                  <AnimatedHeroHeadline compact />
 
                   <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300">
-                    See demand, market timing, and competitive pressure in one calm workspace designed to feel expensive and move fast.
+                    The faster way to read demand, timing, and competitive pressure before money leaves the account.
                   </p>
 
                   <div className="mt-5">
                     <MetricStrip compact />
                   </div>
 
-                  <div className="mt-5 rounded-[28px] border border-white/10 bg-slate-950/28 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <div className="terminal-preview-panel mt-5 rounded-[28px] border border-white/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                     <div className="mb-3 flex items-center justify-between gap-3">
-                      <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">Preview brief</div>
-                      <div className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200">
-                        Live sample
-                      </div>
+                      <div className="font-data text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">Live analyst preview</div>
+                      <LiveSignalBadge compact label="Live" />
                     </div>
                     <SampleVerdictDemo compact />
                   </div>
 
                   <div className="mt-5">
-                    <ValueRail compact limit={2} />
+                    <ValueRail compact />
                   </div>
 
                   <div className="mt-5 rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-3 text-sm leading-6 text-slate-200">
@@ -458,19 +638,21 @@ export const AuthPage: React.FC = () => {
           <div className="hidden lg:block">
             <div className="relative min-h-[760px]">
               <div
-                className={`auth-stage-panel relative overflow-hidden rounded-[40px] border border-white/10 p-10 text-white premium-shadow transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] blur-[2px] opacity-45' : 'scale-100 opacity-100'}`}
+                className={`auth-stage-panel relative overflow-hidden rounded-[40px] border border-white/10 p-10 text-white premium-shadow transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] opacity-45' : 'scale-100 opacity-100'}`}
               >
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)]" />
+                <div className="terminal-dot-grid pointer-events-none absolute inset-0 opacity-[0.04]" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(34,211,238,0.9),transparent)]" />
 
                 <div className="relative">
-                  <div className="flex items-center justify-between gap-6">
+                  <div className="terminal-nav sticky top-0 z-10 -mx-10 mb-8 flex items-center justify-between gap-6 px-10 py-4">
                     <div className="flex items-center gap-4">
                       <div className="glass-tab flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/12">
                         <BarChart3 className="h-8 w-8 text-indigo-200" />
                       </div>
                       <div>
-                        <div className="text-4xl font-black tracking-tight">BizQuest</div>
-                        <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-300">
+                        <div className="font-display text-4xl font-black tracking-tight">BizQuest</div>
+                        <div className="font-data mt-1 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-300">
                           AI market intelligence
                         </div>
                       </div>
@@ -486,7 +668,7 @@ export const AuthPage: React.FC = () => {
                         </button>
                         <button
                           onClick={openDesktopSignUp}
-                          className="rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-900 shadow-[0_8px_20px_rgba(255,255,255,0.12)] transition-colors hover:bg-slate-100"
+                          className="terminal-signup-button rounded-full px-5 py-2 text-sm font-bold text-white shadow-[0_10px_26px_rgba(124,58,237,0.36)] transition-all"
                         >
                           Sign Up
                         </button>
@@ -496,20 +678,18 @@ export const AuthPage: React.FC = () => {
 
                   <div className="mt-10 grid items-start gap-8 xl:grid-cols-[minmax(0,0.94fr)_minmax(470px,0.96fr)]">
                     <div className="flex flex-col">
-                      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Intelligence, composed
+                      <div className="flex flex-wrap items-center gap-3">
+                        <LiveSignalBadge label="Live" />
+                        <div className="font-data inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Intelligence terminal
+                        </div>
                       </div>
 
-                      <h1 className="hero-glow mt-7 max-w-[560px] text-[4.15rem] font-black leading-[0.9] tracking-[-0.055em] text-white">
-                        Enter a market
-                        <span className="animated-gradient-text mt-2 block">
-                          with conviction.
-                        </span>
-                      </h1>
+                      <AnimatedHeroHeadline />
 
-                      <p className="mt-5 max-w-[520px] text-lg leading-8 text-slate-300">
-                        BizQuest turns a rough product idea into a location-specific market read that feels like it came from an expensive analyst desk, not a noisy chatbot.
+                      <p className="mt-5 max-w-[560px] text-lg leading-8 text-slate-300">
+                        BizQuest reads a market like a premium analyst desk: one typed question, one live signal pass, one decisive answer.
                       </p>
 
                       <div className="mt-8">
@@ -526,7 +706,7 @@ export const AuthPage: React.FC = () => {
                           <div>
                             <div className="text-sm font-semibold text-white">Start with a quick sign in</div>
                             <p className="mt-1 max-w-[520px] text-sm leading-6 text-slate-200">
-                              Use the workspace like a premium market terminal: run a brief, inspect the verdict, and keep your history ready for the next move.
+                              Open the workspace, run a brief, inspect the verdict, and keep every read ready for your next move.
                             </p>
                           </div>
                         </div>
@@ -534,27 +714,24 @@ export const AuthPage: React.FC = () => {
                     </div>
 
                     <div className="grid gap-5">
-                      <div className="rounded-[34px] border border-white/10 bg-slate-950/22 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                      <div className="terminal-preview-panel rounded-[34px] border border-white/10 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex flex-wrap items-center gap-2">
-                            <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-slate-200">
+                            <div className="terminal-tag rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-cyan-100">
                               Nairobi West, Kenya
                             </div>
-                            <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-slate-200">
+                            <div className="terminal-tag rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-emerald-100">
                               Portable blender
                             </div>
                           </div>
-                          <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
-                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
-                            Live data
-                          </div>
+                          <LiveSignalBadge label="Live" />
                         </div>
 
                         <div className="mt-5 max-w-[420px]">
-                          <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">One brief, unfolded</div>
-                          <h2 className="mt-2 text-[2.15rem] font-semibold leading-tight text-white">Watch the read build itself in stages.</h2>
+                          <div className="font-data text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Live analyst preview</div>
+                          <h2 className="font-display mt-2 text-[2.15rem] font-semibold leading-tight text-white">Watch the read build itself in stages.</h2>
                           <p className="mt-3 text-sm leading-7 text-slate-300">
-                            A lightweight preview of how BizQuest turns one product prompt into a clear recommendation with signal, pressure, and timing in view.
+                            Type, scan, then surface a verdict with pressure, demand, and timing already framed.
                           </p>
                         </div>
 
@@ -563,16 +740,16 @@ export const AuthPage: React.FC = () => {
                         </div>
 
                         <div className="mt-6 grid grid-cols-3 gap-3">
-                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Decision style</div>
+                          <div className="terminal-mini-panel rounded-[22px] px-4 py-4">
+                            <div className="font-data text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Decision style</div>
                             <div className="mt-2 text-sm font-semibold text-white">Calm, direct, signal-first</div>
                           </div>
-                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Output</div>
+                          <div className="terminal-mini-panel rounded-[22px] px-4 py-4">
+                            <div className="font-data text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Output</div>
                             <div className="mt-2 text-sm font-semibold text-white">One brief, one verdict, zero clutter</div>
                           </div>
-                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Workspace value</div>
+                          <div className="terminal-mini-panel rounded-[22px] px-4 py-4">
+                            <div className="font-data text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Workspace value</div>
                             <div className="mt-2 text-sm font-semibold text-white">History, follow-ups, and live reads</div>
                           </div>
                         </div>
@@ -580,14 +757,14 @@ export const AuthPage: React.FC = () => {
 
                       <div className="grid grid-cols-[1.15fr_0.85fr] gap-4">
                         <div className="calm-surface rounded-[28px] border border-white/10 p-5">
-                          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why this feels expensive</div>
+                          <div className="font-data text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why this feels expensive</div>
                           <p className="mt-3 text-sm leading-7 text-slate-300">
                             The interface stays quiet while the important signals stay obvious: demand, competition, timing, and the final recommendation.
                           </p>
                         </div>
 
                         <div className="calm-surface rounded-[28px] border border-white/10 p-5">
-                          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Operator note</div>
+                          <div className="font-data text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Operator note</div>
                           <div className="mt-3 text-lg font-semibold text-white">Confidence should arrive before spend.</div>
                         </div>
                       </div>
@@ -601,7 +778,7 @@ export const AuthPage: React.FC = () => {
                   initial={{ opacity: 0, y: 24, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.35 }}
-                  className="absolute inset-0 z-20 flex items-start justify-end px-8 pt-1"
+                  className="absolute inset-0 z-20 flex items-start justify-end bg-slate-950/40 px-8 pt-1 backdrop-blur-[20px]"
                 >
                   <div className="w-full max-w-xl">
               <motion.div
@@ -627,6 +804,9 @@ export const AuthPage: React.FC = () => {
                     <div>
                       <h2 className="text-xl font-black tracking-tight sm:text-2xl">{headerCopy.title}</h2>
                       <p className="mt-1 text-sm text-slate-300">{headerCopy.body}</p>
+                      <div className="mt-3">
+                        <LiveSignalBadge label="AI Online" compact />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -789,7 +969,7 @@ export const AuthPage: React.FC = () => {
                           disabled={loading}
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.99 }}
-                          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-200/70 disabled:from-indigo-400 disabled:to-violet-400"
+                          className="terminal-cta-shine flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-200/70 disabled:from-indigo-400 disabled:to-violet-400"
                         >
                           {loading ? (
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -1010,7 +1190,7 @@ export const AuthPage: React.FC = () => {
                         disabled={loading}
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.99 }}
-                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-200/70 disabled:from-indigo-400 disabled:to-violet-400"
+                        className="terminal-cta-shine flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-200/70 disabled:from-indigo-400 disabled:to-violet-400"
                       >
                         {loading ? (
                           <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
