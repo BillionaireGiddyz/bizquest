@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -60,53 +60,62 @@ const SAMPLE_TITLE = 'Portable blender in Nairobi West';
 const SAMPLE_VERDICT = 'Analysis indicates a strong trend in Nairobi West';
 const SAMPLE_HINT = 'Healthy signal density, manageable pressure, and more beneath the surface';
 
+const MetricStrip: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
+  <div className={`grid grid-cols-3 ${compact ? 'gap-2.5' : 'gap-3'}`}>
+    {TRUST_METRICS.map((metric) => (
+      <div
+        key={metric.label}
+        className={`calm-surface rounded-[22px] border border-white/10 text-center ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
+      >
+        <div className={`${compact ? 'text-base' : 'text-xl'} font-black text-white`}>{metric.value}</div>
+        <div className={`mt-1 uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.2em]' : 'text-[10px] tracking-[0.18em]'}`}>
+          {metric.label}
+        </div>
+        <div className={`mt-1 text-slate-500 ${compact ? 'text-[11px]' : 'text-xs'}`}>{metric.note}</div>
+      </div>
+    ))}
+  </div>
+);
+
+const ValueRail: React.FC<{ compact?: boolean; limit?: number }> = ({ compact = false, limit = VALUE_PILLARS.length }) => (
+  <div className={`grid ${compact ? 'gap-2.5' : 'gap-3'}`}>
+    {VALUE_PILLARS.slice(0, limit).map((card) => (
+      <div
+        key={card.title}
+        className={`calm-surface flex items-start gap-4 rounded-[24px] border border-white/10 ${compact ? 'px-4 py-3.5' : 'px-5 py-4'}`}
+      >
+        <div className={`flex shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${compact ? 'h-10 w-10' : 'h-11 w-11'}`}>
+          {card.icon}
+        </div>
+        <div>
+          <div className={`font-semibold text-white ${compact ? 'text-sm' : 'text-base'}`}>{card.title}</div>
+          <p className={`mt-1 text-slate-300 ${compact ? 'text-xs leading-5' : 'text-sm leading-6'}`}>{card.body}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
-  const [cycle, setCycle] = useState(0);
-  const [phase, setPhase] = useState<'typing' | 'analyzing' | 'answer' | 'signals'>('typing');
-
-  useEffect(() => {
-    let analyzingTimer: ReturnType<typeof setTimeout> | null = null;
-    let answerTimer: ReturnType<typeof setTimeout> | null = null;
-    let signalsTimer: ReturnType<typeof setTimeout> | null = null;
-    let restartTimer: ReturnType<typeof setTimeout> | null = null;
-
-    setPhase('typing');
-    analyzingTimer = setTimeout(() => setPhase('analyzing'), compact ? 1650 : 1500);
-    answerTimer = setTimeout(() => setPhase('answer'), compact ? 2650 : 2450);
-    signalsTimer = setTimeout(() => setPhase('signals'), compact ? 3300 : 3050);
-    restartTimer = setTimeout(() => setCycle((value) => value + 1), 9000);
-
-    return () => {
-      if (analyzingTimer) clearTimeout(analyzingTimer);
-      if (answerTimer) clearTimeout(answerTimer);
-      if (signalsTimer) clearTimeout(signalsTimer);
-      if (restartTimer) clearTimeout(restartTimer);
-    };
-  }, [compact, cycle]);
-
   return (
     <>
       <div className={`rounded-[22px] border border-white/10 bg-slate-950/24 ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}>
-        <div className={`demo-question-shell ${phase === 'analyzing' ? 'is-analyzing' : ''}`}>
+        <div className="demo-question-shell">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
-              <div className={`h-2 w-2 rounded-full ${phase === 'analyzing' ? 'bg-cyan-300 animate-pulse' : 'bg-cyan-300/80'}`} />
-              {phase === 'analyzing' ? 'Analyzing live data' : 'Input question'}
+              <div className="h-2 w-2 rounded-full bg-cyan-300/80" />
+              Input question
             </div>
-            {phase === 'analyzing' && (
-              <div className="rounded-full border border-cyan-300/18 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-100">
-                Live scan
-              </div>
-            )}
+            <div className="rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">
+              Brief preview
+            </div>
           </div>
           <div className={`mt-2 font-medium text-white ${compact ? 'min-h-[52px] text-sm leading-6' : 'min-h-[64px] text-[1rem] leading-7'}`}>
-            <span key={cycle} className={compact ? 'demo-type-line-compact' : 'demo-type-line'}>
+            <span className={compact ? 'demo-type-line-compact' : 'demo-type-line'}>
               {SAMPLE_QUESTION}
             </span>
           </div>
-          <div
-            className={`overflow-hidden transition-all duration-200 ease-out ${phase === 'analyzing' ? 'mt-2.5 max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}
-          >
+          <div className="demo-analyze-stage">
             <div className="text-[11px] text-slate-300">Checking demand, competition, and timing signals.</div>
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
               <div className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.3),rgba(34,211,238,0.88),rgba(59,130,246,0.5))]" />
@@ -115,10 +124,8 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
         </div>
       </div>
 
-      <div
-        className={`mt-4 transition-all duration-300 ease-out ${phase === 'typing' || phase === 'analyzing' ? 'translate-y-2 opacity-30 scale-[0.985]' : 'translate-y-0 opacity-100 scale-100'}`}
-      >
-        <div className="mt-4 flex items-start justify-between gap-3">
+      <div className="demo-answer-stage mt-4">
+        <div className="flex items-start justify-between gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
           <div>
             <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">
               <LineChart className="h-4 w-4" />
@@ -127,10 +134,10 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
             <div className={`mt-2 font-semibold text-white ${compact ? 'text-base' : 'text-[2rem] leading-tight'}`}>{SAMPLE_TITLE}</div>
             <div className={`mt-1 text-slate-300 ${compact ? 'text-sm leading-6' : 'text-sm leading-7'}`}>
               <span className="font-medium text-emerald-200">{SAMPLE_VERDICT}</span>
-              <span className="ml-1 inline-flex">
-                <span className="animate-pulse [animation-delay:0ms]">.</span>
-                <span className="animate-pulse [animation-delay:180ms]">.</span>
-                <span className="animate-pulse [animation-delay:360ms]">.</span>
+              <span className="demo-ellipsis ml-1 inline-flex">
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
               </span>
               <div className="mt-1 text-slate-400/90">{SAMPLE_HINT}</div>
             </div>
@@ -147,8 +154,7 @@ const SampleVerdictDemo: React.FC<{ compact?: boolean }> = ({ compact = false })
         {OPPORTUNITY_SIGNALS.map((signal, index) => (
           <div
             key={signal.label}
-            style={{ transitionDelay: phase === 'signals' ? `${120 + index * 140}ms` : '0ms' }}
-            className={`rounded-[22px] border border-white/8 bg-white/[0.05] transition-all duration-300 ease-out ${phase === 'signals' ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2.5 opacity-0 scale-[0.992]'} ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
+            className={`demo-signal-stage rounded-[22px] border border-white/8 bg-white/[0.05] ${index === 1 ? 'demo-signal-stage-2' : index === 2 ? 'demo-signal-stage-3' : ''} ${compact ? 'px-3 py-3' : 'px-4 py-4'}`}
           >
             <div className={`font-bold uppercase text-slate-400 ${compact ? 'text-[10px] tracking-[0.18em]' : 'text-[10px] tracking-[0.2em]'}`}>
               {signal.label}
@@ -337,26 +343,23 @@ export const AuthPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-5 lg:px-6 lg:py-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,_rgba(34,211,238,0.12),_transparent_24%),radial-gradient(circle_at_88%_10%,_rgba(129,140,248,0.14),_transparent_22%),radial-gradient(circle_at_68%_78%,_rgba(16,185,129,0.12),_transparent_20%),linear-gradient(135deg,#020617_0%,#0f172a_42%,#111827_100%)]" />
-      <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.05]" />
-      <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
-      <div className="pointer-events-none absolute left-[8%] top-[14%] h-56 w-56 rounded-full bg-indigo-500/12 blur-3xl" />
-      <div className="pointer-events-none absolute right-[9%] top-[18%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[10%] right-[24%] h-44 w-44 rounded-full bg-emerald-400/8 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,_rgba(99,102,241,0.18),_transparent_24%),radial-gradient(circle_at_82%_14%,_rgba(34,211,238,0.12),_transparent_20%),linear-gradient(145deg,#020617_0%,#0b1120_42%,#111827_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.09),_transparent_58%)]" />
+      <div className="pointer-events-none absolute left-[10%] top-[16%] h-52 w-52 rounded-full bg-indigo-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-[12%] top-[20%] h-44 w-44 rounded-full bg-cyan-400/8 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center">
         <div className="w-full">
           <div className="lg:hidden">
             {showMobileWelcome ? (
-              <section className="premium-shadow overflow-hidden rounded-[34px] border border-white/12 bg-white/[0.07] text-white backdrop-blur-2xl">
+              <section className="auth-stage-panel premium-shadow overflow-hidden rounded-[32px] border border-white/10 text-white">
                 <div className="relative overflow-hidden px-5 pb-5 pt-6">
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(99,102,241,0.16),transparent_38%)]" />
-                  <div className="pointer-events-none noise-surface absolute inset-0 opacity-35" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)]" />
 
                   <div className="relative mb-5 grid grid-cols-2 gap-3">
                     <button
                       onClick={() => openMobileAuth('signin', setView, setIsSignUp, setError, setMobileStage)}
-                      className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-[0_10px_28px_rgba(255,255,255,0.16)] transition-transform active:scale-[0.98]"
+                      className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-[0_10px_26px_rgba(255,255,255,0.16)] transition-transform active:scale-[0.98]"
                     >
                       Sign In
                     </button>
@@ -382,45 +385,46 @@ export const AuthPage: React.FC = () => {
                     </div>
                     <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
                       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
-                      Live data
+                      Signal feed
                     </div>
                   </div>
 
                   <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-indigo-200">
                     <Sparkles className="h-3 w-3" />
-                    Market clarity, faster
+                    Built for decisive operators
                   </div>
 
-                  <h1 className="hero-glow relative mt-4 text-[2.1rem] font-black leading-[1.02] tracking-tight">
-                    Launch with signal,
+                  <h1 className="hero-glow relative mt-4 text-[2.15rem] font-black leading-[1.02] tracking-tight">
+                    Read the market
                     <span className="animated-gradient-text mt-1 block">
-                      not guesswork.
+                      before you move.
                     </span>
                   </h1>
 
                   <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300">
-                    BizQuest helps founders assess demand, competition, and timing before they commit money to a market.
+                    See demand, market timing, and competitive pressure in one calm workspace designed to feel expensive and move fast.
                   </p>
 
-                  <div className="mt-5 grid grid-cols-3 gap-2.5">
-                    {TRUST_METRICS.map((metric, index) => (
-                      <div
-                        key={metric.label}
-                        className={`calm-surface rounded-[22px] border border-white/10 px-3 py-3 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
-                      >
-                        <div className="text-base font-black text-white">{metric.value}</div>
-                        <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">{metric.label}</div>
-                        <div className="mt-1 text-[11px] text-slate-400">{metric.note}</div>
-                      </div>
-                    ))}
+                  <div className="mt-5">
+                    <MetricStrip compact />
                   </div>
 
-                  <div className="floating-panel-delayed calm-surface mt-5 rounded-[26px] border border-white/10 p-4">
+                  <div className="mt-5 rounded-[28px] border border-white/10 bg-slate-950/28 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-200">Preview brief</div>
+                      <div className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200">
+                        Live sample
+                      </div>
+                    </div>
                     <SampleVerdictDemo compact />
                   </div>
 
-                  <div className="mt-5 rounded-[22px] border border-cyan-400/10 bg-cyan-400/8 px-4 py-3 text-sm leading-6 text-slate-200">
-                    Start with a quick sign in or create an account to unlock your first market brief.
+                  <div className="mt-5">
+                    <ValueRail compact limit={2} />
+                  </div>
+
+                  <div className="mt-5 rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-3 text-sm leading-6 text-slate-200">
+                    Start with a quick sign in or create an account to unlock your first market brief and save every read in one place.
                   </div>
                 </div>
               </section>
@@ -454,11 +458,9 @@ export const AuthPage: React.FC = () => {
           <div className="hidden lg:block">
             <div className="relative min-h-[760px]">
               <div
-                className={`relative overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.06] p-9 text-white premium-shadow backdrop-blur-xl transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] blur-[3px] opacity-45' : 'scale-100 opacity-100'}`}
+                className={`auth-stage-panel relative overflow-hidden rounded-[40px] border border-white/10 p-10 text-white premium-shadow transition-all duration-300 ${showDesktopOverlay ? 'scale-[0.985] blur-[2px] opacity-45' : 'scale-100 opacity-100'}`}
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.16),_transparent_28%),radial-gradient(circle_at_80%_18%,_rgba(34,211,238,0.1),_transparent_22%),linear-gradient(145deg,rgba(15,23,42,0.96),rgba(23,37,84,0.88)_48%,rgba(15,23,42,0.98))]" />
-                <div className="pointer-events-none absolute inset-0 pattern-grid-lg opacity-[0.04]" />
-                <div className="pointer-events-none noise-surface absolute inset-0 opacity-30" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)]" />
 
                 <div className="relative">
                   <div className="flex items-center justify-between gap-6">
@@ -492,72 +494,55 @@ export const AuthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,0.86fr)_minmax(420px,1.04fr)]">
-                    <div className="flex flex-col justify-between">
+                  <div className="mt-10 grid items-start gap-8 xl:grid-cols-[minmax(0,0.94fr)_minmax(470px,0.96fr)]">
+                    <div className="flex flex-col">
                       <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-indigo-200">
                         <Sparkles className="h-3.5 w-3.5" />
-                        Market clarity, faster
+                        Intelligence, composed
                       </div>
 
-                      <h1 className="hero-glow mt-6 max-w-[470px] text-[3.8rem] font-black leading-[0.92] tracking-[-0.05em] text-white">
-                        Launch with signal,
+                      <h1 className="hero-glow mt-7 max-w-[560px] text-[4.15rem] font-black leading-[0.9] tracking-[-0.055em] text-white">
+                        Enter a market
                         <span className="animated-gradient-text mt-2 block">
-                          not guesswork.
+                          with conviction.
                         </span>
                       </h1>
 
-                      <p className="mt-5 max-w-[470px] text-lg leading-8 text-slate-300">
-                        BizQuest helps founders assess demand, competition, and timing before they commit money to a market.
+                      <p className="mt-5 max-w-[520px] text-lg leading-8 text-slate-300">
+                        BizQuest turns a rough product idea into a location-specific market read that feels like it came from an expensive analyst desk, not a noisy chatbot.
                       </p>
 
-                      <div className="mt-7 grid grid-cols-3 gap-3">
-                        {TRUST_METRICS.map((metric, index) => (
-                          <div
-                            key={metric.label}
-                            className={`calm-surface rounded-[22px] border border-white/8 px-4 py-4 text-center ${index === 1 ? 'floating-panel-delayed' : 'floating-panel'}`}
-                          >
-                            <div className="text-xl font-black text-white">{metric.value}</div>
-                            <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-400">{metric.label}</div>
-                            <div className="mt-1 text-xs text-slate-500">{metric.note}</div>
-                          </div>
-                        ))}
+                      <div className="mt-8">
+                        <MetricStrip />
                       </div>
 
-                      <div className="mt-7 grid gap-3">
-                        {VALUE_PILLARS.slice(0, 2).map((card, index) => (
-                          <div
-                            key={card.title}
-                            className={`calm-surface flex items-start gap-4 rounded-[24px] border border-white/10 px-5 py-4 ${index === 0 ? 'floating-panel' : 'floating-panel-delayed'}`}
-                          >
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-indigo-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-                              {card.icon}
-                            </div>
-                            <div>
-                              <div className="text-base font-semibold text-white">{card.title}</div>
-                              <p className="mt-1 text-sm leading-6 text-slate-300">{card.body}</p>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="mt-8">
+                        <ValueRail />
                       </div>
 
-                        <div className="mt-4 rounded-[26px] border border-cyan-400/12 bg-cyan-400/8 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                          <div className="flex items-start gap-3">
-                            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
-                            <div>
-                              <div className="text-sm font-semibold text-white">Start with a quick sign in</div>
-                              <p className="mt-1 text-sm leading-6 text-slate-200">
-                                Create an account or sign in to unlock your first market brief and keep everything in one workspace.
-                              </p>
-                            </div>
+                      <div className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.05] px-5 py-5">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                          <div>
+                            <div className="text-sm font-semibold text-white">Start with a quick sign in</div>
+                            <p className="mt-1 max-w-[520px] text-sm leading-6 text-slate-200">
+                              Use the workspace like a premium market terminal: run a brief, inspect the verdict, and keep your history ready for the next move.
+                            </p>
                           </div>
                         </div>
+                      </div>
                     </div>
 
-                    <div className="grid gap-4">
-                      <div className="floating-panel-delayed calm-surface w-full rounded-[36px] border border-white/10 p-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Sample verdict</div>
+                    <div className="grid gap-5">
+                      <div className="rounded-[34px] border border-white/10 bg-slate-950/22 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-slate-200">
+                              Nairobi West, Kenya
+                            </div>
+                            <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-slate-200">
+                              Portable blender
+                            </div>
                           </div>
                           <div className="live-data-pill rounded-full border border-cyan-300/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-100">
                             <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
@@ -565,31 +550,45 @@ export const AuthPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-5 max-w-[420px]">
+                          <div className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">One brief, unfolded</div>
+                          <h2 className="mt-2 text-[2.15rem] font-semibold leading-tight text-white">Watch the read build itself in stages.</h2>
+                          <p className="mt-3 text-sm leading-7 text-slate-300">
+                            A lightweight preview of how BizQuest turns one product prompt into a clear recommendation with signal, pressure, and timing in view.
+                          </p>
+                        </div>
+
+                        <div className="mt-6">
                           <SampleVerdictDemo />
                         </div>
 
-                        <div className="mt-5 rounded-[24px] border border-cyan-400/12 bg-cyan-400/8 px-4 py-4">
-                          <div className="flex items-start gap-3">
-                            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
-                            <p className="text-sm leading-6 text-slate-200">
-                              Clear recommendation, supporting data points, and a workspace built to help you act faster.
-                            </p>
+                        <div className="mt-6 grid grid-cols-3 gap-3">
+                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
+                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Decision style</div>
+                            <div className="mt-2 text-sm font-semibold text-white">Calm, direct, signal-first</div>
+                          </div>
+                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
+                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Output</div>
+                            <div className="mt-2 text-sm font-semibold text-white">One brief, one verdict, zero clutter</div>
+                          </div>
+                          <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
+                            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Workspace value</div>
+                            <div className="mt-2 text-sm font-semibold text-white">History, follow-ups, and live reads</div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-[1.1fr_0.9fr] gap-4">
-                        <div className="floating-panel calm-surface rounded-[28px] border border-white/10 p-5">
-                          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why it feels premium</div>
+                      <div className="grid grid-cols-[1.15fr_0.85fr] gap-4">
+                        <div className="calm-surface rounded-[28px] border border-white/10 p-5">
+                          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Why this feels expensive</div>
                           <p className="mt-3 text-sm leading-7 text-slate-300">
-                            Saved analysis history, clean verdict framing, and location-aware demand signals in one calm interface.
+                            The interface stays quiet while the important signals stay obvious: demand, competition, timing, and the final recommendation.
                           </p>
                         </div>
 
-                        <div className="floating-panel-delayed calm-surface rounded-[28px] border border-white/10 p-5">
+                        <div className="calm-surface rounded-[28px] border border-white/10 p-5">
                           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Operator note</div>
-                          <div className="mt-3 text-lg font-semibold text-white">Move early when timing is favorable.</div>
+                          <div className="mt-3 text-lg font-semibold text-white">Confidence should arrive before spend.</div>
                         </div>
                       </div>
                     </div>
