@@ -14,10 +14,10 @@ interface MetricCardProps {
 export const MetricCard: React.FC<MetricCardProps> = ({ label, value, subValue, color = 'default', icon, delay = 0 }) => {
   const getColorClasses = () => {
     switch (color) {
-      case 'success': return 'border-emerald-500/20 bg-emerald-500/[0.08] text-emerald-50 hover:border-emerald-400/30 hover:bg-emerald-500/[0.1]';
-      case 'warning': return 'border-amber-500/20 bg-amber-500/[0.08] text-amber-50 hover:border-amber-400/30 hover:bg-amber-500/[0.1]';
-      case 'danger': return 'border-rose-500/20 bg-rose-500/[0.08] text-rose-50 hover:border-rose-400/30 hover:bg-rose-500/[0.1]';
-      default: return 'border-white/8 bg-[rgba(255,255,255,0.03)] text-slate-100 hover:border-cyan-400/20 hover:bg-[rgba(255,255,255,0.04)]';
+      case 'success': return 'metric-card-success border-emerald-500/20 bg-emerald-500/[0.08] text-emerald-50 hover:border-emerald-400/30 hover:bg-emerald-500/[0.1]';
+      case 'warning': return 'metric-card-warning border-amber-500/20 bg-amber-500/[0.08] text-amber-50 hover:border-amber-400/30 hover:bg-amber-500/[0.1]';
+      case 'danger': return 'metric-card-danger border-rose-500/20 bg-rose-500/[0.08] text-rose-50 hover:border-rose-400/30 hover:bg-rose-500/[0.1]';
+      default: return 'metric-card-default border-white/8 bg-[rgba(255,255,255,0.03)] text-slate-100 hover:border-cyan-400/20 hover:bg-[rgba(255,255,255,0.04)]';
     }
   };
 
@@ -46,7 +46,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({ label, value, subValue, 
       transition={{ delay, duration: 0.4 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className={cn(
-        'flex h-full cursor-default flex-col justify-between rounded-[20px] border p-5 shadow-[0_16px_32px_-24px_rgba(2,6,23,0.72)] transition-all',
+        'metric-card-shell flex h-full cursor-default flex-col justify-between rounded-[20px] border p-5 shadow-[0_16px_32px_-24px_rgba(2,6,23,0.72)] transition-all',
         getColorClasses(),
       )}
     >

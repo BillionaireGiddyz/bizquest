@@ -42,7 +42,8 @@ const App: React.FC = () => {
   const [followUpsLeft, setFollowUpsLeft] = useState(0);
   const [workspaceTheme, setWorkspaceTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
-    return window.localStorage.getItem('bizquest_workspace_theme') === 'light' ? 'light' : 'dark';
+    const savedTheme = window.localStorage.getItem('bizquest_workspace_theme');
+    return savedTheme === 'dark' ? 'dark' : 'light';
   });
 
   const credits = profile?.credits ?? 0;
@@ -266,7 +267,7 @@ const App: React.FC = () => {
         onSuccess={handlePaymentSuccess}
       />
 
-      <div className="workspace-mobile-header lg:hidden">
+      <div className="workspace-mobile-header flex lg:hidden">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.92 }}
@@ -282,7 +283,7 @@ const App: React.FC = () => {
             </div>
             <div>
               <div className="font-display text-lg font-semibold tracking-[-0.04em] text-white">BizQuest</div>
-              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace operator</div>
+              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace</div>
             </div>
           </div>
         </div>
@@ -331,9 +332,7 @@ const App: React.FC = () => {
                   Workspace
                 </div>
               </div>
-              <p className="mt-1 text-sm text-slate-400">
-                Query in, verdict out. Everything important stays in one rail.
-              </p>
+              <div className="workspace-topbar-subline">Operator workspace</div>
             </div>
           </div>
 
