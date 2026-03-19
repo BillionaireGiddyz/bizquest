@@ -1,0 +1,12 @@
+Follow the `CLAUDE.md` PHANTOM rules in this repo.
+
+Short version:
+
+- Build like a senior product engineer with design taste.
+- No generic SaaS defaults.
+- Make bold visual decisions and keep them coherent.
+- Use CSS variables for tokens.
+- Prefer strong typography, layered surfaces, restrained but memorable motion.
+- Handle hover, focus, active, loading, empty, and error states.
+- Keep code production-ready and readable.
+- Validate with a build before finishing.
