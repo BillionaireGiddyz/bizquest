@@ -428,7 +428,8 @@ const App: React.FC = () => {
                   Market intelligence, organized
                 </h2>
               </div>
-              <button type="button" className="workspace-inline-history" onClick={() => setIsSidebarOpen(true)}>
+              <button type="button" className="workspace-inline-history workspace-inline-history-mobile" onClick={() => setIsSidebarOpen(true)}>
+                <History className="h-4 w-4" />
                 History
                 <ChevronRight className="h-4 w-4" />
               </button>
