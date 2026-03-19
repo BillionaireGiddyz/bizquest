@@ -1,11 +1,28 @@
-
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import {
+  ArrowRight,
+  BarChart3,
+  Bot,
+  Database,
+  Globe,
+  Lock,
+  LogOut,
+  MapPin,
+  MessageCircle,
+  Plus,
+  Search,
+  Send,
+  Share2,
+  Shield,
+  Smartphone,
+  Sparkles,
+  TrendingUp,
+  Zap,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChatMessage } from '../types';
-import { Send, Bot, Sparkles, Database, Search, Globe, Share2, Lock, TrendingUp, MapPin, BarChart3, Smartphone, Zap, Shield, LogOut, MessageCircle, Plus, ArrowRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
-
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -24,43 +41,34 @@ interface ChatInterfaceProps {
 }
 
 const DATA_SOURCES = [
-  // Search & Web Trends
-  "Real-time Google Search Trends",
-  "SEO Keyword Volatility Index",
-  "Web Traffic Heatmap Analytics",
-  
-  // Social Media Intelligence
-  "Facebook Audience Psychographics",
-  "Twitter/X Real-time Sentiment",
-  "Instagram Visual Trend Analysis",
-  "TikTok Viral Content Velocity",
-  "Reddit Community Discussions",
-  
-  // Local & Geospatial
-  "Google Maps Foot Traffic Density",
-  "Local Competitor Pricing Scraper",
-  "Regional Zoning & Permit Data",
-  "Urban Population Shift Patterns",
-  "Geospatial Demand Clustering",
-  
-  // Economic & Financial
-  "Inflation-Adjusted Spending Power",
-  "Mobile Money (M-Pesa) Transaction Volume",
-  "Micro-Economic Saturation Index",
-  "Consumer Price Index (CPI) Correlation",
-  
-  // Supply Chain & Retail
-  "Jiji/Marketplace Inventory Levels",
-  "Wholesale Supply Chain Telemetry",
-  "Import/Export Trade Logistics",
-  "Seasonal Consumer Behavior Models"
+  'Real-time Google Search Trends',
+  'SEO Keyword Volatility Index',
+  'Web Traffic Heatmap Analytics',
+  'Facebook Audience Psychographics',
+  'Twitter/X Real-time Sentiment',
+  'Instagram Visual Trend Analysis',
+  'TikTok Viral Content Velocity',
+  'Reddit Community Discussions',
+  'Google Maps Foot Traffic Density',
+  'Local Competitor Pricing Scraper',
+  'Regional Zoning & Permit Data',
+  'Urban Population Shift Patterns',
+  'Geospatial Demand Clustering',
+  'Inflation-Adjusted Spending Power',
+  'Mobile Money (M-Pesa) Transaction Volume',
+  'Micro-Economic Saturation Index',
+  'Consumer Price Index (CPI) Correlation',
+  'Jiji/Marketplace Inventory Levels',
+  'Wholesale Supply Chain Telemetry',
+  'Import/Export Trade Logistics',
+  'Seasonal Consumer Behavior Models',
 ];
 
 const SUGGESTIONS = [
-  "Will a 10,000 KES portable blender sell well in Nairobi West?",
-  "Is there demand for vegan bakeries in Karen?",
-  "Competition for hardware stores in Thika?",
-  "Market saturation for mobile accessories in CBD?"
+  'Will a 10,000 KES portable blender sell well in Nairobi West?',
+  'Is there demand for vegan bakeries in Karen?',
+  'Competition for hardware stores in Thika?',
+  'Market saturation for mobile accessories in CBD?',
 ];
 
 const CREDIT_CAPACITY = 20;
@@ -73,20 +81,20 @@ const CreditArc: React.FC<{ credits: number; expiryDate: string | null; onClick:
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - progress);
   const isLow = normalizedCredits <= 3;
-  const strokeColor = isLow ? '#ef4444' : '#3b82f6';
+  const strokeColor = isLow ? '#ef4444' : '#22d3ee';
   const days = expiryDate ? Math.ceil((new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
 
   return (
-    <motion.div
+    <motion.button
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="group flex cursor-pointer flex-col items-center"
+      className="group flex flex-col items-center"
       title={`${normalizedCredits} of ${maxCredits} credits remaining`}
     >
       <div className="relative">
         <svg className="h-12 w-12 -rotate-90" viewBox="0 0 44 44" aria-hidden="true">
-          <circle cx="22" cy="22" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+          <circle cx="22" cy="22" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
           <circle
             cx="22"
             cy="22"
@@ -100,73 +108,71 @@ const CreditArc: React.FC<{ credits: number; expiryDate: string | null; onClick:
             className="transition-[stroke-dashoffset] duration-500 ease-out"
           />
         </svg>
-        <div className={cn(
-          "absolute inset-0 flex items-center justify-center text-sm font-bold text-white",
-          isLow && "animate-[lowCredit_2s_ease-in-out_infinite]"
-        )}>
+        <div className={cn('absolute inset-0 flex items-center justify-center text-sm font-bold text-white', isLow && 'animate-[lowCredit_2s_ease-in-out_infinite]')}>
           {normalizedCredits}
         </div>
-        <div className="pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-20 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-[#1e2433] px-2.5 py-1.5 text-[11px] font-medium text-white shadow-lg group-hover:block">
+        <div className="workspace-tooltip pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-20 hidden -translate-x-1/2 whitespace-nowrap group-hover:block">
           {normalizedCredits} of {maxCredits} credits remaining
         </div>
       </div>
-      {days && days > 0 ? (
-        <span className="mt-1 text-[10px] font-medium text-[#6b7280]">{days}d left</span>
-      ) : null}
-    </motion.div>
+      {days && days > 0 ? <span className="mt-1 text-[10px] font-medium text-slate-500">{days}d left</span> : null}
+    </motion.button>
   );
 };
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isLoading, credits, expiryDate, onRecharge, userEmail, isAdmin, onAdmin, onSignOut, followUpsLeft = 0, hasAnalysis = false, onNewChat }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  messages,
+  onSendMessage,
+  isLoading,
+  credits,
+  expiryDate,
+  onRecharge,
+  userEmail,
+  isAdmin,
+  onAdmin,
+  onSignOut,
+  followUpsLeft = 0,
+  hasAnalysis = false,
+  onNewChat,
+}) => {
   const [inputText, setInputText] = useState('');
   const [loadingSource, setLoadingSource] = useState(DATA_SOURCES[0]);
   const [mode, setMode] = useState<'followup' | 'new'>('followup');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset mode when analysis changes
   useEffect(() => {
     if (hasAnalysis && followUpsLeft > 0) setMode('followup');
-  }, [hasAnalysis]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [hasAnalysis, followUpsLeft]);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Dynamic loading source animation
   useEffect(() => {
     if (!isLoading) return;
 
-    let index = 0;
-    // Start with a random index to vary the starting point
-    index = Math.floor(Math.random() * DATA_SOURCES.length);
+    let index = Math.floor(Math.random() * DATA_SOURCES.length);
     setLoadingSource(DATA_SOURCES[index]);
 
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       index = (index + 1) % DATA_SOURCES.length;
       setLoadingSource(DATA_SOURCES[index]);
-    }, 700); // 700ms per source for a snappy feel
+    }, 700);
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, [isLoading]);
 
   const isFollowUpMode = hasAnalysis && followUpsLeft > 0 && mode === 'followup';
   const canSend = credits > 0 || isFollowUpMode;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputText.trim() && !isLoading && canSend) {
-      // Prefix with __NEW__ to signal App.tsx this is a new analysis, not follow-up
-      const payload = (mode === 'new' || !hasAnalysis || followUpsLeft <= 0)
-        ? `__NEW__${inputText}`
-        : inputText;
-      onSendMessage(payload);
-      setInputText('');
-    }
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!inputText.trim() || isLoading || !canSend) return;
+
+    const payload = mode === 'new' || !hasAnalysis || followUpsLeft <= 0 ? `__NEW__${inputText}` : inputText;
+    onSendMessage(payload);
+    setInputText('');
   };
 
   const handleSuggestionClick = (text: string) => {
@@ -177,377 +183,261 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
   };
 
   const getSourceIcon = (source: string) => {
-    if (source.includes("Facebook") || source.includes("Twitter") || source.includes("TikTok") || source.includes("Instagram") || source.includes("Reddit")) {
-        return <Share2 className="w-4 h-4 text-blue-500" />;
+    if (source.includes('Facebook') || source.includes('Twitter') || source.includes('TikTok') || source.includes('Instagram') || source.includes('Reddit')) {
+      return <Share2 className="h-4 w-4 text-cyan-300" />;
     }
-    if (source.includes("Competitor") || source.includes("Logistics") || source.includes("Inventory") || source.includes("Supply") || source.includes("Scraper")) {
-        return <Database className="w-4 h-4 text-emerald-500" />;
+    if (source.includes('Competitor') || source.includes('Logistics') || source.includes('Inventory') || source.includes('Supply') || source.includes('Scraper')) {
+      return <Database className="h-4 w-4 text-emerald-300" />;
     }
-    if (source.includes("Search") || source.includes("Trends") || source.includes("SEO") || source.includes("Traffic") || source.includes("Velocity")) {
-        return <TrendingUp className="w-4 h-4 text-amber-500" />;
+    if (source.includes('Search') || source.includes('Trends') || source.includes('SEO') || source.includes('Traffic') || source.includes('Velocity')) {
+      return <TrendingUp className="h-4 w-4 text-amber-300" />;
     }
-    if (source.includes("Maps") || source.includes("Local") || source.includes("Regional") || source.includes("Geospatial") || source.includes("Urban")) {
-        return <MapPin className="w-4 h-4 text-rose-500" />;
+    if (source.includes('Maps') || source.includes('Local') || source.includes('Regional') || source.includes('Geospatial') || source.includes('Urban')) {
+      return <MapPin className="h-4 w-4 text-violet-300" />;
     }
-    if (source.includes("Economic") || source.includes("Money") || source.includes("Spending") || source.includes("Price") || source.includes("Index")) {
-        return <BarChart3 className="w-4 h-4 text-indigo-500" />;
+    if (source.includes('Economic') || source.includes('Money') || source.includes('Spending') || source.includes('Price') || source.includes('Index')) {
+      return <BarChart3 className="h-4 w-4 text-blue-300" />;
     }
-    if (source.includes("Mobile") || source.includes("M-Pesa")) {
-        return <Smartphone className="w-4 h-4 text-green-600" />;
+    if (source.includes('Mobile') || source.includes('M-Pesa')) {
+      return <Smartphone className="h-4 w-4 text-emerald-300" />;
     }
-    return <Globe className="w-4 h-4 text-slate-500" />;
+    return <Globe className="h-4 w-4 text-slate-400" />;
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative group/chat">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md p-4 flex items-center justify-between border-b border-slate-100 shadow-sm z-10 sticky top-0">
+    <div className="workspace-chat-card">
+      <div className="workspace-chat-header">
         <div className="flex items-center gap-3">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-slate-900 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200 cursor-pointer"
-            >
-              <span className="text-white font-black text-lg tracking-tight bg-gradient-to-tr from-indigo-400 to-white bg-clip-text text-transparent">BQ</span>
-            </motion.div>
-            <div>
-              <h1 className="text-slate-800 font-bold text-xl leading-tight tracking-tight">BizQuest</h1>
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">AI Online</span>
-              </div>
+          <div className="workspace-brand-mark h-11 w-11 rounded-[14px]">
+            <LineChartIcon />
+          </div>
+          <div>
+            <h1 className="font-display text-xl font-semibold tracking-[-0.04em] text-white">BizQuest</h1>
+            <div className="font-data flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">
+              <span className="workspace-live-dot" />
+              AI online
             </div>
+          </div>
         </div>
-        
-        {/* Right side: new chat + credits + user controls */}
+
         <div className="flex items-center gap-2">
-          {/* New Chat button — visible when there's an active analysis or messages */}
-          {(hasAnalysis || messages.length > 0) && onNewChat && (
+          {(hasAnalysis || messages.length > 0) && onNewChat ? (
             <motion.button
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 24px -4px rgba(99, 102, 241, 0.35)" }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
               onClick={onNewChat}
-              className="relative flex items-center gap-1.5 pl-2.5 pr-3.5 py-2 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 text-white text-[11px] font-bold rounded-xl shadow-md shadow-indigo-200/40 hover:shadow-lg transition-all overflow-hidden group"
+              className="workspace-gradient-button"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              <div className="relative w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                <MessageCircle className="w-3 h-3" />
-              </div>
-              <span className="relative tracking-wide">New Chat</span>
+              <MessageCircle className="h-3.5 w-3.5" />
+              New chat
             </motion.button>
-          )}
+          ) : null}
+
           <CreditArc credits={credits} expiryDate={expiryDate} onClick={onRecharge} />
 
-          {/* Desktop user controls */}
-          <div className="hidden lg:flex items-center gap-1">
-            {isAdmin && onAdmin && (
-              <button onClick={onAdmin} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Admin Panel">
-                <Shield className="w-4 h-4" />
+          <div className="hidden items-center gap-2 lg:flex">
+            {isAdmin && onAdmin ? (
+              <button onClick={onAdmin} className="workspace-icon-button" title="Admin panel">
+                <Shield className="h-4 w-4" />
               </button>
-            )}
-            {onSignOut && (
-              <button onClick={onSignOut} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title={userEmail || 'Sign out'}>
-                <LogOut className="w-4 h-4" />
+            ) : null}
+            {onSignOut ? (
+              <button onClick={onSignOut} className="workspace-icon-button" title={userEmail || 'Sign out'}>
+                <LogOut className="h-4 w-4" />
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 bg-slate-50/50 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+      <div className="workspace-chat-body">
         <AnimatePresence mode="popLayout">
-          {messages.length === 0 && (
-             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.95 }}
-               className="flex flex-col items-center justify-center h-full text-center text-slate-500 p-6"
-             >
-               <motion.div 
-                 initial={{ scale: 0 }}
-                 animate={{ scale: 1 }}
-                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-                 className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6 border border-slate-200 shadow-lg shadow-indigo-500/5 relative overflow-hidden group"
-               >
-                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                 <Sparkles className="w-8 h-8 text-indigo-500 relative z-10" />
-               </motion.div>
-               
-               <h2 className="text-2xl font-bold text-slate-800 mb-3">Market Demand Assistant</h2>
-               <p className="text-sm text-slate-500 max-w-[280px] leading-relaxed mb-8">
-                 Ask about any product and location to get instant market insights powered by real-time data.
-               </p>
+          {messages.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="workspace-empty-state"
+            >
+              <div className="workspace-empty-icon">
+                <Sparkles className="h-8 w-8 text-cyan-300" />
+              </div>
 
-               <div className="grid gap-2 w-full max-w-sm">
-                 {SUGGESTIONS.map((suggestion, idx) => (
-                   <motion.button
-                     key={idx}
-                     initial={{ opacity: 0, x: -20 }}
-                     animate={{ opacity: 1, x: 0 }}
-                     transition={{ delay: 0.2 + idx * 0.1 }}
-                     whileHover={{ scale: 1.01 }}
-                     whileTap={{ scale: 0.98 }}
-                     onClick={() => handleSuggestionClick(suggestion)}
-                     className="cursor-pointer text-left p-3 text-xs md:text-sm text-slate-500 bg-white border border-slate-200 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:bg-[rgba(59,130,246,0.08)] hover:border-[rgba(59,130,246,0.3)] hover:text-slate-50 hover:shadow-md flex items-center justify-between group"
-                   >
-                     <span className="truncate mr-2">{suggestion}</span>
-                     <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-blue-400 transition-all duration-200 group-hover:translate-x-0.5" />
-                   </motion.button>
-                 ))}
-               </div>
+              <h2 className="font-display text-[2rem] font-semibold tracking-[-0.05em] text-white">Market command rail</h2>
+              <p className="mt-3 max-w-[30ch] text-sm leading-7 text-slate-400">
+                Ask one product and one location. BizQuest returns a clear read on whether the market deserves your attention.
+              </p>
 
-             </motion.div>
-          )}
+              <div className="mt-8 grid w-full max-w-md gap-2.5">
+                {SUGGESTIONS.map((suggestion, index) => (
+                  <motion.button
+                    key={suggestion}
+                    initial={{ opacity: 0, x: -14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.12 + index * 0.08 }}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="workspace-suggestion-pill"
+                  >
+                    <span className="truncate">{suggestion}</span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-cyan-300 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          ) : null}
 
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={cn('flex w-full', msg.role === 'user' ? 'justify-end' : 'justify-start')}
             >
-              <div
-                className={cn(
-                  "flex max-w-[90%] md:max-w-[85%] rounded-2xl p-4 shadow-sm relative group",
-                  msg.role === 'user'
-                    ? "bg-indigo-600 text-white rounded-br-none shadow-indigo-100"
-                    : "bg-white text-slate-700 border border-slate-200 rounded-bl-none hover:shadow-md transition-shadow"
-                )}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="absolute -left-10 top-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border border-indigo-200">
-                    <Bot className="w-4 h-4 text-indigo-600" />
+              <div className={cn('workspace-message', msg.role === 'user' ? 'workspace-message-user' : 'workspace-message-assistant')}>
+                {msg.role === 'assistant' ? (
+                  <div className="workspace-assistant-badge">
+                    <Bot className="h-4 w-4" />
                   </div>
-                )}
-                <div className={cn(
-                  "leading-relaxed text-sm md:text-base max-w-none",
-                  msg.role === 'assistant'
-                    ? "prose prose-sm prose-slate prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-headings:my-2 prose-strong:font-bold prose-strong:text-slate-900"
-                    : ""
-                )}>
+                ) : null}
+
+                <div
+                  className={cn(
+                    'max-w-none text-sm leading-7 md:text-[15px]',
+                    msg.role === 'assistant'
+                      ? 'prose prose-sm prose-invert prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-white'
+                      : 'whitespace-pre-wrap text-white',
+                  )}
+                >
                   {msg.role === 'assistant' ? (
-                    <ReactMarkdown disallowedElements={['script', 'iframe', 'object', 'embed', 'form']} unwrapDisallowed>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown disallowedElements={['script', 'iframe', 'object', 'embed', 'form']} unwrapDisallowed>
+                      {msg.content}
+                    </ReactMarkdown>
                   ) : (
-                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                    msg.content
                   )}
                 </div>
               </div>
             </motion.div>
           ))}
-          
-          {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="flex justify-start w-full pl-10 relative"
-            >
-              <div className="absolute left-0 top-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border border-indigo-200 animate-pulse">
-                <Bot className="w-4 h-4 text-indigo-600" />
-              </div>
-              
-              <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none p-5 shadow-sm flex flex-col gap-4 min-w-[280px] max-w-sm">
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    <span className="text-sm font-semibold text-slate-700">Analyzing Market Data</span>
+
+          {isLoading ? (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex w-full justify-start">
+              <div className="workspace-loading-card">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="workspace-assistant-badge relative">
+                      <Bot className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">Analyzing market data</div>
+                      <div className="font-data text-[10px] uppercase tracking-[0.22em] text-slate-500">AI agent</div>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">AI AGENT</span>
+                  <span className="workspace-live-chip">Live</span>
                 </div>
 
-                {/* Dynamic Loading Step */}
-                <motion.div 
-                  key={loadingSource}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  className="flex items-center gap-3 bg-slate-50 rounded-lg p-3 border border-slate-100"
-                >
-                  <div className="animate-spin text-indigo-600">
-                    {getSourceIcon(loadingSource)}
-                  </div>
-                  <span className="text-xs font-mono text-slate-500 font-medium">
-                    Scanning {loadingSource}...
-                  </span>
-                </motion.div>
-                
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                   <motion.div 
-                     className="h-full bg-indigo-500 rounded-full"
-                     initial={{ width: "0%", x: "-100%" }}
-                     animate={{ width: "50%", x: "100%" }}
-                     transition={{ 
-                       repeat: Infinity, 
-                       duration: 1.5, 
-                       ease: "easeInOut",
-                       repeatType: "reverse"
-                     }}
-                   />
+                <div className="mt-4 flex items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
+                  <div className="animate-spin">{getSourceIcon(loadingSource)}</div>
+                  <span>Scanning {loadingSource}...</span>
                 </div>
 
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/8">
+                  <motion.div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.45),rgba(16,185,129,0.95))]"
+                    initial={{ width: '0%', x: '-100%' }}
+                    animate={{ width: '50%', x: '100%' }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut', repeatType: 'reverse' }}
+                  />
+                </div>
               </div>
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-white border-t border-slate-200 relative z-20">
-        {/* Mode toggle — only when there's an active analysis with follow-ups remaining */}
-        {hasAnalysis && followUpsLeft > 0 && credits > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="mb-3"
-          >
-            <div className="relative flex items-center bg-slate-100/80 backdrop-blur-sm rounded-xl p-1 border border-slate-200/60">
-              {/* Animated sliding background */}
+      <div className="workspace-input-bar">
+        {hasAnalysis && followUpsLeft > 0 && credits > 0 ? (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
+            <div className="workspace-mode-switch">
               <motion.div
                 layout
-                transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                className={cn(
-                  "absolute top-1 bottom-1 rounded-lg shadow-lg",
-                  mode === 'followup'
-                    ? "bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-indigo-200/50 left-1"
-                    : "bg-gradient-to-r from-violet-600 to-purple-500 shadow-violet-200/50"
-                )}
-                style={{
-                  width: 'calc(50% - 4px)',
-                  left: mode === 'followup' ? '4px' : 'calc(50%)',
-                }}
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                className={cn('workspace-mode-switch-track', mode === 'followup' ? 'left-[4px]' : 'left-[calc(50%)]')}
+                style={{ width: 'calc(50% - 4px)' }}
               />
 
-              {/* Follow-up button */}
-              <button
-                onClick={() => setMode('followup')}
-                className="relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-colors duration-200"
-              >
-                <motion.div animate={{ rotate: mode === 'followup' ? [0, -10, 10, 0] : 0 }} transition={{ duration: 0.4 }}>
-                  <MessageCircle className={cn("w-3.5 h-3.5 transition-colors duration-200", mode === 'followup' ? "text-white" : "text-slate-400")} />
-                </motion.div>
-                <span className={cn("text-xs font-bold tracking-wide transition-colors duration-200", mode === 'followup' ? "text-white" : "text-slate-500")}>
-                  Follow-up
-                </span>
-                <span className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200",
-                  mode === 'followup'
-                    ? "bg-white/20 text-white/90 backdrop-blur-sm"
-                    : "bg-slate-200/80 text-slate-400"
-                )}>
-                  {followUpsLeft} free
-                </span>
+              <button type="button" onClick={() => setMode('followup')} className="workspace-mode-option">
+                <MessageCircle className={cn('h-3.5 w-3.5', mode === 'followup' ? 'text-white' : 'text-slate-400')} />
+                <span className={cn(mode === 'followup' ? 'text-white' : 'text-slate-400')}>Follow-up</span>
+                <span className={cn('workspace-mode-chip', mode === 'followup' ? 'workspace-mode-chip-active' : '')}>{followUpsLeft} free</span>
               </button>
 
-              {/* New Analysis button */}
-              <button
-                onClick={() => setMode('new')}
-                className="relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-colors duration-200"
-              >
-                <motion.div animate={{ rotate: mode === 'new' ? 90 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                  <Plus className={cn("w-3.5 h-3.5 transition-colors duration-200", mode === 'new' ? "text-white" : "text-slate-400")} />
-                </motion.div>
-                <span className={cn("text-xs font-bold tracking-wide transition-colors duration-200", mode === 'new' ? "text-white" : "text-slate-500")}>
-                  New Analysis
-                </span>
-                <span className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200",
-                  mode === 'new'
-                    ? "bg-white/20 text-white/90 backdrop-blur-sm"
-                    : "bg-slate-200/80 text-slate-400"
-                )}>
-                  1 credit
-                </span>
+              <button type="button" onClick={() => setMode('new')} className="workspace-mode-option">
+                <Plus className={cn('h-3.5 w-3.5', mode === 'new' ? 'text-white' : 'text-slate-400')} />
+                <span className={cn(mode === 'new' ? 'text-white' : 'text-slate-400')}>New analysis</span>
+                <span className={cn('workspace-mode-chip', mode === 'new' ? 'workspace-mode-chip-active' : '')}>1 credit</span>
               </button>
             </div>
           </motion.div>
-        )}
+        ) : null}
 
-        {/* Follow-up only hint (when no credits but follow-ups remain) */}
-        {hasAnalysis && followUpsLeft > 0 && credits <= 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2 mb-2.5 px-1"
-          >
-            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1">
-              <Zap className="w-3 h-3" />
-              {followUpsLeft} free follow-up{followUpsLeft !== 1 ? 's' : ''} left
-            </span>
-          </motion.div>
-        )}
+        {hasAnalysis && followUpsLeft > 0 && credits <= 0 ? (
+          <div className="mb-3 flex items-center gap-2 px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+            <Zap className="h-3 w-3" />
+            {followUpsLeft} free follow-up{followUpsLeft !== 1 ? 's' : ''} left
+          </div>
+        ) : null}
 
         {canSend ? (
-            <form onSubmit={handleSubmit} className="flex gap-3 relative">
-            <input
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <div className="workspace-input-shell">
+              <input
                 ref={inputRef}
                 type="text"
                 value={inputText}
-                onChange={(e) => setInputText(e.target.value.slice(0, 500))}
-                placeholder={isFollowUpMode ? "Ask a follow-up about this analysis..." : "Ask about any product & market..."}
-                className={cn(
-                  "flex-1 px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-800 placeholder:text-slate-400 text-sm shadow-sm",
-                  isFollowUpMode
-                    ? "border-indigo-200 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-300"
-                    : "border-violet-200 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300"
-                )}
+                onChange={(event) => setInputText(event.target.value.slice(0, 500))}
+                placeholder={isFollowUpMode ? 'Ask a follow-up about this analysis...' : 'Ask about any product & market...'}
+                className="workspace-input"
                 disabled={isLoading}
-            />
+              />
+            </div>
+
             <motion.button
-                type="submit"
-                disabled={isLoading || !inputText.trim()}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={cn(
-                  "disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white p-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center min-w-[52px]",
-                  isFollowUpMode
-                    ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
-                    : "bg-violet-600 hover:bg-violet-700 shadow-violet-200"
-                )}
+              type="submit"
+              disabled={isLoading || !inputText.trim()}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="workspace-send-button"
             >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
+              {isLoading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Send className="h-5 w-5" />}
             </motion.button>
-            </form>
+          </form>
         ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between gap-4 p-3 bg-rose-50 border border-rose-100 rounded-xl shadow-sm"
-            >
-                <div className="flex items-center gap-3 pl-2">
-                    <div className="p-2 bg-rose-100 rounded-full text-rose-500 animate-pulse">
-                        <Lock className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="block text-sm font-bold text-rose-700">Credits used up</span>
-                      <span className="text-xs text-rose-600/80">Recharge to run new analyses.</span>
-                    </div>
-                </div>
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={onRecharge}
-                    className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-lg transition-all shadow-md shadow-rose-200"
-                >
-                    Recharge
-                </motion.button>
-            </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="workspace-recharge-card">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-300">
+                <Lock className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white">Credits used up</div>
+                <div className="text-xs text-slate-400">Recharge to run another full market analysis.</div>
+              </div>
+            </div>
+
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onRecharge} className="workspace-recharge-button">
+              Recharge
+            </motion.button>
+          </motion.div>
         )}
       </div>
     </div>
   );
 };
+
+function LineChartIcon() {
+  return <TrendingUp className="h-5 w-5" />;
+}

@@ -1,6 +1,7 @@
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
 import { HistorySidebar } from './components/HistorySidebar';
@@ -11,8 +12,6 @@ import { AdminPanel } from './components/AdminPanel';
 import { AnalysisResult, ChatMessage, AnalysisHistoryItem } from './types';
 import { analyzeMarketQuery } from './services/geminiService';
 import { useAuth } from './lib/AuthContext';
-import { Menu, X, Shield, LogOut, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 function getHistoryKey(userId: string) {
   return `bizquest_history_${userId}`;
@@ -22,7 +21,9 @@ function loadHistory(userId: string): AnalysisHistoryItem[] {
   try {
     const raw = localStorage.getItem(getHistoryKey(userId));
     if (raw) return JSON.parse(raw);
-  } catch { /* ignore corrupt data */ }
+  } catch {
+    // ignore corrupt data
+  }
   return [];
 }
 
@@ -42,7 +43,6 @@ const App: React.FC = () => {
 
   const credits = profile?.credits ?? 0;
 
-  // Load history for the current user and reset chat on user change
   useEffect(() => {
     if (user?.id) {
       setHistory(loadHistory(user.id));
@@ -51,14 +51,12 @@ const App: React.FC = () => {
     }
   }, [user?.id]);
 
-  // Persist history scoped to user
   useEffect(() => {
     if (user?.id) {
       localStorage.setItem(getHistoryKey(user.id), JSON.stringify(history));
     }
   }, [history, user?.id]);
 
-  // Handle Stripe redirect — wait for profile to be loaded before crediting
   const stripeHandled = useRef(false);
   useEffect(() => {
     if (!profile || stripeHandled.current) return;
@@ -81,10 +79,8 @@ const App: React.FC = () => {
           const data = await res.json() as { paid?: boolean; credits?: number; serverCredited?: boolean };
           if (data.paid) {
             if (data.serverCredited) {
-              // Credits added server-side — just refresh the profile
               await refreshProfile();
             } else {
-              // Fallback: server couldn't update, add client-side
               await addCredits(data.credits || 5);
             }
           }
@@ -95,23 +91,20 @@ const App: React.FC = () => {
     } else if (payment === 'cancelled') {
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, [profile]);
+  }, [profile, addCredits, refreshProfile]);
 
   const handlePaymentSuccess = async (serverCredited?: boolean) => {
     if (serverCredited) {
       await refreshProfile();
     } else {
-      // Fallback: server couldn't update, add client-side
       await addCredits(5);
     }
     setIsPaymentOpen(false);
   };
 
   const handleSendMessage = async (rawText: string) => {
-    // ChatInterface prefixes with __NEW__ when user explicitly picks "New Analysis"
     const forceNew = rawText.startsWith('__NEW__');
     const text = forceNew ? rawText.slice(7) : rawText;
-
     const isFollowUp = !forceNew && currentAnalysis && followUpsLeft > 0;
 
     if (!isFollowUp && credits <= 0) {
@@ -126,12 +119,11 @@ const App: React.FC = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
     try {
       if (isFollowUp && currentAnalysis) {
-        // ── Follow-up: cheap text-only Gemini call ──
         const res = await fetch('/api/followup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -151,7 +143,7 @@ const App: React.FC = () => {
         const data = await res.json() as { response?: string; error?: string };
         const reply = data.response || data.error || 'Could not process follow-up.';
 
-        setFollowUpsLeft(prev => prev - 1);
+        setFollowUpsLeft((prev) => prev - 1);
 
         const assistantMsg: ChatMessage = {
           id: uuidv4(),
@@ -159,13 +151,10 @@ const App: React.FC = () => {
           content: reply,
           timestamp: new Date(),
         };
-        setMessages(prev => [...prev, assistantMsg]);
-
+        setMessages((prev) => [...prev, assistantMsg]);
       } else {
-        // ── New analysis: full pipeline ──
         const result = await analyzeMarketQuery(text, user?.id);
 
-        // Deduct credit AFTER successful analysis — no refund logic needed
         const deducted = await deductCredit();
         if (!deducted) {
           await refreshProfile();
@@ -180,7 +169,7 @@ const App: React.FC = () => {
           content: result.chatResponse,
           timestamp: new Date(),
         };
-        setMessages(prev => [...prev, assistantMsg]);
+        setMessages((prev) => [...prev, assistantMsg]);
 
         const historyItem: AnalysisHistoryItem = {
           ...result,
@@ -188,9 +177,8 @@ const App: React.FC = () => {
           userQuestion: text,
           createdDate: new Date(),
         };
-        setHistory(prev => [historyItem, ...prev]);
+        setHistory((prev) => [historyItem, ...prev]);
 
-        // Log to trending (fire-and-forget)
         fetch('/api/trending', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -202,9 +190,8 @@ const App: React.FC = () => {
           }),
         }).catch(() => {});
       }
-
     } catch (error) {
-      console.error("Error processing request", error);
+      console.error('Error processing request', error);
       const message = error instanceof Error ? error.message : 'I encountered an error. Please try again.';
       const errorMsg: ChatMessage = {
         id: uuidv4(),
@@ -212,7 +199,7 @@ const App: React.FC = () => {
         content: `${message} No credit was deducted.`,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMsg]);
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -234,102 +221,130 @@ const App: React.FC = () => {
     setFollowUpsLeft(0);
   };
 
-  // Loading state
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-slate-50 flex items-center justify-center">
+      <div className="workspace-page flex h-screen w-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-sm text-slate-500 font-medium">Loading BizQuest...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-500/20 border-t-cyan-400" />
+          <p className="text-sm font-medium text-slate-400">Loading BizQuest...</p>
         </div>
       </div>
     );
   }
 
-  // Not logged in
   if (!user || !profile) {
     return <AuthPage />;
   }
 
-  // Admin panel
   if (showAdmin && profile.is_admin) {
     return <AdminPanel onBack={() => setShowAdmin(false)} />;
   }
 
   return (
-    <div className="h-screen w-screen bg-slate-50 flex flex-col overflow-hidden text-slate-800 relative">
+    <div className="workspace-page flex h-screen w-screen flex-col overflow-hidden">
+      <div className="workspace-grid" />
+      <div className="workspace-noise" />
+      <div className="workspace-orb workspace-orb-cyan" />
+      <div className="workspace-orb workspace-orb-violet" />
 
-      {/* Background Pattern */}
-      <div className="absolute inset-0 pattern-grid-lg opacity-[0.03] pointer-events-none" />
-
-      {/* Subtle gradient accent */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 z-50" />
-
-      {/* Payment Modal */}
       <PaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
         onSuccess={handlePaymentSuccess}
       />
 
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white/80 backdrop-blur-md p-4 border-b border-slate-200 flex items-center justify-between shadow-sm z-30 sticky top-0">
+      <div className="workspace-mobile-header lg:hidden">
         <div className="flex items-center gap-3">
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.92 }}
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 -ml-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+            className="rounded-xl p-2 text-slate-300 transition-colors hover:bg-white/6 hover:text-white"
           >
-            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </motion.button>
-          <span className="font-bold text-slate-800 text-lg tracking-tight">BizQuest</span>
+
+          <div className="flex items-center gap-3">
+            <div className="workspace-brand-mark h-10 w-10 rounded-[14px]">
+              <LineChart className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="font-display text-lg font-semibold tracking-[-0.04em] text-white">BizQuest</div>
+              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace</div>
+            </div>
+          </div>
         </div>
+
         <div className="flex items-center gap-2">
-          {profile.is_admin && (
+          {profile.is_admin ? (
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setShowAdmin(true)}
-              className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+              className="rounded-xl p-2 text-cyan-300 transition-colors hover:bg-white/6"
             >
-              <Shield className="w-5 h-5" />
+              <Shield className="h-5 w-5" />
             </motion.button>
-          )}
+          ) : null}
+
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.92 }}
             onClick={signOut}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-white"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="h-5 w-5" />
           </motion.button>
         </div>
       </div>
 
-      {/* Desktop Toolbar */}
-      <div className="hidden lg:block relative z-20 px-6 pt-6">
-        <div className="mx-auto flex w-full max-w-[1600px] items-start justify-between gap-6">
+      <div className="relative z-20 hidden px-6 pt-6 lg:block">
+        <div className="workspace-topbar mx-auto flex w-full max-w-[1680px] items-center justify-between gap-6">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-600 shadow-sm backdrop-blur-md">
+            <div className="workspace-section-pill">
               <Sparkles className="h-3.5 w-3.5" />
               Workspace
             </div>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">
-              Market intelligence, organized
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Reopen earlier analyses from a dedicated desktop history menu without disrupting the active session.
-            </p>
+            <div className="mt-4 flex items-center gap-4">
+              <div className="workspace-brand-mark h-14 w-14 rounded-[18px]">
+                <LineChart className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="font-display text-[2rem] font-semibold tracking-[-0.05em] text-white">
+                  Market intelligence, organized
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  Keep the command rail open, reopen old reads, and stay inside one decision surface.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <DesktopHistoryMenu
-            history={history}
-            onSelect={loadFromHistory}
-            onClear={clearHistory}
-          />
+          <div className="flex items-center gap-4">
+            <div className="workspace-account-card">
+              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Operator</div>
+              <div className="mt-2 flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-white/6 ring-1 ring-white/10" />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-white">{profile.email}</div>
+                  <div className="text-xs text-slate-500">Active session</div>
+                </div>
+              </div>
+            </div>
+
+            {profile.is_admin ? (
+              <button onClick={() => setShowAdmin(true)} className="workspace-icon-button" title="Admin panel">
+                <Shield className="h-4 w-4" />
+              </button>
+            ) : null}
+
+            <button onClick={signOut} className="workspace-icon-button" title="Sign out">
+              <LogOut className="h-4 w-4" />
+            </button>
+
+            <DesktopHistoryMenu history={history} onSelect={loadFromHistory} onClear={clearHistory} />
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden relative z-10">
-        {/* Sidebar (History) */}
+      <div className="relative z-10 flex flex-1 overflow-hidden">
         <HistorySidebar
           history={history}
           onSelect={loadFromHistory}
@@ -338,15 +353,12 @@ const App: React.FC = () => {
           setIsOpen={setIsSidebarOpen}
         />
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:px-6 lg:pb-6 lg:pt-5 w-full max-w-[1600px] mx-auto overflow-y-auto lg:overflow-hidden">
-
-          {/* Left Panel: Chat */}
+        <main className="mx-auto flex w-full max-w-[1680px] flex-1 flex-col gap-6 overflow-y-auto px-4 pb-4 pt-4 lg:flex-row lg:overflow-hidden lg:px-6 lg:pb-6 lg:pt-5">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="w-full lg:w-[35%] flex-shrink-0 min-h-[50vh] lg:h-full lg:min-h-0 flex flex-col"
+            className="flex min-h-[52vh] w-full flex-shrink-0 flex-col lg:h-full lg:min-h-0 lg:w-[34%]"
           >
             <ChatInterface
               messages={messages}
@@ -365,16 +377,30 @@ const App: React.FC = () => {
             />
           </motion.div>
 
-          {/* Right Panel: Dashboard */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full lg:w-[65%] min-h-[60vh] lg:h-full lg:min-h-0 bg-transparent p-1"
+            className="workspace-results-shell min-h-[60vh] w-full lg:h-full lg:min-h-0 lg:w-[66%]"
           >
+            <div className="mb-4 flex items-center justify-between gap-4 lg:hidden">
+              <div>
+                <div className="workspace-section-pill">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Results
+                </div>
+                <h2 className="mt-3 font-display text-[1.75rem] font-semibold tracking-[-0.05em] text-white">
+                  Market intelligence, organized
+                </h2>
+              </div>
+              <button type="button" className="workspace-inline-history" onClick={() => setIsSidebarOpen(true)}>
+                History
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
             <Dashboard data={currentAnalysis} />
           </motion.div>
-
         </main>
       </div>
     </div>

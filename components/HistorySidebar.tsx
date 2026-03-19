@@ -1,7 +1,7 @@
 import React from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronRight, Clock, History, Trash2, X } from 'lucide-react';
 import { AnalysisHistoryItem } from '../types';
-import { Clock, ChevronRight, Trash2, History } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 interface HistorySidebarProps {
@@ -22,104 +22,115 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
 
   return (
     <AnimatePresence>
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <motion.div 
+      {isOpen ? (
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
-      )}
-      
-      {/* Sidebar Content */}
-      <motion.div 
+      ) : null}
+
+      <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           x: isOpen ? 0 : '-100%',
-          width: isOpen ? '18rem' : '0rem', // 18rem = 72 (w-72)
-          opacity: isOpen ? 1 : 0.5
+          width: isOpen ? '18rem' : '0rem',
+          opacity: isOpen ? 1 : 0.5,
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className={cn(
-          "fixed lg:static top-0 left-0 h-full bg-white border-r border-slate-200 shadow-2xl lg:shadow-none z-50 overflow-hidden flex flex-col",
-          !isOpen && "lg:hidden" // Hide completely on desktop when closed to prevent layout shift issues if width animation isn't enough
+          'fixed left-0 top-0 z-50 flex h-full flex-col overflow-hidden border-r border-white/8 bg-[rgba(10,13,20,0.98)] shadow-2xl shadow-black/40 lg:static lg:shadow-none',
+          !isOpen && 'lg:hidden',
         )}
         style={{ width: isOpen ? '18rem' : '0' }}
       >
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-            <h2 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
-                <History className="w-4 h-4 text-indigo-500" />
-                History <span className="text-slate-400 text-xs font-normal">({history.length})</span>
-            </h2>
-            <div className="flex items-center gap-1">
-              {history.length > 0 && (
-                <button
-                  onClick={onClear}
-                  title="Clear history"
-                  className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded-full hover:bg-rose-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-              <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100">
-                  ✕
+        <div className="flex shrink-0 items-center justify-between border-b border-white/6 bg-white/[0.02] p-5">
+          <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white">
+            <History className="h-4 w-4 text-cyan-300" />
+            History <span className="text-xs font-normal text-slate-500">({history.length})</span>
+          </h2>
+
+          <div className="flex items-center gap-1">
+            {history.length > 0 ? (
+              <button
+                onClick={onClear}
+                title="Clear history"
+                className="rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-rose-300"
+              >
+                <Trash2 className="h-4 w-4" />
               </button>
-            </div>
+            ) : null}
+
+            <button
+              onClick={() => setIsOpen(false)}
+              className="rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-white lg:hidden"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-        
-        <div className="overflow-y-auto flex-1 p-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-            {history.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-64 text-sm text-slate-400 text-center px-6">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                        <Clock className="w-6 h-6 text-slate-300" />
-                    </div>
-                    <p className="font-medium text-slate-500">No search history</p>
-                    <p className="text-xs mt-1">Your recent market analyses will appear here.</p>
-                </div>
-            )}
-            
-            <AnimatePresence initial={false}>
+
+        <div className="flex-1 space-y-1 overflow-y-auto p-3">
+          {history.length === 0 ? (
+            <div className="flex h-64 flex-col items-center justify-center px-6 text-center text-sm text-slate-500">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/6">
+                <Clock className="h-6 w-6 text-slate-500" />
+              </div>
+              <p className="font-medium text-white">No search history</p>
+              <p className="mt-1 text-xs">Your recent market analyses will appear here.</p>
+            </div>
+          ) : null}
+
+          <AnimatePresence initial={false}>
             {history.map((item, index) => (
-                <motion.button 
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => {
-                        onSelect(item);
-                        setIsOpen(false);
-                    }}
+              <motion.button
+                key={item.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => {
+                  onSelect(item);
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  'group relative w-full overflow-hidden rounded-xl border border-white/6 border-l-[3px] p-3.5 text-left transition-all',
+                  getVerdictBorder(item.recommendation),
+                  item.recommendation === 'GO'
+                    ? 'bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] hover:border-l-emerald-400'
+                    : item.recommendation === 'BE CAREFUL'
+                      ? 'bg-amber-500/[0.03] hover:bg-amber-500/[0.06] hover:border-l-amber-400'
+                      : item.recommendation === 'AVOID'
+                        ? 'bg-rose-500/[0.03] hover:bg-rose-500/[0.06] hover:border-l-rose-400'
+                        : 'bg-white/[0.02] hover:bg-white/[0.04] hover:border-l-white/20',
+                )}
+              >
+                <div className="relative z-10 mb-1.5 flex items-start justify-between">
+                  <span className="w-[90%] truncate text-sm font-semibold text-white transition-colors group-hover:text-cyan-200">
+                    {item.productName}
+                  </span>
+                  <ChevronRight className="h-4 w-4 transform text-slate-500 transition-colors group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+                </div>
+
+                <div className="relative z-10 flex items-center justify-between text-xs">
+                  <span className="max-w-[65%] truncate font-medium text-slate-400">{item.location}</span>
+                  <div
                     className={cn(
-                      "w-full text-left p-3.5 rounded-xl border border-transparent border-l-[3px] transition-all group relative overflow-hidden",
-                      getVerdictBorder(item.recommendation),
+                      'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
                       item.recommendation === 'GO'
-                        ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-emerald-400'
-                        : item.recommendation === 'BE CAREFUL'
-                          ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-amber-400'
-                          : item.recommendation === 'AVOID'
-                            ? 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-rose-400'
-                            : 'hover:bg-[rgba(255,255,255,0.04)] hover:border-l-white/20',
+                        ? 'bg-emerald-500/12 text-emerald-200'
+                        : item.recommendation === 'AVOID'
+                          ? 'bg-rose-500/12 text-rose-200'
+                          : 'bg-amber-500/12 text-amber-200',
                     )}
-                >
-                    <div className="flex justify-between items-start mb-1.5 relative z-10">
-                        <span className="font-semibold text-slate-700 text-sm truncate w-[90%] group-hover:text-indigo-700 transition-colors">{item.productName}</span>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition-colors transform group-hover:translate-x-0.5" />
-                    </div>
-                    <div className="flex justify-between items-center text-xs relative z-10">
-                        <span className="text-slate-500 truncate max-w-[65%] font-medium">{item.location}</span>
-                        <div className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
-                          item.recommendation === 'GO' ? 'bg-emerald-100 text-emerald-700' : 
-                          item.recommendation === 'AVOID' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
-                        )}>
-                          {item.recommendation}
-                        </div>
-                    </div>
-                </motion.button>
+                  >
+                    {item.recommendation}
+                  </div>
+                </div>
+              </motion.button>
             ))}
-            </AnimatePresence>
+          </AnimatePresence>
         </div>
       </motion.div>
     </AnimatePresence>
