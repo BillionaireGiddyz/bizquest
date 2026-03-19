@@ -1720,6 +1720,19 @@
       0 16px 32px rgba(15, 23, 42, 0.08);
   }
 
+  .workspace-page[data-workspace-theme="light"] .workspace-chart-tooltip {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #0f172a !important;
+    box-shadow:
+      0 10px 24px rgba(15, 23, 42, 0.12),
+      0 1px 2px rgba(15, 23, 42, 0.05) !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-chart-tooltip .text-slate-200 {
+    color: #334155 !important;
+  }
+
   .workspace-page[data-workspace-theme="light"] .workspace-message-user {
     color: white;
   }
@@ -1756,6 +1769,13 @@
     background: rgba(255, 241, 242, 0.92) !important;
     border-color: rgba(251, 113, 133, 0.18) !important;
     color: #e11d48 !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-chat-card,
+  .workspace-page[data-workspace-theme="light"] .workspace-results-shell {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.92)),
+      rgba(255, 255, 255, 0.94);
   }
 
   .workspace-page[data-workspace-theme="light"] .metric-card-shell {
@@ -2078,5 +2098,31 @@
   .workspace-recharge-card {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .workspace-page {
+    min-height: 100dvh;
+  }
+
+  .workspace-chat-card {
+    min-height: auto;
+  }
+
+  .workspace-chat-body {
+    overflow-y: visible;
+  }
+
+  .workspace-empty-state {
+    justify-content: flex-start;
+    min-height: auto;
+    padding-top: 12px;
+    padding-bottom: 8px;
+  }
+
+  .workspace-empty-dashboard {
+    min-height: 32rem;
+    justify-content: flex-start;
+    padding-top: 24px;
+    padding-bottom: 24px;
   }
 }

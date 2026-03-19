@@ -85,7 +85,7 @@ const TrendTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
+    <div className="workspace-chart-tooltip rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
       <div className="text-xs font-semibold text-slate-200">{label}</div>
       <div className="mt-1 text-sm font-bold">Interest: {payload[0].value}</div>
     </div>
