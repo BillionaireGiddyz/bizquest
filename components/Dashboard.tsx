@@ -161,11 +161,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
     ];
 
     return (
-      <div className="workspace-empty-dashboard relative flex min-h-[30rem] flex-col items-center justify-center overflow-hidden rounded-[28px] border p-6 text-center sm:p-8 lg:h-full lg:min-h-0">
+      <div className="workspace-empty-dashboard relative flex h-full flex-col items-center justify-center overflow-hidden rounded-[28px] border p-6 text-center sm:p-8">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="workspace-empty-ambient workspace-empty-ambient-a absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl" />
-          <div className="workspace-empty-ambient workspace-empty-ambient-b absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl" />
-          <div className="workspace-empty-ambient workspace-empty-ambient-c absolute top-1/2 left-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
+          <motion.div
+            animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-100/40 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ x: [0, -20, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            className="absolute -bottom-20 -left-20 w-64 h-64 bg-violet-100/40 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ x: [0, 15, 0], y: [0, 15, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-100/30 rounded-full blur-3xl"
+          />
         </div>
 
         <div className="absolute inset-0 pattern-grid-lg opacity-[0.04]" />
@@ -177,7 +189,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
             className="relative mb-6"
           >
-            <div className="workspace-empty-icon-glow absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500" />
+            <motion.div
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-violet-500 rounded-2xl"
+            />
             <div className="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-300/40">
               <Zap className="w-8 h-8 text-white" />
             </div>
@@ -265,7 +281,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             transition={{ delay: 1.4 }}
             className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.04] px-4 py-2.5 backdrop-blur-sm"
           >
-            <div className="workspace-empty-prompt-dot h-2 w-2 rounded-full bg-indigo-500" />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-2 h-2 rounded-full bg-indigo-500"
+            />
             <span className="text-xs text-slate-400">
               Try: <span className="font-semibold text-cyan-300">"Will vegan cookies sell well in Karen, Nairobi?"</span>
             </span>
