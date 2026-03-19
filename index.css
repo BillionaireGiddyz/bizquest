@@ -2216,12 +2216,6 @@
     border-radius: 22px;
   }
 
-  .workspace-mobile-header,
-  .workspace-chat-card,
-  .workspace-results-shell {
-    backdrop-filter: none;
-  }
-
   .workspace-topbar {
     padding: 14px 16px;
   }
