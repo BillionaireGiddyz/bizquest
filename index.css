@@ -974,7 +974,7 @@
 
   .workspace-topbar {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 24px;
     padding: 18px 22px;
     backdrop-filter: blur(16px);
@@ -1722,6 +1722,40 @@
 
   .workspace-page[data-workspace-theme="light"] .workspace-message-user {
     color: white;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-result-card,
+  .workspace-page[data-workspace-theme="light"] .workspace-chart-card,
+  .workspace-page[data-workspace-theme="light"] .workspace-recommendation-section,
+  .workspace-page[data-workspace-theme="light"] .workspace-recommendation-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 14px 28px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-live-strip {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 253, 250, 0.98)) !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-live-strip-icon {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 10px 18px rgba(16, 185, 129, 0.18) !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-chart-surface {
+    background: linear-gradient(180deg, rgba(241, 245, 249, 0.94), rgba(226, 232, 240, 0.92)) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-secondary-badge {
+    background: rgba(255, 241, 242, 0.92) !important;
+    border-color: rgba(251, 113, 133, 0.18) !important;
+    color: #e11d48 !important;
   }
 
   .workspace-page[data-workspace-theme="light"] .metric-card-shell {

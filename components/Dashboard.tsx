@@ -363,12 +363,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </motion.div>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
-          <div className="flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
+        <div className="workspace-live-strip-frame relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
+          <div className="workspace-live-strip flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
-                <div className="relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
+                <div className="workspace-live-strip-icon relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
               </div>
@@ -559,7 +559,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Store className="w-4 h-4 text-rose-500" />
                 Nearby Competitors
-                <span className="ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
+                <span className="workspace-secondary-badge ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
                   {data.competitorCount} found within 3km
                 </span>
               </h4>
@@ -592,12 +592,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+      <motion.div variants={item} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
         <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
         </h4>
-        <div className="h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
+        <div className="workspace-chart-surface h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
@@ -652,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           {data.trendDirection && data.trendDirection !== 'stable' && (
             <div className="flex items-center gap-2">
               <span className={data.trendDirection === 'rising' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                {data.trendDirection === 'rising' ? '↑ Rising' : '↓ Declining'}
+                {data.trendDirection === 'rising' ? 'Rising' : 'Declining'}
               </span>
             </div>
           )}
