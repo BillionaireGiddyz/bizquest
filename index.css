@@ -1195,8 +1195,25 @@
     scrollbar-gutter: stable;
   }
 
+  .workspace-results-column > *,
+  .workspace-recommendation-section,
+  .workspace-recommendation-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 360px;
+  }
+
   .workspace-result-card {
     border-radius: 22px;
+    contain: layout paint;
+    transform: translateZ(0);
+  }
+
+  .workspace-chart-card,
+  .workspace-recommendation-section,
+  .workspace-recommendation-card,
+  .workspace-empty-dashboard {
+    contain: layout paint;
+    transform: translateZ(0);
   }
 
   .workspace-chip {
