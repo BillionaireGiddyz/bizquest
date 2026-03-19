@@ -37,7 +37,7 @@ import {
   Rocket,
   Megaphone,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 interface DashboardProps {
@@ -153,6 +153,29 @@ function getRecommendationBullets(data: AnalysisResult) {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncViewport);
+      return () => mediaQuery.removeEventListener('change', syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
+  const useStaticMotion = Boolean(prefersReducedMotion || isMobileViewport);
+  const containerVariants = useStaticMotion ? undefined : container;
+  const itemVariants = useStaticMotion ? undefined : item;
+
   if (!data) {
     const steps = [
       { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
@@ -172,9 +195,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-lg">
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+            initial={useStaticMotion ? false : { scale: 0, rotate: -180 }}
+            animate={useStaticMotion ? undefined : { scale: 1, rotate: 0 }}
+            transition={useStaticMotion ? undefined : { type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
             className="relative mb-6"
           >
             <div className="workspace-empty-icon-glow absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500" />
@@ -184,9 +207,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            initial={useStaticMotion ? false : { opacity: 0, y: 20 }}
+            animate={useStaticMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={useStaticMotion ? undefined : { duration: 0.5, delay: 0.3 }}
             className="mb-2"
           >
             <h3 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
@@ -199,9 +222,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            initial={useStaticMotion ? false : { opacity: 0 }}
+            animate={useStaticMotion ? undefined : { opacity: 1 }}
+            transition={useStaticMotion ? undefined : { delay: 0.5 }}
             className="mb-10 text-sm text-slate-400"
           >
             Premium AI market intelligence in seconds
@@ -209,30 +232,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 w-full mb-10 relative">
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 1.2, ease: 'easeOut' }}
+              initial={useStaticMotion ? false : { scaleX: 0 }}
+              animate={useStaticMotion ? undefined : { scaleX: 1 }}
+              transition={useStaticMotion ? undefined : { duration: 0.8, delay: 1.2, ease: 'easeOut' }}
               className="hidden sm:block absolute top-7 left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-indigo-200 via-violet-200 to-emerald-200 origin-left z-0"
             />
 
             {steps.map((step, idx) => (
               <motion.div
                 key={step.num}
-                initial={{ opacity: 0, y: 40, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
+                initial={useStaticMotion ? false : { opacity: 0, y: 40, scale: 0.8 }}
+                animate={useStaticMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                transition={useStaticMotion ? undefined : {
                   type: 'spring',
                   stiffness: 300,
                   damping: 20,
                   delay: 0.6 + idx * 0.2,
                 }}
-                whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.25 } }}
+                whileHover={useStaticMotion ? undefined : { y: -8, scale: 1.02, transition: { duration: 0.25 } }}
                 className="group relative z-10 flex flex-1 flex-row items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.04] p-4 transition-all cursor-default hover:border-cyan-400/20 hover:bg-white/[0.06] hover:shadow-xl sm:mx-2 sm:flex-col sm:gap-0 sm:p-5"
               >
                 <div className="relative shrink-0">
                   <motion.div
-                    whileHover={{ rotate: [0, -8, 8, 0] }}
-                    transition={{ duration: 0.4 }}
+                    whileHover={useStaticMotion ? undefined : { rotate: [0, -8, 8, 0] }}
+                    transition={useStaticMotion ? undefined : { duration: 0.4 }}
                     className={cn(
                       'w-14 h-14 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br shadow-lg ring-4 ring-offset-2 transition-shadow group-hover:shadow-xl',
                       step.gradient,
@@ -243,9 +266,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                     {step.icon}
                   </motion.div>
                   <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', delay: 0.9 + idx * 0.2 }}
+                    initial={useStaticMotion ? false : { scale: 0 }}
+                    animate={useStaticMotion ? undefined : { scale: 1 }}
+                    transition={useStaticMotion ? undefined : { type: 'spring', delay: 0.9 + idx * 0.2 }}
                     className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-slate-950 text-[11px] font-bold text-white shadow-md"
                   >
                     {step.num}
@@ -260,9 +283,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4 }}
+            initial={useStaticMotion ? false : { opacity: 0, y: 10 }}
+            animate={useStaticMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={useStaticMotion ? undefined : { delay: 1.4 }}
             className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.04] px-4 py-2.5 backdrop-blur-sm"
           >
             <div className="workspace-empty-prompt-dot h-2 w-2 rounded-full bg-indigo-500" />
@@ -310,12 +333,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
   return (
     <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
+      variants={containerVariants}
+      initial={useStaticMotion ? false : 'hidden'}
+      animate={useStaticMotion ? undefined : 'show'}
       className="workspace-results-column h-full flex flex-col gap-6 overflow-y-auto pr-2 pb-10"
     >
-      <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
         <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
@@ -347,7 +370,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           <div className="workspace-live-strip flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
+                <div className={cn('absolute inset-0 bg-emerald-400 rounded-full opacity-25', !useStaticMotion && 'animate-ping')} />
                 <div className="workspace-live-strip-icon relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
@@ -362,7 +385,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className={cn('absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75', !useStaticMotion && 'animate-ping')} />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Live</span>
@@ -400,7 +423,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[24rem]">
-        <motion.div variants={item} className="workspace-result-card flex flex-col justify-center gap-8 p-6 transition-shadow">
+        <motion.div variants={itemVariants} className="workspace-result-card flex flex-col justify-center gap-8 p-6 transition-shadow">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Demand vs Saturation</h4>
 
           <div>
@@ -410,12 +433,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-white/8 shadow-inner shadow-black/30">
               <motion.div
-                initial={{ width: 0 }}
+                initial={useStaticMotion ? false : { width: 0 }}
                 animate={{ width: `${data.demandScore}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
+                transition={{ duration: useStaticMotion ? 0 : 1, ease: 'easeOut' }}
                 className="h-full bg-emerald-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !useStaticMotion && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
@@ -427,23 +450,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-white/8 shadow-inner shadow-black/30">
               <motion.div
-                initial={{ width: 0 }}
+                initial={useStaticMotion ? false : { width: 0 }}
                 animate={{ width: `${saturationValue}%` }}
-                transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
+                transition={{ duration: useStaticMotion ? 0 : 1, delay: useStaticMotion ? 0 : 0.2, ease: 'easeOut' }}
                 className="h-full bg-amber-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !useStaticMotion && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="workspace-result-card flex flex-col p-6 transition-shadow">
+        <motion.div variants={itemVariants} className="workspace-result-card flex flex-col p-6 transition-shadow">
           <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-500">Market Force Analysis</h4>
           <div className="flex-1 w-full min-h-0 relative">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="100%" barSize={20} data={comparisonData} startAngle={90} endAngle={-270}>
                 <RadialBar
+                  isAnimationActive={!useStaticMotion}
                   label={{ position: 'insideStart', fill: '#1e293b', fontSize: 10, fontWeight: 'bold' }}
                   background={{ fill: '#f1f5f9' }}
                   dataKey="value"
@@ -472,7 +496,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         getIcon={getActionIcon}
       />
 
-      <motion.div variants={item} className="workspace-result-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-result-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
         <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-violet-500 transition-all group-hover:w-2"></div>
         <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-cyan-200">
           <Search className="w-4 h-4" />
@@ -488,7 +512,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {(data.keyInsights || data.targetDemographic || data.bestSellingChannels) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {data.keyInsights && data.keyInsights.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Lightbulb className="w-4 h-4 text-amber-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.45)]" />
                 Key Insights
@@ -505,7 +529,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.targetDemographic && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Users className="w-4 h-4 text-violet-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.45)]" />
                 Target Demographic
@@ -515,7 +539,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.bestSellingChannels && data.bestSellingChannels.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <ShoppingBag className="w-4 h-4 text-emerald-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
                 Best Selling Channels
@@ -535,7 +559,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {((data.nearbyCompetitors && data.nearbyCompetitors.length > 0) || (data.relatedSearches && data.relatedSearches.length > 0)) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {data.nearbyCompetitors && data.nearbyCompetitors.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Store className="w-4 h-4 text-rose-500" />
                 Nearby Competitors
@@ -555,7 +579,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.relatedSearches && data.relatedSearches.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Globe className="w-4 h-4 text-blue-500" />
                 Related Searches
@@ -572,7 +596,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
         <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
@@ -605,6 +629,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
               />
               <Area
+                isAnimationActive={!useStaticMotion}
                 type="monotone"
                 dataKey="interestLevel"
                 stroke="#f59e0b"
@@ -614,7 +639,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 fill="url(#colorInterest)"
                 dot={<TrendDot />}
                 activeDot={<ActiveTrendDot />}
-                animationDuration={1500}
+                animationDuration={useStaticMotion ? 0 : 1500}
               />
             </AreaChart>
           </ResponsiveContainer>

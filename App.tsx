@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun, History } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
 import { HistorySidebar } from './components/HistorySidebar';
@@ -31,6 +31,7 @@ const MAX_FOLLOWUPS = 3;
 
 const App: React.FC = () => {
   const { user, profile, loading, signOut, deductCredit, addCredits, refreshProfile } = useAuth();
+  const prefersReducedMotion = useReducedMotion();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisResult | null>(null);
@@ -45,6 +46,7 @@ const App: React.FC = () => {
     const savedTheme = window.localStorage.getItem('bizquest_workspace_theme');
     return savedTheme === 'dark' ? 'dark' : 'light';
   });
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   const credits = profile?.credits ?? 0;
 
@@ -66,6 +68,24 @@ const App: React.FC = () => {
     window.localStorage.setItem('bizquest_workspace_theme', workspaceTheme);
     document.documentElement.style.colorScheme = workspaceTheme;
   }, [workspaceTheme]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncViewport);
+      return () => mediaQuery.removeEventListener('change', syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
+  const reduceWorkspaceMotion = Boolean(prefersReducedMotion || isMobileViewport);
 
   const stripeHandled = useRef(false);
   useEffect(() => {
@@ -390,9 +410,9 @@ const App: React.FC = () => {
 
         <main className="mx-auto flex w-full max-w-[1680px] flex-1 flex-col gap-6 overflow-y-auto px-4 pb-4 pt-4 lg:flex-row lg:overflow-hidden lg:px-6 lg:pb-6 lg:pt-5">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            initial={reduceWorkspaceMotion ? false : { opacity: 0, x: -20 }}
+            animate={reduceWorkspaceMotion ? undefined : { opacity: 1, x: 0 }}
+            transition={reduceWorkspaceMotion ? undefined : { duration: 0.5, delay: 0.1 }}
             className="flex min-h-[52vh] w-full flex-shrink-0 flex-col lg:h-full lg:min-h-0 lg:w-[34%]"
           >
             <ChatInterface
@@ -413,9 +433,9 @@ const App: React.FC = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            initial={reduceWorkspaceMotion ? false : { opacity: 0, x: 20 }}
+            animate={reduceWorkspaceMotion ? undefined : { opacity: 1, x: 0 }}
+            transition={reduceWorkspaceMotion ? undefined : { duration: 0.5, delay: 0.2 }}
             className="workspace-results-shell min-h-[60vh] w-full lg:h-full lg:min-h-0 lg:w-[66%]"
           >
             <div className="mb-4 flex items-center justify-between gap-4 lg:hidden">
