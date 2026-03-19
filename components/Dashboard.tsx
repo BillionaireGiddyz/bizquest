@@ -153,6 +153,24 @@ function getRecommendationBullets(data: AnalysisResult) {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncViewport);
+      return () => mediaQuery.removeEventListener('change', syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
   if (!data) {
     const steps = [
       { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
@@ -367,7 +385,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           <div className="workspace-live-strip flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
+                <div className={cn('absolute inset-0 bg-emerald-400 rounded-full opacity-25', !isMobileViewport && 'animate-ping')} />
                 <div className="workspace-live-strip-icon relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
@@ -382,7 +400,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className={cn('absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75', !isMobileViewport && 'animate-ping')} />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Live</span>
@@ -435,7 +453,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 transition={{ duration: 1, ease: 'easeOut' }}
                 className="h-full bg-emerald-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !isMobileViewport && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
@@ -452,7 +470,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
                 className="h-full bg-amber-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !isMobileViewport && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
@@ -464,6 +482,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="100%" barSize={20} data={comparisonData} startAngle={90} endAngle={-270}>
                 <RadialBar
+                  isAnimationActive={!isMobileViewport}
                   label={{ position: 'insideStart', fill: '#1e293b', fontSize: 10, fontWeight: 'bold' }}
                   background={{ fill: '#f1f5f9' }}
                   dataKey="value"
@@ -625,6 +644,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
               />
               <Area
+                isAnimationActive={!isMobileViewport}
                 type="monotone"
                 dataKey="interestLevel"
                 stroke="#f59e0b"
@@ -634,7 +654,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 fill="url(#colorInterest)"
                 dot={<TrendDot />}
                 activeDot={<ActiveTrendDot />}
-                animationDuration={1500}
+                animationDuration={isMobileViewport ? 0 : 1500}
               />
             </AreaChart>
           </ResponsiveContainer>
