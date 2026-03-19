@@ -37,7 +37,7 @@ import {
   Rocket,
   Megaphone,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 interface DashboardProps {
@@ -153,6 +153,29 @@ function getRecommendationBullets(data: AnalysisResult) {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncViewport);
+      return () => mediaQuery.removeEventListener('change', syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
+  const disableHeavyMotion = Boolean(prefersReducedMotion || isMobileViewport);
+  const containerVariants = disableHeavyMotion ? undefined : container;
+  const itemVariants = disableHeavyMotion ? undefined : item;
+
   if (!data) {
     const steps = [
       { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
@@ -330,12 +353,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
   return (
     <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
+      variants={containerVariants}
+      initial={disableHeavyMotion ? false : 'hidden'}
+      animate={disableHeavyMotion ? undefined : 'show'}
       className="workspace-results-column h-full flex flex-col gap-6 overflow-y-auto pr-2 pb-10"
     >
-      <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
         <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
@@ -367,7 +390,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           <div className="workspace-live-strip flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
+                <div className={cn('absolute inset-0 bg-emerald-400 rounded-full opacity-25', !disableHeavyMotion && 'animate-ping')} />
                 <div className="workspace-live-strip-icon relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
@@ -382,7 +405,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className={cn('absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75', !disableHeavyMotion && 'animate-ping')} />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Live</span>
@@ -420,7 +443,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[24rem]">
-        <motion.div variants={item} className="workspace-result-card flex flex-col justify-center gap-8 p-6 transition-shadow">
+        <motion.div variants={itemVariants} className="workspace-result-card flex flex-col justify-center gap-8 p-6 transition-shadow">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Demand vs Saturation</h4>
 
           <div>
@@ -430,12 +453,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-white/8 shadow-inner shadow-black/30">
               <motion.div
-                initial={{ width: 0 }}
+                initial={disableHeavyMotion ? false : { width: 0 }}
                 animate={{ width: `${data.demandScore}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
+                transition={{ duration: disableHeavyMotion ? 0 : 1, ease: 'easeOut' }}
                 className="h-full bg-emerald-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !disableHeavyMotion && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
@@ -447,23 +470,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-white/8 shadow-inner shadow-black/30">
               <motion.div
-                initial={{ width: 0 }}
+                initial={disableHeavyMotion ? false : { width: 0 }}
                 animate={{ width: `${saturationValue}%` }}
-                transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
+                transition={{ duration: disableHeavyMotion ? 0 : 1, delay: disableHeavyMotion ? 0 : 0.2, ease: 'easeOut' }}
                 className="h-full bg-amber-500 rounded-full relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/10 animate-[shimmer_2s_infinite_linear]" style={{ transform: 'skewX(-20deg)' }} />
+                <div className={cn('absolute inset-0 bg-white/10', !disableHeavyMotion && 'animate-[shimmer_2s_infinite_linear]')} style={{ transform: 'skewX(-20deg)' }} />
               </motion.div>
             </div>
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="workspace-result-card flex flex-col p-6 transition-shadow">
+        <motion.div variants={itemVariants} className="workspace-result-card flex flex-col p-6 transition-shadow">
           <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-500">Market Force Analysis</h4>
           <div className="flex-1 w-full min-h-0 relative">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="100%" barSize={20} data={comparisonData} startAngle={90} endAngle={-270}>
                 <RadialBar
+                  isAnimationActive={!disableHeavyMotion}
                   label={{ position: 'insideStart', fill: '#1e293b', fontSize: 10, fontWeight: 'bold' }}
                   background={{ fill: '#f1f5f9' }}
                   dataKey="value"
@@ -492,7 +516,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         getIcon={getActionIcon}
       />
 
-      <motion.div variants={item} className="workspace-result-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-result-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
         <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-violet-500 transition-all group-hover:w-2"></div>
         <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-cyan-200">
           <Search className="w-4 h-4" />
@@ -508,7 +532,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {(data.keyInsights || data.targetDemographic || data.bestSellingChannels) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {data.keyInsights && data.keyInsights.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Lightbulb className="w-4 h-4 text-amber-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.45)]" />
                 Key Insights
@@ -525,7 +549,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.targetDemographic && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Users className="w-4 h-4 text-violet-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.45)]" />
                 Target Demographic
@@ -535,7 +559,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.bestSellingChannels && data.bestSellingChannels.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <ShoppingBag className="w-4 h-4 text-emerald-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
                 Best Selling Channels
@@ -555,7 +579,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {((data.nearbyCompetitors && data.nearbyCompetitors.length > 0) || (data.relatedSearches && data.relatedSearches.length > 0)) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {data.nearbyCompetitors && data.nearbyCompetitors.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Store className="w-4 h-4 text-rose-500" />
                 Nearby Competitors
@@ -575,7 +599,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.relatedSearches && data.relatedSearches.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={itemVariants} className="workspace-result-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Globe className="w-4 h-4 text-blue-500" />
                 Related Searches
@@ -592,7 +616,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+      <motion.div variants={itemVariants} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
         <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
@@ -625,6 +649,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
               />
               <Area
+                isAnimationActive={!disableHeavyMotion}
                 type="monotone"
                 dataKey="interestLevel"
                 stroke="#f59e0b"
@@ -634,7 +659,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 fill="url(#colorInterest)"
                 dot={<TrendDot />}
                 activeDot={<ActiveTrendDot />}
-                animationDuration={1500}
+                animationDuration={disableHeavyMotion ? 0 : 1500}
               />
             </AreaChart>
           </ResponsiveContainer>
