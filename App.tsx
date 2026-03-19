@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
@@ -40,6 +40,10 @@ const App: React.FC = () => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [followUpsLeft, setFollowUpsLeft] = useState(0);
+  const [workspaceTheme, setWorkspaceTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window === 'undefined') return 'dark';
+    return window.localStorage.getItem('bizquest_workspace_theme') === 'light' ? 'light' : 'dark';
+  });
 
   const credits = profile?.credits ?? 0;
 
@@ -56,6 +60,11 @@ const App: React.FC = () => {
       localStorage.setItem(getHistoryKey(user.id), JSON.stringify(history));
     }
   }, [history, user?.id]);
+
+  useEffect(() => {
+    window.localStorage.setItem('bizquest_workspace_theme', workspaceTheme);
+    document.documentElement.style.colorScheme = workspaceTheme;
+  }, [workspaceTheme]);
 
   const stripeHandled = useRef(false);
   useEffect(() => {
@@ -221,6 +230,10 @@ const App: React.FC = () => {
     setFollowUpsLeft(0);
   };
 
+  const toggleWorkspaceTheme = () => {
+    setWorkspaceTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   if (loading) {
     return (
       <div className="workspace-page flex h-screen w-screen items-center justify-center">
@@ -241,7 +254,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="workspace-page flex h-screen w-screen flex-col overflow-hidden">
+    <div className="workspace-page flex h-screen w-screen flex-col overflow-hidden" data-workspace-theme={workspaceTheme}>
       <div className="workspace-grid" />
       <div className="workspace-noise" />
       <div className="workspace-orb workspace-orb-cyan" />
@@ -269,12 +282,21 @@ const App: React.FC = () => {
             </div>
             <div>
               <div className="font-display text-lg font-semibold tracking-[-0.04em] text-white">BizQuest</div>
-              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace</div>
+              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace operator</div>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleWorkspaceTheme}
+            className="workspace-theme-toggle"
+            title={workspaceTheme === 'dark' ? 'Switch to light mode' : 'Switch to night mode'}
+          >
+            {workspaceTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           {profile.is_admin ? (
             <motion.button
               whileTap={{ scale: 0.92 }}
@@ -296,38 +318,43 @@ const App: React.FC = () => {
       </div>
 
       <div className="relative z-20 hidden px-6 pt-6 lg:block">
-        <div className="workspace-topbar mx-auto flex w-full max-w-[1680px] items-center justify-between gap-6">
-          <div className="min-w-0">
-            <div className="workspace-section-pill">
-              <Sparkles className="h-3.5 w-3.5" />
-              Workspace
+        <div className="workspace-topbar mx-auto flex w-full max-w-[1680px] items-center justify-between gap-4">
+          <div className="workspace-topbar-main">
+            <div className="workspace-brand-mark h-12 w-12 rounded-[16px]">
+              <LineChart className="h-4.5 w-4.5" />
             </div>
-            <div className="mt-4 flex items-center gap-4">
-              <div className="workspace-brand-mark h-14 w-14 rounded-[18px]">
-                <LineChart className="h-5 w-5" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-3">
+                <h1 className="font-display text-[1.45rem] font-semibold tracking-[-0.05em] text-white">BizQuest</h1>
+                <div className="workspace-section-pill">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Workspace
+                </div>
               </div>
-              <div>
-                <h1 className="font-display text-[2rem] font-semibold tracking-[-0.05em] text-white">
-                  Market intelligence, organized
-                </h1>
-                <p className="mt-1 text-sm text-slate-400">
-                  Keep the command rail open, reopen old reads, and stay inside one decision surface.
-                </p>
-              </div>
+              <p className="mt-1 text-sm text-slate-400">
+                Query in, verdict out. Everything important stays in one rail.
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="workspace-account-card">
-              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Operator</div>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-white/6 ring-1 ring-white/10" />
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-white">{profile.email}</div>
-                  <div className="text-xs text-slate-500">Active session</div>
-                </div>
+          <div className="workspace-topbar-actions">
+            <div className="workspace-operator-inline">
+              <div className="h-9 w-9 rounded-full bg-white/6 ring-1 ring-white/10" />
+              <div className="min-w-0">
+                <div className="font-data text-[10px] uppercase tracking-[0.22em] text-slate-500">Operator</div>
+                <div className="truncate text-sm font-semibold text-white">{profile.email}</div>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={toggleWorkspaceTheme}
+              className="workspace-theme-toggle"
+              title={workspaceTheme === 'dark' ? 'Switch to light mode' : 'Switch to night mode'}
+            >
+              {workspaceTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span className="hidden xl:inline">{workspaceTheme === 'dark' ? 'Light' : 'Night'}</span>
+            </button>
 
             {profile.is_admin ? (
               <button onClick={() => setShowAdmin(true)} className="workspace-icon-button" title="Admin panel">
