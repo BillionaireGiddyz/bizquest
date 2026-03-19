@@ -1195,8 +1195,25 @@
     scrollbar-gutter: stable;
   }
 
+  .workspace-results-column > *,
+  .workspace-recommendation-section,
+  .workspace-recommendation-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 360px;
+  }
+
   .workspace-result-card {
     border-radius: 22px;
+    contain: layout paint;
+    transform: translateZ(0);
+  }
+
+  .workspace-chart-card,
+  .workspace-recommendation-section,
+  .workspace-recommendation-card,
+  .workspace-empty-dashboard {
+    contain: layout paint;
+    transform: translateZ(0);
   }
 
   .workspace-chip {
@@ -1516,6 +1533,34 @@
     border-color: rgba(255, 255, 255, 0.06);
   }
 
+  .workspace-empty-ambient {
+    opacity: 0.85;
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  .workspace-empty-ambient-a {
+    background: rgba(165, 180, 252, 0.22);
+  }
+
+  .workspace-empty-ambient-b {
+    background: rgba(196, 181, 253, 0.18);
+  }
+
+  .workspace-empty-ambient-c {
+    background: rgba(110, 231, 183, 0.14);
+  }
+
+  .workspace-empty-icon-glow {
+    opacity: 0.24;
+    transform: scale(1.08);
+    filter: blur(14px);
+  }
+
+  .workspace-empty-prompt-dot {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+  }
+
   .workspace-page[data-workspace-theme="light"] .workspace-grid {
     opacity: 0.03;
     background-image:
@@ -1829,6 +1874,18 @@
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.94),
       0 16px 32px rgba(15, 23, 42, 0.08);
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-empty-ambient-a {
+    background: rgba(165, 180, 252, 0.16);
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-empty-ambient-b {
+    background: rgba(196, 181, 253, 0.14);
+  }
+
+  .workspace-page[data-workspace-theme="light"] .workspace-empty-ambient-c {
+    background: rgba(110, 231, 183, 0.12);
   }
 
   .workspace-page[data-workspace-theme="light"] .workspace-chart-tooltip {
@@ -2232,6 +2289,11 @@
     overflow-y: visible;
     padding-right: 0;
     padding-bottom: 0;
+  }
+
+  .workspace-empty-dashboard {
+    height: auto;
+    min-height: 28rem;
   }
 
   .workspace-inline-history-mobile {
