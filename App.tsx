@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun, History } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
@@ -272,7 +272,7 @@ const App: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="rounded-xl p-2 text-slate-300 transition-colors hover:bg-white/6 hover:text-white"
+            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
           >
             {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </motion.button>
@@ -289,6 +289,15 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setIsSidebarOpen(true)}
+            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+            title="View history"
+          >
+            <History className="h-5 w-5" />
+          </motion.button>
+
           <button
             type="button"
             onClick={toggleWorkspaceTheme}
@@ -302,7 +311,7 @@ const App: React.FC = () => {
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setShowAdmin(true)}
-              className="rounded-xl p-2 text-cyan-300 transition-colors hover:bg-white/6"
+              className="workspace-icon-button h-11 w-11 rounded-xl p-0"
             >
               <Shield className="h-5 w-5" />
             </motion.button>
@@ -311,7 +320,7 @@ const App: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={signOut}
-            className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-white"
+            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
           >
             <LogOut className="h-5 w-5" />
           </motion.button>
@@ -419,7 +428,8 @@ const App: React.FC = () => {
                   Market intelligence, organized
                 </h2>
               </div>
-              <button type="button" className="workspace-inline-history" onClick={() => setIsSidebarOpen(true)}>
+              <button type="button" className="workspace-inline-history workspace-inline-history-mobile" onClick={() => setIsSidebarOpen(true)}>
+                <History className="h-4 w-4" />
                 History
                 <ChevronRight className="h-4 w-4" />
               </button>

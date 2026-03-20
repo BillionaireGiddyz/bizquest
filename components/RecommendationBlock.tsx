@@ -11,7 +11,7 @@ interface RecommendationBlockProps {
 
 export const RecommendationBlock: React.FC<RecommendationBlockProps> = ({ heading, summary, bullets, getIcon }) => {
   return (
-    <section className="rounded-[28px] border border-white/6 bg-[#111827] p-6 text-slate-100 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)]">
+    <section className="workspace-recommendation-section rounded-[28px] border border-white/6 bg-[#111827] p-6 text-slate-100 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)]">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <span className="h-6 w-[3px] rounded-full bg-blue-500" />
@@ -28,7 +28,7 @@ export const RecommendationBlock: React.FC<RecommendationBlockProps> = ({ headin
           return (
           <div
             key={bullet}
-            className="group rounded-2xl border border-white/6 border-l-[3px] border-l-blue-500 bg-[#111827] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-l-blue-400 hover:bg-white/[0.04] hover:shadow-[0_4px_16px_rgba(59,130,246,0.1)]"
+            className="workspace-recommendation-card group rounded-2xl border border-white/6 border-l-[3px] border-l-blue-500 bg-[#111827] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-l-blue-400 hover:bg-white/[0.04] hover:shadow-[0_4px_16px_rgba(59,130,246,0.1)]"
           >
             <div className="flex items-start gap-3">
               <span className={cn('mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10', actionVisual.color)}>
