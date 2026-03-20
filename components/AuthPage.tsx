@@ -11,7 +11,6 @@ import {
   LogIn,
   Mail,
   MapPinned,
-  Search,
   ShieldCheck,
   Sparkles,
   TrendingUp,
