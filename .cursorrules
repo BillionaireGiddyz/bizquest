@@ -1,12 +1,20 @@
-Follow the `CLAUDE.md` PHANTOM rules in this repo.
+Follow `CLAUDE.md`. PHANTOM v2.0 is the active project rule set.
 
-Short version:
+Operational summary:
 
-- Build like a senior product engineer with design taste.
+- Build, then explain.
+- Make the best reasonable assumption and move.
+- Preserve working structure unless the task explicitly asks for structural change.
+- Use CSS variables and intentional visual systems.
 - No generic SaaS defaults.
-- Make bold visual decisions and keep them coherent.
-- Use CSS variables for tokens.
-- Prefer strong typography, layered surfaces, restrained but memorable motion.
-- Handle hover, focus, active, loading, empty, and error states.
-- Keep code production-ready and readable.
-- Validate with a build before finishing.
+- No placeholder logic, TODOs, or speculative hacks.
+- Verify with a build before finishing.
+
+UI summary:
+
+- Premium, human-made, production-ready.
+- Strong typography. Layered surfaces. Varied radii.
+- Light mode must stay dimensional and readable.
+- Dark mode must stay calm, sharp, and contrast-safe.
+- Add states for hover, active, focus, loading, empty, and error.
+- Do not add motion that compromises stability.

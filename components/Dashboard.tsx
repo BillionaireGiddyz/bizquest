@@ -85,7 +85,7 @@ const TrendTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
+    <div className="workspace-trend-tooltip rounded-md border px-3 py-2 shadow-xl">
       <div className="text-xs font-semibold text-slate-200">{label}</div>
       <div className="mt-1 text-sm font-bold">Interest: {payload[0].value}</div>
     </div>
@@ -335,7 +335,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       animate="show"
       className="workspace-results-column h-full flex flex-col gap-6 overflow-y-auto pr-2 pb-10"
     >
-      <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+      <motion.div variants={item} className="workspace-result-card workspace-analysis-hero group p-6 transition-shadow">
         <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
@@ -351,7 +351,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={cn(
-              'px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all border-b-4 active:border-b-0 active:translate-y-1',
+              'workspace-verdict-badge px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all border-b-4 active:border-b-0 active:translate-y-1',
               recColors.bg,
               recColors.text,
               recColors.shadow,
@@ -363,8 +363,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </motion.div>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
-          <div className="flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
+        <div className="workspace-live-signal-wrap relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
+          <div className="workspace-live-signal-card flex items-center justify-between rounded-[10px] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
@@ -420,7 +420,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[24rem]">
-        <motion.div variants={item} className="workspace-result-card flex flex-col justify-center gap-8 p-6 transition-shadow">
+        <motion.div variants={item} className="workspace-result-card workspace-compare-card flex flex-col justify-center gap-8 p-6 transition-shadow">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Demand vs Saturation</h4>
 
           <div>
@@ -458,7 +458,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="workspace-result-card flex flex-col p-6 transition-shadow">
+        <motion.div variants={item} className="workspace-result-card workspace-radial-card flex flex-col p-6 transition-shadow">
           <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-500">Market Force Analysis</h4>
           <div className="flex-1 w-full min-h-0 relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -492,7 +492,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         getIcon={getActionIcon}
       />
 
-      <motion.div variants={item} className="workspace-result-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
+      <motion.div variants={item} className="workspace-result-card workspace-summary-card group relative overflow-hidden rounded-2xl border p-6 transition-shadow">
         <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-violet-500 transition-all group-hover:w-2"></div>
         <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-cyan-200">
           <Search className="w-4 h-4" />
@@ -508,7 +508,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {(data.keyInsights || data.targetDemographic || data.bestSellingChannels) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {data.keyInsights && data.keyInsights.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={item} className="workspace-result-card workspace-info-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Lightbulb className="w-4 h-4 text-amber-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.45)]" />
                 Key Insights
@@ -525,7 +525,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.targetDemographic && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={item} className="workspace-result-card workspace-info-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Users className="w-4 h-4 text-violet-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.45)]" />
                 Target Demographic
@@ -535,7 +535,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.bestSellingChannels && data.bestSellingChannels.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card group p-6 transition-shadow">
+            <motion.div variants={item} className="workspace-result-card workspace-info-card group p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <ShoppingBag className="w-4 h-4 text-emerald-500 transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
                 Best Selling Channels
@@ -555,11 +555,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       {((data.nearbyCompetitors && data.nearbyCompetitors.length > 0) || (data.relatedSearches && data.relatedSearches.length > 0)) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {data.nearbyCompetitors && data.nearbyCompetitors.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={item} className="workspace-result-card workspace-signal-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Store className="w-4 h-4 text-rose-500" />
                 Nearby Competitors
-                <span className="ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
+                <span className="workspace-competitor-pill ml-auto rounded-full border px-2 py-0.5 text-[10px] font-bold">
                   {data.competitorCount} found within 3km
                 </span>
               </h4>
@@ -575,7 +575,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           )}
 
           {data.relatedSearches && data.relatedSearches.length > 0 && (
-            <motion.div variants={item} className="workspace-result-card p-6 transition-shadow">
+            <motion.div variants={item} className="workspace-result-card workspace-signal-card p-6 transition-shadow">
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Globe className="w-4 h-4 text-blue-500" />
                 Related Searches
@@ -592,12 +592,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+      <motion.div variants={item} className="workspace-trend-card rounded-2xl border p-6 transition-shadow">
         <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
         </h4>
-        <div className="h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
+        <div className="workspace-trend-panel h-64 w-full rounded-2xl border px-3 py-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
@@ -646,13 +646,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
           {data.googleTrendsAvg > 0 && (
             <div className="flex items-center gap-2">
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-bold text-amber-300">Avg: {data.googleTrendsAvg}/100</span>
+              <span className="workspace-trend-average rounded-full px-3 py-1 font-bold">Avg: {data.googleTrendsAvg}/100</span>
             </div>
           )}
           {data.trendDirection && data.trendDirection !== 'stable' && (
             <div className="flex items-center gap-2">
               <span className={data.trendDirection === 'rising' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                {data.trendDirection === 'rising' ? '↑ Rising' : '↓ Declining'}
+                {data.trendDirection === 'rising' ? 'Rising' : 'Declining'}
               </span>
             </div>
           )}
