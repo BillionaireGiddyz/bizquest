@@ -85,14 +85,14 @@ const TrendTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="workspace-chart-tooltip rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
+    <div className="rounded-md border border-white/10 bg-[#1e2433] px-3 py-2 text-white shadow-xl">
       <div className="text-xs font-semibold text-slate-200">{label}</div>
       <div className="mt-1 text-sm font-bold">Interest: {payload[0].value}</div>
     </div>
   );
 };
 
-const TrendDot = ({ cx, cy, reducedEffects = false }: any) => {
+const TrendDot = ({ cx, cy }: any) => {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
 
   return (
@@ -103,12 +103,12 @@ const TrendDot = ({ cx, cy, reducedEffects = false }: any) => {
       fill="#f59e0b"
       stroke="#1f2937"
       strokeWidth={1.5}
-      style={reducedEffects ? undefined : { filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}
+      style={{ filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}
     />
   );
 };
 
-const ActiveTrendDot = ({ cx, cy, reducedEffects = false }: any) => {
+const ActiveTrendDot = ({ cx, cy }: any) => {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
 
   return (
@@ -119,7 +119,7 @@ const ActiveTrendDot = ({ cx, cy, reducedEffects = false }: any) => {
       fill="#f59e0b"
       stroke="#0f172a"
       strokeWidth={2}
-      style={reducedEffects ? undefined : { filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.72))' }}
+      style={{ filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.72))' }}
     />
   );
 };
@@ -153,27 +153,6 @@ function getRecommendationBullets(data: AnalysisResult) {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
-  const [isCompactViewport, setIsCompactViewport] = React.useState(false);
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return;
-    }
-
-    const mobileQuery = window.matchMedia('(max-width: 767px)');
-    const syncViewport = () => setIsCompactViewport(mobileQuery.matches);
-
-    syncViewport();
-
-    if (typeof mobileQuery.addEventListener === 'function') {
-      mobileQuery.addEventListener('change', syncViewport);
-      return () => mobileQuery.removeEventListener('change', syncViewport);
-    }
-
-    mobileQuery.addListener(syncViewport);
-    return () => mobileQuery.removeListener(syncViewport);
-  }, []);
-
   if (!data) {
     const steps = [
       { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
@@ -384,12 +363,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </motion.div>
         </div>
 
-        <div className="workspace-live-strip-frame relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
-          <div className="workspace-live-strip flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px]">
+          <div className="flex items-center justify-between rounded-[10px] bg-[linear-gradient(135deg,rgba(2,6,23,0.85),rgba(17,24,39,0.92))] px-4 py-2.5">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25" />
-                <div className="workspace-live-strip-icon relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
+                <div className="relative w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
               </div>
@@ -482,14 +461,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         <motion.div variants={item} className="workspace-result-card flex flex-col p-6 transition-shadow">
           <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-500">Market Force Analysis</h4>
           <div className="flex-1 w-full min-h-0 relative">
-            <ResponsiveContainer width="100%" height="100%" debounce={isCompactViewport ? 180 : 0}>
+            <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="100%" barSize={20} data={comparisonData} startAngle={90} endAngle={-270}>
                 <RadialBar
                   label={{ position: 'insideStart', fill: '#1e293b', fontSize: 10, fontWeight: 'bold' }}
                   background={{ fill: '#f1f5f9' }}
                   dataKey="value"
                   cornerRadius={12}
-                  isAnimationActive={!isCompactViewport}
                 >
                   {comparisonData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : index === 1 ? '#f59e0b' : '#f43f5e'} />
@@ -581,7 +559,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                 <Store className="w-4 h-4 text-rose-500" />
                 Nearby Competitors
-                <span className="workspace-secondary-badge ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
+                <span className="ml-auto text-[10px] px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-bold border border-rose-200">
                   {data.competitorCount} found within 3km
                 </span>
               </h4>
@@ -614,13 +592,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       )}
 
-      <motion.div variants={item} className="workspace-chart-card bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
+      <motion.div variants={item} className="bg-[#111827] p-6 rounded-2xl border border-white/6 shadow-[0_18px_48px_-24px_rgba(2,6,23,0.65)] hover:shadow-[0_20px_52px_-24px_rgba(2,6,23,0.72)] transition-shadow">
         <h4 className="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
         </h4>
-        <div className="workspace-chart-surface h-64 w-full overflow-hidden rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
-          <ResponsiveContainer width="100%" height="100%" debounce={isCompactViewport ? 180 : 0}>
+        <div className="h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
@@ -645,20 +623,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               <Tooltip
                 content={<TrendTooltip />}
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
-                isAnimationActive={!isCompactViewport}
               />
               <Area
                 type="monotone"
                 dataKey="interestLevel"
                 stroke="#f59e0b"
                 strokeWidth={3}
-                style={isCompactViewport ? undefined : { filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' }}
+                style={{ filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' }}
                 fillOpacity={1}
                 fill="url(#colorInterest)"
-                dot={<TrendDot reducedEffects={isCompactViewport} />}
-                activeDot={<ActiveTrendDot reducedEffects={isCompactViewport} />}
-                isAnimationActive={!isCompactViewport}
-                animationDuration={isCompactViewport ? 0 : 1500}
+                dot={<TrendDot />}
+                activeDot={<ActiveTrendDot />}
+                animationDuration={1500}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -676,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           {data.trendDirection && data.trendDirection !== 'stable' && (
             <div className="flex items-center gap-2">
               <span className={data.trendDirection === 'rising' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                {data.trendDirection === 'rising' ? 'Rising' : 'Declining'}
+                {data.trendDirection === 'rising' ? '↑ Rising' : '↓ Declining'}
               </span>
             </div>
           )}

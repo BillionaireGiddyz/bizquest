@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun, History } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
@@ -255,7 +255,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="workspace-page flex min-h-screen w-screen flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden" data-workspace-theme={workspaceTheme}>
+    <div className="workspace-page flex h-screen w-screen flex-col overflow-hidden" data-workspace-theme={workspaceTheme}>
       <div className="workspace-grid" />
       <div className="workspace-noise" />
       <div className="workspace-orb workspace-orb-cyan" />
@@ -272,7 +272,7 @@ const App: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+            className="rounded-xl p-2 text-slate-300 transition-colors hover:bg-white/6 hover:text-white"
           >
             {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </motion.button>
@@ -289,19 +289,10 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setIsSidebarOpen(true)}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
-            title="View history"
-          >
-            <History className="h-5 w-5" />
-          </motion.button>
-
           <button
             type="button"
             onClick={toggleWorkspaceTheme}
-            className="workspace-theme-toggle h-11 px-3"
+            className="workspace-theme-toggle"
             title={workspaceTheme === 'dark' ? 'Switch to light mode' : 'Switch to night mode'}
           >
             {workspaceTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -311,7 +302,7 @@ const App: React.FC = () => {
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setShowAdmin(true)}
-              className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+              className="rounded-xl p-2 text-cyan-300 transition-colors hover:bg-white/6"
             >
               <Shield className="h-5 w-5" />
             </motion.button>
@@ -320,7 +311,7 @@ const App: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={signOut}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+            className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-white"
           >
             <LogOut className="h-5 w-5" />
           </motion.button>
@@ -428,8 +419,7 @@ const App: React.FC = () => {
                   Market intelligence, organized
                 </h2>
               </div>
-              <button type="button" className="workspace-inline-history workspace-inline-history-mobile" onClick={() => setIsSidebarOpen(true)}>
-                <History className="h-4 w-4" />
+              <button type="button" className="workspace-inline-history" onClick={() => setIsSidebarOpen(true)}>
                 History
                 <ChevronRight className="h-4 w-4" />
               </button>
