@@ -1507,6 +1507,16 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
   }
 
+  .workspace-chart-card,
+  .workspace-chart-surface,
+  .workspace-chart-surface .recharts-wrapper,
+  .workspace-chart-surface .recharts-surface {
+    isolation: isolate;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
   .workspace-empty-dashboard {
     background:
       radial-gradient(circle at top right, rgba(34, 211, 238, 0.08), transparent 24%),

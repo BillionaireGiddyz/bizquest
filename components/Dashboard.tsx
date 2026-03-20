@@ -92,7 +92,7 @@ const TrendTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const TrendDot = ({ cx, cy }: any) => {
+const TrendDot = ({ cx, cy, reducedEffects = false }: any) => {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
 
   return (
@@ -103,12 +103,12 @@ const TrendDot = ({ cx, cy }: any) => {
       fill="#f59e0b"
       stroke="#1f2937"
       strokeWidth={1.5}
-      style={{ filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}
+      style={reducedEffects ? undefined : { filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}
     />
   );
 };
 
-const ActiveTrendDot = ({ cx, cy }: any) => {
+const ActiveTrendDot = ({ cx, cy, reducedEffects = false }: any) => {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
 
   return (
@@ -119,7 +119,7 @@ const ActiveTrendDot = ({ cx, cy }: any) => {
       fill="#f59e0b"
       stroke="#0f172a"
       strokeWidth={2}
-      style={{ filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.72))' }}
+      style={reducedEffects ? undefined : { filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.72))' }}
     />
   );
 };
@@ -153,6 +153,27 @@ function getRecommendationBullets(data: AnalysisResult) {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
+  const [isCompactViewport, setIsCompactViewport] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsCompactViewport(mobileQuery.matches);
+
+    syncViewport();
+
+    if (typeof mobileQuery.addEventListener === 'function') {
+      mobileQuery.addEventListener('change', syncViewport);
+      return () => mobileQuery.removeEventListener('change', syncViewport);
+    }
+
+    mobileQuery.addListener(syncViewport);
+    return () => mobileQuery.removeListener(syncViewport);
+  }, []);
+
   if (!data) {
     const steps = [
       { icon: <Search className="w-6 h-6" />, gradient: 'from-indigo-500 to-blue-600', glow: 'shadow-indigo-500/25', ring: 'ring-indigo-100', num: '1', title: 'Ask Your Question', desc: 'Type any product + location to analyze' },
@@ -461,13 +482,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         <motion.div variants={item} className="workspace-result-card flex flex-col p-6 transition-shadow">
           <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-500">Market Force Analysis</h4>
           <div className="flex-1 w-full min-h-0 relative">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" debounce={isCompactViewport ? 180 : 0}>
               <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="100%" barSize={20} data={comparisonData} startAngle={90} endAngle={-270}>
                 <RadialBar
                   label={{ position: 'insideStart', fill: '#1e293b', fontSize: 10, fontWeight: 'bold' }}
                   background={{ fill: '#f1f5f9' }}
                   dataKey="value"
                   cornerRadius={12}
+                  isAnimationActive={!isCompactViewport}
                 >
                   {comparisonData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : index === 1 ? '#f59e0b' : '#f43f5e'} />
@@ -597,8 +619,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           <TrendingUp className="w-4 h-4 text-amber-500" />
           Market Interest Trend (6 Months)
         </h4>
-        <div className="workspace-chart-surface h-64 w-full rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="workspace-chart-surface h-64 w-full overflow-hidden rounded-2xl border border-white/6 bg-[#0d1117] px-3 py-4">
+          <ResponsiveContainer width="100%" height="100%" debounce={isCompactViewport ? 180 : 0}>
             <AreaChart data={processedTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
@@ -623,18 +645,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               <Tooltip
                 content={<TrendTooltip />}
                 cursor={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '3 3' }}
+                isAnimationActive={!isCompactViewport}
               />
               <Area
                 type="monotone"
                 dataKey="interestLevel"
                 stroke="#f59e0b"
                 strokeWidth={3}
-                style={{ filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' }}
+                style={isCompactViewport ? undefined : { filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' }}
                 fillOpacity={1}
                 fill="url(#colorInterest)"
-                dot={<TrendDot />}
-                activeDot={<ActiveTrendDot />}
-                animationDuration={1500}
+                dot={<TrendDot reducedEffects={isCompactViewport} />}
+                activeDot={<ActiveTrendDot reducedEffects={isCompactViewport} />}
+                isAnimationActive={!isCompactViewport}
+                animationDuration={isCompactViewport ? 0 : 1500}
               />
             </AreaChart>
           </ResponsiveContainer>
