@@ -23,35 +23,35 @@ import { useAuth } from '../lib/AuthContext';
 type PanelMode = 'signin' | 'signup' | 'forgot' | null;
 type NoticeMode = 'signup-confirm' | 'forgot-sent' | null;
 
-const HERO_WORDS = ['Read', 'the', 'signal', 'before', 'you', 'spend.'];
+const HERO_WORDS = ['Enter', 'a', 'market', 'with', 'conviction.'];
 const SAMPLE_QUERY = 'Will a portable blender sell well in Nairobi West?';
 
 const STATS = [
-  { value: '3', label: 'Free credits', note: 'test one idea without spending first' },
-  { value: '3', label: 'Follow-ups', note: 'push the answer before you commit' },
-  { value: '<60s', label: 'First brief', note: 'from query to verdict in one pass' },
+  { value: '3', label: 'Free credits', note: 'to test your first idea' },
+  { value: '3', label: 'Follow-ups', note: 'per analysis, built in' },
+  { value: '<60s', label: 'First brief', note: 'from query to verdict' },
 ];
 
 const FEATURE_CARDS = [
   {
     eyebrow: 'Demand scoring',
-    title: 'See if demand can carry the move.',
-    body: 'Search pull, pricing pressure, and timing collapse into one read you can act on.',
+    title: 'Know if the pull is real before you buy inventory.',
+    body: 'BizQuest turns search momentum, saturation pressure, and timing into one clear read.',
     accent: 'cyan',
     badge: 'Verified by live data',
     preview: 'score',
   },
   {
     eyebrow: 'Location-aware verdicts',
-    title: 'Get the answer for one place, not the whole city.',
-    body: 'Estate, town, and price band shift the verdict faster than most founders expect.',
+    title: 'One estate can say GO while the next says wait.',
+    body: 'Price sensitivity, foot traffic, and local competition change the answer fast.',
     accent: 'violet',
     preview: 'location',
   },
   {
     eyebrow: 'Decision-grade summary',
-    title: 'Leave with a verdict, not a dashboard.',
-    body: 'Every brief ends with a recommendation, rationale, and the next move worth testing.',
+    title: 'Skip dashboards. Read the signal and move.',
+    body: 'Every brief ends with a verdict, rationale, and next step you can actually act on.',
     accent: 'emerald',
     preview: 'verdict',
   },
@@ -61,40 +61,6 @@ const SIGNALS = [
   { label: 'Demand pulse', value: '74 / 100', tone: 'text-emerald-300' },
   { label: 'Competition', value: 'Moderate', tone: 'text-amber-300' },
   { label: 'Timing', value: 'Early', tone: 'text-cyan-300' },
-];
-
-const PROOF_ROWS = [
-  {
-    title: 'One question in',
-    body: 'Ask with a product and a place. The system reads one market, not a vague category.',
-    icon: Search,
-    tone: 'text-cyan-300',
-  },
-  {
-    title: 'One verdict out',
-    body: 'You get a clear move. GO, BE CAREFUL, or AVOID. No spreadsheet archaeology.',
-    icon: ShieldCheck,
-    tone: 'text-emerald-300',
-  },
-  {
-    title: 'One next move',
-    body: 'You see what to test, what to watch, and what not to waste cash on.',
-    icon: TrendingUp,
-    tone: 'text-violet-300',
-  },
-];
-
-const TERMINAL_NOTES = [
-  {
-    eyebrow: 'What BizQuest reads',
-    title: 'Demand, pricing pressure, and competitor density.',
-    body: 'The brief collapses multiple signals into one decision surface.',
-  },
-  {
-    eyebrow: 'What you walk away with',
-    title: 'Verdict, rationale, and next move.',
-    body: 'Enough clarity to move forward or walk away cleanly.',
-  },
 ];
 
 const MOTION = {
@@ -144,12 +110,6 @@ const TerminalDemo: React.FC = () => (
     <div className="phantom-demo-header">
       <div className="font-data text-[10px] uppercase tracking-[0.28em] text-slate-400">Intelligence terminal</div>
       <LiveBadge label="Live" />
-    </div>
-
-    <div className="phantom-command-strip mt-5">
-      <span className="phantom-tag">Nairobi West</span>
-      <span className="phantom-tag phantom-tag-secondary">Portable blender</span>
-      <span className="phantom-mini-badge">Decision-grade brief</span>
     </div>
 
     <div className="mt-6 rounded-[24px] border border-white/8 bg-[rgba(255,255,255,0.03)] p-4">
@@ -275,29 +235,6 @@ const FeatureCard: React.FC<{
       ) : null}
     </div>
   </motion.article>
-);
-
-const ProofRow: React.FC<{
-  title: string;
-  body: string;
-  icon: React.ComponentType<{ className?: string }>;
-  tone: string;
-  index: number;
-}> = ({ title, body, icon: Icon, tone, index }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ ...MOTION.panel, delay: 0.18 + index * 0.08 }}
-    className="phantom-proof-row"
-  >
-    <div className={`phantom-proof-icon ${tone}`}>
-      <Icon className="h-4 w-4" />
-    </div>
-    <div>
-      <div className="text-sm font-semibold text-white">{title}</div>
-      <div className="mt-1 text-sm leading-6 text-slate-400">{body}</div>
-    </div>
-  </motion.div>
 );
 
 const AuthModal: React.FC<{
@@ -584,62 +521,50 @@ export const AuthPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-[1480px] flex-col gap-8 px-4 pb-16 pt-8 sm:px-6 lg:px-10 lg:gap-10 lg:pt-10">
-        <section className="grid items-start gap-6 xl:grid-cols-[1.04fr_0.96fr] xl:gap-8">
+      <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col gap-16 px-4 pb-16 pt-8 sm:px-6 lg:px-10 lg:pt-10">
+        <section className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={MOTION.hero}
-            className="phantom-hero-shell"
+            className="phantom-hero-copy"
           >
-            <div className="phantom-hero-copy">
-              <div className="phantom-section-label">
-                <span className="phantom-section-label-dot" />
-                Operator intelligence
-              </div>
-
-              <div className="mt-8">
-                <h1 className="font-display text-[3.15rem] leading-[0.92] tracking-[-0.065em] text-white sm:text-[4.3rem] lg:max-w-[9ch] lg:text-[5.3rem]">
-                  {HERO_WORDS.map((word, index) => (
-                    <motion.span
-                      key={word}
-                      initial={{ opacity: 0, y: 18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                      className={`mr-[0.18em] inline-block ${word === 'spend.' ? 'animated-gradient-text' : ''}`}
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </h1>
-              </div>
-
-              <p className="mt-8 max-w-[35rem] text-base leading-8 text-slate-300 sm:text-lg">
-                BizQuest reads demand, timing, and pressure before cash leaves your pocket. You ask once. You get a move worth trusting.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
-                  Start with 3 free credits
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
-                  Open your workspace
-                </button>
-              </div>
+            <div className="phantom-section-label">
+              <span className="phantom-section-label-dot" />
+              Market clarity, faster
             </div>
 
-            <div className="phantom-hero-brief">
-              <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">What the brief tells you</div>
-              <div className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-white">
-                Enough signal to move forward. Enough pressure to stay disciplined.
-              </div>
-              <div className="mt-3 text-sm leading-7 text-slate-400">
-                BizQuest makes the decision readable before you buy stock, rent space, or burn ad budget.
-              </div>
+            <div className="mt-8">
+              <h1 className="font-display text-[3.25rem] leading-[0.92] tracking-[-0.06em] text-white sm:text-[4.4rem] lg:max-w-[10ch] lg:text-[5.5rem]">
+                {HERO_WORDS.map((word, index) => (
+                  <motion.span
+                    key={word}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    className={`mr-[0.18em] inline-block ${word === 'conviction.' ? 'animated-gradient-text' : ''}`}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </h1>
             </div>
 
-            <div className="mt-10 grid gap-3 md:grid-cols-3">
+            <p className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg">
+              BizQuest reads demand, competition, and timing before you spend real money. One question in. One decision out. Enough signal to move with a straight back.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
+                Start with 3 free credits
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
+                Already have an account
+              </button>
+            </div>
+
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
               {STATS.map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -652,12 +577,6 @@ export const AuthPage: React.FC = () => {
                   <div className="font-data mt-2 text-[10px] uppercase tracking-[0.24em] text-slate-400">{stat.label}</div>
                   <div className="mt-2 text-sm text-slate-500">{stat.note}</div>
                 </motion.div>
-              ))}
-            </div>
-
-            <div className="mt-6 grid gap-3">
-              {PROOF_ROWS.map((row, index) => (
-                <ProofRow key={row.title} {...row} index={index} />
               ))}
             </div>
           </motion.div>
@@ -675,19 +594,29 @@ export const AuthPage: React.FC = () => {
 
             <TerminalDemo />
 
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              {TERMINAL_NOTES.map((note) => (
-                <div key={note.eyebrow} className="phantom-support-card">
-                  <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">{note.eyebrow}</div>
-                  <div className="mt-3 text-base font-semibold leading-7 text-white">{note.title}</div>
-                  <div className="mt-2 text-sm leading-6 text-slate-400">{note.body}</div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="phantom-support-card">
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Built for decisive founders</div>
+                <div className="mt-3 text-base font-semibold leading-7 text-white">No dashboard archaeology. Just signal, pressure, and timing.</div>
+              </div>
+              <div className="phantom-support-card">
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Verified by live signals</div>
+                <div className="mt-3 flex items-start gap-3 text-sm leading-6 text-slate-300">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+                  Search pull, location context, pricing pressure, and competition all read inside one calm surface.
                 </div>
-              ))}
+              </div>
             </div>
           </motion.div>
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-[0.78fr_1.22fr]">
+        <section className="grid gap-4 lg:grid-cols-3">
+          {FEATURE_CARDS.map((card, index) => (
+            <FeatureCard key={card.eyebrow} {...card} index={index} />
+          ))}
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -696,55 +625,38 @@ export const AuthPage: React.FC = () => {
           >
             <div className="phantom-section-label">
               <span className="phantom-section-label-dot" />
-              Why founders keep it open
+              Why it lands
             </div>
-            <h2 className="mt-6 font-display text-[2.25rem] leading-[0.98] tracking-[-0.05em] text-white lg:max-w-[10ch]">
-              One command rail. One market brief. One clean decision.
+            <h2 className="mt-6 font-display text-[2.25rem] leading-[0.98] tracking-[-0.05em] text-white">
+              Clear verdicts for operators who hate vague advice.
             </h2>
-            <p className="mt-5 max-w-[42ch] text-sm leading-7 text-slate-300">
-              You do not need another dashboard. You need to know if the move deserves time, attention, and cash. BizQuest gives you that answer fast.
+            <p className="mt-5 max-w-[40ch] text-sm leading-7 text-slate-300">
+              BizQuest is not a chat toy wrapped in startup gradients. It is an intelligence surface for reading whether a move deserves cash, time, and attention.
             </p>
-
-            <div className="phantom-editorial-grid mt-8">
-              <div className="phantom-utility-panel">
-                <TrendingUp className="h-5 w-5 text-cyan-300" />
-                <div className="mt-5 text-sm font-semibold text-white">Read momentum early</div>
-                <p className="mt-2 text-sm leading-6 text-slate-400">Spot the difference between genuine pull and noisy curiosity.</p>
-              </div>
-              <div className="phantom-utility-panel">
-                <MapPinned className="h-5 w-5 text-violet-300" />
-                <div className="mt-5 text-sm font-semibold text-white">Respect geography</div>
-                <p className="mt-2 text-sm leading-6 text-slate-400">Estate, town, and price band can change the answer fast.</p>
-              </div>
-              <div className="phantom-utility-panel">
-                <ShieldCheck className="h-5 w-5 text-emerald-300" />
-                <div className="mt-5 text-sm font-semibold text-white">Move with evidence</div>
-                <p className="mt-2 text-sm leading-6 text-slate-400">Walk away with the verdict and the next move worth testing.</p>
-              </div>
-            </div>
           </motion.div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            {FEATURE_CARDS.map((card, index) => (
-              <FeatureCard key={card.eyebrow} {...card} index={index} />
-            ))}
-          </div>
-        </section>
-
-        <section className="phantom-bottom-cta">
-          <div>
-            <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">Start clean</div>
-            <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">Open one brief. Read the signal. Move with a straight back.</div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
-              Create account
-            </button>
-            <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
-              Sign in
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...MOTION.panel, delay: 0.48 }}
+            className="grid gap-4 sm:grid-cols-3"
+          >
+            <div className="phantom-utility-panel">
+              <TrendingUp className="h-5 w-5 text-cyan-300" />
+              <div className="mt-5 text-sm font-semibold text-white">Read momentum early</div>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Spot the difference between genuine pull and noisy curiosity.</p>
+            </div>
+            <div className="phantom-utility-panel">
+              <MapPinned className="h-5 w-5 text-violet-300" />
+              <div className="mt-5 text-sm font-semibold text-white">Respect geography</div>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Estate, town, and price band can change the answer faster than product quality.</p>
+            </div>
+            <div className="phantom-utility-panel">
+              <ShieldCheck className="h-5 w-5 text-emerald-300" />
+              <div className="mt-5 text-sm font-semibold text-white">Move with evidence</div>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Every decision lands with a verdict, rationale, and strategic next move.</p>
+            </div>
+          </motion.div>
         </section>
       </main>
 
