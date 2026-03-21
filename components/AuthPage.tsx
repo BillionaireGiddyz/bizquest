@@ -23,37 +23,64 @@ import { useAuth } from '../lib/AuthContext';
 type PanelMode = 'signin' | 'signup' | 'forgot' | null;
 type NoticeMode = 'signup-confirm' | 'forgot-sent' | null;
 
-const HERO_WORDS = ['Enter', 'a', 'market', 'with', 'conviction.'];
+const HERO_WORDS = ['Spend', 'with', 'signal,', 'not', 'hope.'];
 const SAMPLE_QUERY = 'Will a portable blender sell well in Nairobi West?';
 
 const STATS = [
-  { value: '3', label: 'Free credits', note: 'to test your first idea' },
-  { value: '3', label: 'Follow-ups', note: 'per analysis, built in' },
-  { value: '<60s', label: 'First brief', note: 'from query to verdict' },
+  { value: '3', label: 'Free credits', note: 'pressure-test the first move' },
+  { value: '3', label: 'Follow-ups', note: 'push the answer before you commit' },
+  { value: '<60s', label: 'First brief', note: 'one question to one verdict' },
 ];
 
 const FEATURE_CARDS = [
   {
     eyebrow: 'Demand scoring',
-    title: 'Know if the pull is real before you buy inventory.',
-    body: 'BizQuest turns search momentum, saturation pressure, and timing into one clear read.',
+    title: 'Read the pull before you buy stock.',
+    body: 'Demand, timing, and pricing pressure collapse into one market read you can act on.',
     accent: 'cyan',
     badge: 'Verified by live data',
     preview: 'score',
   },
   {
     eyebrow: 'Location-aware verdicts',
-    title: 'One estate can say GO while the next says wait.',
-    body: 'Price sensitivity, foot traffic, and local competition change the answer fast.',
+    title: 'Ask one place. Get one real answer.',
+    body: 'Estate, town, and price band change the verdict faster than most founders expect.',
     accent: 'violet',
     preview: 'location',
   },
   {
     eyebrow: 'Decision-grade summary',
-    title: 'Skip dashboards. Read the signal and move.',
-    body: 'Every brief ends with a verdict, rationale, and next step you can actually act on.',
+    title: 'Leave with a verdict, not a dashboard.',
+    body: 'Every brief ends with the signal, the rationale, and the next move worth testing.',
     accent: 'emerald',
     preview: 'verdict',
+  },
+];
+
+const HERO_TAPE = [
+  { label: 'Market', value: 'Nairobi West' },
+  { label: 'Product', value: 'Portable blender' },
+  { label: 'Read', value: 'Strong signal' },
+];
+
+const OPERATOR_NOTES = [
+  {
+    title: 'One market at a time',
+    body: 'You ask for one place and one offer. The answer stays precise.',
+    icon: MapPinned,
+    tone: 'text-cyan-300',
+  },
+  {
+    title: 'One decision surface',
+    body: 'Demand, competition, and timing land in one calm brief.',
+    icon: ShieldCheck,
+    tone: 'text-emerald-300',
+  },
+  {
+    title: 'One next move',
+    body: 'You leave knowing whether to go, wait, or walk away.',
+    icon: TrendingUp,
+    tone: 'text-violet-300',
   },
 ];
 
@@ -93,6 +120,17 @@ const LiveBadge: React.FC<{ label?: string }> = ({ label = 'Live data' }) => (
   </div>
 );
 
+const HeroTape: React.FC = () => (
+  <div className="phantom-hero-tape">
+    {HERO_TAPE.map((item) => (
+      <div key={item.label} className="phantom-hero-tape-item">
+        <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">{item.label}</div>
+        <div className="mt-2 text-sm font-semibold text-white">{item.value}</div>
+      </div>
+    ))}
+  </div>
+);
+
 const BrandMark: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
   <div className="flex items-center gap-3">
     <div className={`phantom-brand-mark ${compact ? 'h-11 w-11 rounded-[14px]' : 'h-14 w-14 rounded-[18px]'}`}>
@@ -103,6 +141,29 @@ const BrandMark: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
       <div className="font-data text-[10px] uppercase tracking-[0.34em] text-slate-500">AI market intelligence</div>
     </div>
   </div>
+);
+
+const OperatorNote: React.FC<{
+  title: string;
+  body: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: string;
+  index: number;
+}> = ({ title, body, icon: Icon, tone, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 18 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ ...MOTION.panel, delay: 0.3 + index * 0.08 }}
+    className="phantom-note-row"
+  >
+    <div className={`phantom-note-row-icon ${tone}`}>
+      <Icon className="h-4 w-4" />
+    </div>
+    <div>
+      <div className="text-sm font-semibold text-white">{title}</div>
+      <div className="mt-1 text-sm leading-6 text-slate-400">{body}</div>
+    </div>
+  </motion.div>
 );
 
 const TerminalDemo: React.FC = () => (
@@ -116,6 +177,11 @@ const TerminalDemo: React.FC = () => (
       <div className="font-data flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-slate-400">
         <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
         Query
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="phantom-tag">Nairobi West</span>
+        <span className="phantom-tag phantom-tag-secondary">Portable blender</span>
+        <span className="phantom-mini-badge">Decision-grade brief</span>
       </div>
       <div className="mt-3 min-h-[56px] text-base font-medium leading-7 text-white">
         <span className="demo-type-line">{SAMPLE_QUERY}</span>
@@ -527,41 +593,53 @@ export const AuthPage: React.FC = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={MOTION.hero}
-            className="phantom-hero-copy"
+            className="phantom-hero-shell"
           >
-            <div className="phantom-section-label">
-              <span className="phantom-section-label-dot" />
-              Market clarity, faster
+            <div className="phantom-hero-copy">
+              <div className="phantom-section-label hero-eyebrow">
+                <span className="phantom-section-label-dot" />
+                Operator intelligence
+              </div>
+
+              <div className="mt-8">
+                <h1 className="font-display text-[3.2rem] leading-[0.92] tracking-[-0.065em] text-white sm:text-[4.5rem] lg:max-w-[9ch] lg:text-[5.35rem]">
+                  {HERO_WORDS.map((word, index) => (
+                    <motion.span
+                      key={word}
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                      className={`mr-[0.18em] inline-block ${word === 'signal,' ? 'animated-gradient-text' : ''}`}
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </h1>
+              </div>
+
+              <p className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg">
+                BizQuest reads demand, competition, and timing before cash leaves your pocket. You ask once. You leave with a verdict.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
+                  Start with 3 free credits
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
+                  Open your workspace
+                </button>
+              </div>
             </div>
 
-            <div className="mt-8">
-              <h1 className="font-display text-[3.25rem] leading-[0.92] tracking-[-0.06em] text-white sm:text-[4.4rem] lg:max-w-[10ch] lg:text-[5.5rem]">
-                {HERO_WORDS.map((word, index) => (
-                  <motion.span
-                    key={word}
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                    className={`mr-[0.18em] inline-block ${word === 'conviction.' ? 'animated-gradient-text' : ''}`}
-                  >
-                    {word}
-                  </motion.span>
-                ))}
-              </h1>
-            </div>
-
-            <p className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg">
-              BizQuest reads demand, competition, and timing before you spend real money. One question in. One decision out. Enough signal to move with a straight back.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
-                Start with 3 free credits
-                <ArrowRight className="h-4 w-4" />
-              </button>
-              <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
-                Already have an account
-              </button>
+            <div className="phantom-hero-brief">
+              <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">What the brief gives you</div>
+              <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                One market read. One recommendation. One cleaner decision.
+              </div>
+              <div className="mt-3 text-sm leading-7 text-slate-400">
+                Read the pull before you rent space, buy inventory, or burn ad budget.
+              </div>
             </div>
 
             <div className="mt-10 grid gap-3 sm:grid-cols-3">
@@ -577,6 +655,14 @@ export const AuthPage: React.FC = () => {
                   <div className="font-data mt-2 text-[10px] uppercase tracking-[0.24em] text-slate-400">{stat.label}</div>
                   <div className="mt-2 text-sm text-slate-500">{stat.note}</div>
                 </motion.div>
+              ))}
+            </div>
+
+            <HeroTape />
+
+            <div className="mt-6 grid gap-3">
+              {OPERATOR_NOTES.map((item, index) => (
+                <OperatorNote key={item.title} {...item} index={index} />
               ))}
             </div>
           </motion.div>
@@ -596,14 +682,14 @@ export const AuthPage: React.FC = () => {
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="phantom-support-card">
-                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Built for decisive founders</div>
-                <div className="mt-3 text-base font-semibold leading-7 text-white">No dashboard archaeology. Just signal, pressure, and timing.</div>
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Built for operators</div>
+                <div className="mt-3 text-base font-semibold leading-7 text-white">No spreadsheet archaeology. Read the signal and move.</div>
               </div>
               <div className="phantom-support-card">
-                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Verified by live signals</div>
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">What gets checked</div>
                 <div className="mt-3 flex items-start gap-3 text-sm leading-6 text-slate-300">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                  Search pull, location context, pricing pressure, and competition all read inside one calm surface.
+                  Search pull, local pressure, and timing all land inside one brief.
                 </div>
               </div>
             </div>
@@ -623,16 +709,30 @@ export const AuthPage: React.FC = () => {
             transition={{ ...MOTION.panel, delay: 0.4 }}
             className="phantom-editorial-panel"
           >
-            <div className="phantom-section-label">
+            <div className="phantom-section-label section-label">
               <span className="phantom-section-label-dot" />
-              Why it lands
+              Why it feels expensive
             </div>
             <h2 className="mt-6 font-display text-[2.25rem] leading-[0.98] tracking-[-0.05em] text-white">
-              Clear verdicts for operators who hate vague advice.
+              Clear reads for founders who hate vague advice.
             </h2>
             <p className="mt-5 max-w-[40ch] text-sm leading-7 text-slate-300">
-              BizQuest is not a chat toy wrapped in startup gradients. It is an intelligence surface for reading whether a move deserves cash, time, and attention.
+              BizQuest is built for the moment before the spend. You need a read. You need the why. You need the next move.
             </p>
+            <div className="mt-8 grid gap-3">
+              <div className="phantom-editorial-note">
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-cyan-200">Signal</div>
+                <div className="mt-2 text-sm leading-6 text-slate-300">See whether curiosity can turn into demand.</div>
+              </div>
+              <div className="phantom-editorial-note">
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-violet-200">Pressure</div>
+                <div className="mt-2 text-sm leading-6 text-slate-300">Know how pricing and competition compress the opportunity.</div>
+              </div>
+              <div className="phantom-editorial-note">
+                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-emerald-200">Verdict</div>
+                <div className="mt-2 text-sm leading-6 text-slate-300">Move forward, wait, or walk away. No fog.</div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -644,19 +744,36 @@ export const AuthPage: React.FC = () => {
             <div className="phantom-utility-panel">
               <TrendingUp className="h-5 w-5 text-cyan-300" />
               <div className="mt-5 text-sm font-semibold text-white">Read momentum early</div>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Spot the difference between genuine pull and noisy curiosity.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Spot the difference between real pull and noisy curiosity.</p>
             </div>
             <div className="phantom-utility-panel">
               <MapPinned className="h-5 w-5 text-violet-300" />
               <div className="mt-5 text-sm font-semibold text-white">Respect geography</div>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Estate, town, and price band can change the answer faster than product quality.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Estate, town, and price band can flip the answer fast.</p>
             </div>
             <div className="phantom-utility-panel">
               <ShieldCheck className="h-5 w-5 text-emerald-300" />
               <div className="mt-5 text-sm font-semibold text-white">Move with evidence</div>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Every decision lands with a verdict, rationale, and strategic next move.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Every brief ends with a verdict, rationale, and next move.</p>
             </div>
           </motion.div>
+        </section>
+
+        <section className="phantom-bottom-strip">
+          <div>
+            <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">Start clean</div>
+            <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+              Open one brief. Read the market. Decide with a straight back.
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
+              Create account
+            </button>
+            <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
+              Sign in
+            </button>
+          </div>
         </section>
       </main>
 
