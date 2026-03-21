@@ -587,13 +587,13 @@ export const AuthPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col gap-16 px-4 pb-16 pt-8 sm:px-6 lg:px-10 lg:pt-10">
-        <section className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+      <main className="relative z-10 mx-auto flex w-full max-w-[1480px] flex-col gap-16 px-4 pb-16 pt-8 sm:px-6 lg:px-10 lg:pt-10">
+        <section className="grid items-start gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:gap-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={MOTION.hero}
-            className="phantom-hero-shell"
+            className="order-2 phantom-hero-shell lg:order-1"
           >
             <div className="phantom-hero-copy">
               <div className="phantom-section-label hero-eyebrow">
@@ -671,7 +671,7 @@ export const AuthPage: React.FC = () => {
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ ...MOTION.hero, delay: 0.12 }}
-            className="phantom-terminal-panel"
+            className="order-1 phantom-terminal-panel lg:order-2"
           >
             <div className="flex items-center justify-between gap-4">
               <BrandMark compact />
