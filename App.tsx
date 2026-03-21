@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun, History } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Sparkles, LineChart, ChevronRight, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ChatInterface } from './components/ChatInterface';
 import { Dashboard } from './components/Dashboard';
@@ -42,8 +42,7 @@ const App: React.FC = () => {
   const [followUpsLeft, setFollowUpsLeft] = useState(0);
   const [workspaceTheme, setWorkspaceTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark';
-    const savedTheme = window.localStorage.getItem('bizquest_workspace_theme');
-    return savedTheme === 'dark' ? 'dark' : 'light';
+    return window.localStorage.getItem('bizquest_workspace_theme') === 'light' ? 'light' : 'dark';
   });
 
   const credits = profile?.credits ?? 0;
@@ -267,12 +266,12 @@ const App: React.FC = () => {
         onSuccess={handlePaymentSuccess}
       />
 
-      <div className="workspace-mobile-header flex lg:hidden">
+      <div className="workspace-mobile-header lg:hidden">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+            className="rounded-xl p-2 text-slate-300 transition-colors hover:bg-white/6 hover:text-white"
           >
             {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </motion.button>
@@ -283,21 +282,12 @@ const App: React.FC = () => {
             </div>
             <div>
               <div className="font-display text-lg font-semibold tracking-[-0.04em] text-white">BizQuest</div>
-              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace</div>
+              <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-500">Workspace operator</div>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setIsSidebarOpen(true)}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
-            title="View history"
-          >
-            <History className="h-5 w-5" />
-          </motion.button>
-
           <button
             type="button"
             onClick={toggleWorkspaceTheme}
@@ -311,7 +301,7 @@ const App: React.FC = () => {
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setShowAdmin(true)}
-              className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+              className="rounded-xl p-2 text-cyan-300 transition-colors hover:bg-white/6"
             >
               <Shield className="h-5 w-5" />
             </motion.button>
@@ -320,7 +310,7 @@ const App: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={signOut}
-            className="workspace-icon-button h-11 w-11 rounded-xl p-0"
+            className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-white"
           >
             <LogOut className="h-5 w-5" />
           </motion.button>
@@ -341,7 +331,9 @@ const App: React.FC = () => {
                   Workspace
                 </div>
               </div>
-              <div className="workspace-topbar-subline">Operator workspace</div>
+              <p className="mt-1 text-sm text-slate-400">
+                Query in, verdict out. Everything important stays in one rail.
+              </p>
             </div>
           </div>
 
@@ -428,8 +420,7 @@ const App: React.FC = () => {
                   Market intelligence, organized
                 </h2>
               </div>
-              <button type="button" className="workspace-inline-history workspace-inline-history-mobile" onClick={() => setIsSidebarOpen(true)}>
-                <History className="h-4 w-4" />
+              <button type="button" className="workspace-inline-history" onClick={() => setIsSidebarOpen(true)}>
                 History
                 <ChevronRight className="h-4 w-4" />
               </button>

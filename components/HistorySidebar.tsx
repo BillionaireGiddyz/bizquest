@@ -27,7 +27,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="workspace-history-sidebar-backdrop fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       ) : null}
@@ -41,13 +41,13 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className={cn(
-          'workspace-history-sidebar fixed left-0 top-0 z-50 flex h-full flex-col overflow-hidden border-r border-white/8 bg-[rgba(10,13,20,0.98)] shadow-2xl shadow-black/40 lg:static lg:shadow-none',
+          'fixed left-0 top-0 z-50 flex h-full flex-col overflow-hidden border-r border-white/8 bg-[rgba(10,13,20,0.98)] shadow-2xl shadow-black/40 lg:static lg:shadow-none',
           !isOpen && 'lg:hidden',
         )}
         style={{ width: isOpen ? '18rem' : '0' }}
       >
-        <div className="workspace-history-sidebar-header flex shrink-0 items-center justify-between border-b border-white/6 bg-white/[0.02] p-5">
-          <h2 className="workspace-history-sidebar-title flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/6 bg-white/[0.02] p-5">
+          <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white">
             <History className="h-4 w-4 text-cyan-300" />
             History <span className="text-xs font-normal text-slate-500">({history.length})</span>
           </h2>
@@ -57,7 +57,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
               <button
                 onClick={onClear}
                 title="Clear history"
-                className="workspace-history-sidebar-action rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-rose-300"
+                className="rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-rose-300"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -65,17 +65,17 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
 
             <button
               onClick={() => setIsOpen(false)}
-              className="workspace-history-sidebar-action rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-white lg:hidden"
+              className="rounded-full p-1 text-slate-500 transition-colors hover:bg-white/6 hover:text-white lg:hidden"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="workspace-history-sidebar-body flex-1 space-y-1 overflow-y-auto p-3">
+        <div className="flex-1 space-y-1 overflow-y-auto p-3">
           {history.length === 0 ? (
-            <div className="workspace-history-sidebar-empty flex h-64 flex-col items-center justify-center px-6 text-center text-sm text-slate-500">
-              <div className="workspace-history-sidebar-empty-icon mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/6">
+            <div className="flex h-64 flex-col items-center justify-center px-6 text-center text-sm text-slate-500">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/6">
                 <Clock className="h-6 w-6 text-slate-500" />
               </div>
               <p className="font-medium text-white">No search history</p>
@@ -95,7 +95,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({ history, onSelec
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'workspace-history-sidebar-row group relative w-full overflow-hidden rounded-xl border border-white/6 border-l-[3px] p-3.5 text-left transition-all',
+                  'group relative w-full overflow-hidden rounded-xl border border-white/6 border-l-[3px] p-3.5 text-left transition-all',
                   getVerdictBorder(item.recommendation),
                   item.recommendation === 'GO'
                     ? 'bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] hover:border-l-emerald-400'
