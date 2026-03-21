@@ -84,6 +84,27 @@ const OPERATOR_NOTES = [
   },
 ];
 
+const PROOF_CARDS = [
+  {
+    eyebrow: 'Signal',
+    title: 'Demand, timing, and pressure.',
+    body: 'You see the market from the spend side, not the curiosity side.',
+    tone: 'cyan',
+  },
+  {
+    eyebrow: 'Verdict',
+    title: 'GO, BE CAREFUL, or AVOID.',
+    body: 'The recommendation lands with a reason and the next move.',
+    tone: 'emerald',
+  },
+  {
+    eyebrow: 'Velocity',
+    title: 'Built for a quick first read.',
+    body: 'You get the first brief fast enough to keep momentum alive.',
+    tone: 'violet',
+  },
+];
+
 const SIGNALS = [
   { label: 'Demand pulse', value: '74 / 100', tone: 'text-emerald-300' },
   { label: 'Competition', value: 'Moderate', tone: 'text-amber-300' },
@@ -163,6 +184,25 @@ const OperatorNote: React.FC<{
       <div className="text-sm font-semibold text-white">{title}</div>
       <div className="mt-1 text-sm leading-6 text-slate-400">{body}</div>
     </div>
+  </motion.div>
+);
+
+const ProofCard: React.FC<{
+  eyebrow: string;
+  title: string;
+  body: string;
+  tone: string;
+  index: number;
+}> = ({ eyebrow, title, body, tone, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 18 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ ...MOTION.panel, delay: 0.38 + index * 0.08 }}
+    className={`phantom-proof-card phantom-proof-card-${tone}`}
+  >
+    <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">{eyebrow}</div>
+    <div className="mt-3 text-lg font-semibold tracking-[-0.03em] text-white">{title}</div>
+    <div className="mt-2 text-sm leading-6 text-slate-400">{body}</div>
   </motion.div>
 );
 
@@ -588,61 +628,71 @@ export const AuthPage: React.FC = () => {
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1480px] flex-col gap-16 px-4 pb-16 pt-8 sm:px-6 lg:px-10 lg:pt-10">
-        <section className="grid items-start gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:gap-10">
+        <section className="grid gap-8 lg:gap-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={MOTION.hero}
-            className="order-2 phantom-hero-shell lg:order-1"
+            className="phantom-hero-shell"
           >
-            <div className="phantom-hero-copy">
-              <div className="phantom-section-label hero-eyebrow">
-                <span className="phantom-section-label-dot" />
-                Operator intelligence
+            <div className="phantom-hero-top">
+              <div className="phantom-hero-copy">
+                <div className="phantom-section-label hero-eyebrow">
+                  <span className="phantom-section-label-dot" />
+                  Operator intelligence
+                </div>
+
+                <div className="mt-8">
+                  <h1 className="font-display text-[3.2rem] leading-[0.92] tracking-[-0.065em] text-white sm:text-[4.5rem] lg:max-w-[11ch] lg:text-[5.35rem]">
+                    {HERO_WORDS.map((word, index) => (
+                      <motion.span
+                        key={word}
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                        className={`mr-[0.18em] inline-block ${word === 'signal,' ? 'animated-gradient-text' : ''}`}
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </h1>
+                </div>
+
+                <p className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg">
+                  BizQuest reads demand, competition, and timing before cash leaves your pocket. You ask once. You leave with a verdict.
+                </p>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
+                    Start with 3 free credits
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
+                    Open your workspace
+                  </button>
+                </div>
               </div>
 
-              <div className="mt-8">
-                <h1 className="font-display text-[3.2rem] leading-[0.92] tracking-[-0.065em] text-white sm:text-[4.5rem] lg:max-w-[9ch] lg:text-[5.35rem]">
-                  {HERO_WORDS.map((word, index) => (
-                    <motion.span
-                      key={word}
-                      initial={{ opacity: 0, y: 18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.12 + index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                      className={`mr-[0.18em] inline-block ${word === 'signal,' ? 'animated-gradient-text' : ''}`}
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </h1>
-              </div>
+              <div className="phantom-hero-side">
+                <div className="phantom-hero-brief">
+                  <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">What the brief gives you</div>
+                  <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                    One market read. One recommendation. One cleaner decision.
+                  </div>
+                  <div className="mt-3 text-sm leading-7 text-slate-400">
+                    Read the pull before you rent space, buy inventory, or burn ad budget.
+                  </div>
+                </div>
 
-              <p className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg">
-                BizQuest reads demand, competition, and timing before cash leaves your pocket. You ask once. You leave with a verdict.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button type="button" className="phantom-button-primary phantom-button-shine" onClick={() => openPanel('signup')}>
-                  Start with 3 free credits
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <button type="button" className="phantom-button-ghost" onClick={() => openPanel('signin')}>
-                  Open your workspace
-                </button>
+                <HeroTape />
               </div>
             </div>
 
-            <div className="phantom-hero-brief">
-              <div className="font-data text-[10px] uppercase tracking-[0.26em] text-slate-400">What the brief gives you</div>
-              <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-                One market read. One recommendation. One cleaner decision.
-              </div>
-              <div className="mt-3 text-sm leading-7 text-slate-400">
-                Read the pull before you rent space, buy inventory, or burn ad budget.
-              </div>
+            <div className="mt-10">
+              <TerminalDemo />
             </div>
 
-            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {STATS.map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -658,40 +708,16 @@ export const AuthPage: React.FC = () => {
               ))}
             </div>
 
-            <HeroTape />
-
             <div className="mt-6 grid gap-3">
               {OPERATOR_NOTES.map((item, index) => (
                 <OperatorNote key={item.title} {...item} index={index} />
               ))}
             </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ ...MOTION.hero, delay: 0.12 }}
-            className="order-1 phantom-terminal-panel lg:order-2"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <BrandMark compact />
-              <LiveBadge />
-            </div>
-
-            <TerminalDemo />
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="phantom-support-card">
-                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">Built for operators</div>
-                <div className="mt-3 text-base font-semibold leading-7 text-white">No spreadsheet archaeology. Read the signal and move.</div>
-              </div>
-              <div className="phantom-support-card">
-                <div className="font-data text-[10px] uppercase tracking-[0.24em] text-slate-400">What gets checked</div>
-                <div className="mt-3 flex items-start gap-3 text-sm leading-6 text-slate-300">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                  Search pull, local pressure, and timing all land inside one brief.
-                </div>
-              </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-3">
+              {PROOF_CARDS.map((item, index) => (
+                <ProofCard key={item.eyebrow} {...item} index={index} />
+              ))}
             </div>
           </motion.div>
         </section>
